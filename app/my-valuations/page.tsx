@@ -37,7 +37,7 @@ const mockValuations = [
 
 export default function MyValuationsPage() {
   const { user, getTokenBalance } = useAuth()
-  const [freeValuationsLeft, setFreeValuationsLeft] = useState(1)
+  const [freeValuationsLeft] = useState(1)
   const [tokenBalance, setTokenBalance] = useState(0)
 
   useEffect(() => {

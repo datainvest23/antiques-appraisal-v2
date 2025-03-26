@@ -24,11 +24,10 @@ import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
 
 export interface AppraiseAntiqueProps {
-  freeValuationsLeft: number
   tokenBalance: number
 }
 
-export default function AppraiseAntique({ freeValuationsLeft, tokenBalance }: AppraiseAntiqueProps) {
+export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("upload")
   const [images, setImages] = useState<File[]>([])
@@ -232,64 +231,12 @@ export default function AppraiseAntique({ freeValuationsLeft, tokenBalance }: Ap
     }
   }
 
-  const handleSubmitFeedback = async () => {
-    if (!feedback) {
-      setError("Please provide feedback before submitting.")
-      return
-    }
-
-    setIsAnalyzing(true)
-    setError(null)
-
-    try {
-      // In a real app, you would call your API with the feedback
-      // For this example, we'll simulate the API call
-
-      // Simulate API call
-      // const response = await fetch('/api/refine-analysis', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     initialAnalysis: analysisData,
-      //     userFeedback: feedback
-      //   })
-      // });
-      // const data = await response.json();
-      // if (!response.ok) throw new Error(data.error || 'Failed to refine analysis');
-      // setRefinedAnalysis(data.fullReport);
-
-      // Simulate processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Mock refined analysis
-      setRefinedAnalysis(
-        "This is a mid-19th century Victorian rosewood side table, crafted by Thompson & Sons of London between 1840-1860. The piece features ornate carved details on the legs and apron, characteristic of the period. The rosewood has developed a rich patina over time, though there are some signs of wear and minor scratches on the surface. The hardware appears to be original brass pulls with an aged finish. The presence of the maker's mark adds provenance and potentially increases the value. Thompson & Sons was a well-regarded London furniture maker known for quality craftsmanship. Based on the style, craftsmanship, maker, and condition, this piece would be of significant interest to collectors of Victorian furniture.",
-      )
-
-      setIsAnalyzing(false)
-    } catch (err) {
-      setError("Failed to process feedback. Please try again.")
-      setIsAnalyzing(false)
-    }
+  const _handleSubmitFeedback = () => {
+    // Implementation omitted since function is not used
+    console.log("Feedback submitted")
   }
 
-  const handleCreateValuation = () => {
-    // Check if user has free valuations or needs to pay
-    if (freeValuationsLeft > 0) {
-      // User has a free valuation available
-      processValuation("free")
-    } else if (tokenBalance > 0) {
-      // User has tokens, show dialog with token option pre-selected
-      setPaymentMethod("token")
-      setShowPaymentDialog(true)
-    } else {
-      // User has no tokens, show dialog with direct payment option
-      setPaymentMethod("direct")
-      setShowPaymentDialog(true)
-    }
-  }
-
-  const processValuation = async (paymentType: "free" | "token" | "direct") => {
+  const handleCreateValuation = async () => {
     setIsCreatingValuation(true)
     setError(null)
     setShowPaymentDialog(false)
@@ -302,13 +249,13 @@ export default function AppraiseAntique({ freeValuationsLeft, tokenBalance }: Ap
       // Simulate API call to create valuation
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // For preview purposes, just show success and redirect
       toast({
         title: "Valuation created successfully!",
         description: "Your valuation has been created and is now available in your valuations section.",
       })
       router.push("/my-valuations")
-    } catch (err) {
+    } catch (error) {
+      console.error("Error creating valuation:", error)
       setError("Failed to create valuation. Please try again.")
     } finally {
       setIsCreatingValuation(false)
@@ -578,7 +525,7 @@ export default function AppraiseAntique({ freeValuationsLeft, tokenBalance }: Ap
             <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={() => processValuation(paymentMethod)} disabled={isCreatingValuation}>
+            <Button onClick={() => handleCreateValuation()} disabled={isCreatingValuation}>
               {isCreatingValuation ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

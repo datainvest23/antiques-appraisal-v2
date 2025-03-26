@@ -52,8 +52,12 @@ export default function ReferralSystem() {
             Refer Friends & Earn Premium Valuations
           </CardTitle>
           <CardDescription>
-            Share your unique referral link with friends. When they sign up and complete their first valuation, you'll
-            receive a free premium valuation (worth $3).
+            <p className="text-muted-foreground">
+              Share your unique referral link and earn rewards when friends join.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              You&apos;ll receive a premium valuation credit for each friend who signs up and completes their first valuation.
+            </p>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

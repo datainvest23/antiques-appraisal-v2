@@ -41,7 +41,7 @@ export default function FeaturesSection() {
             </div>
             <h3 className="text-xl font-bold">Voice Feedback</h3>
             <p className="text-center text-muted-foreground">
-              Refine the analysis by providing voice feedback that's transcribed and processed.
+              Refine the analysis by providing voice feedback that&apos;s transcribed and processed.
             </p>
           </div>
           <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">

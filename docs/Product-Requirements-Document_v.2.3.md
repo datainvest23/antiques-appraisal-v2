@@ -1,6 +1,6 @@
-# Product Requirements Document (PRD)
+# Product Requirements Document (PRD) – Antiques Appraisal v2.3
 
-# Antiques Appraisal v2.2 with Referral Feature
+*Last Updated: 2025-03-26*
 
 ---
 
@@ -8,422 +8,475 @@
 
 ### **1.1 Product Overview**
 
-Antiques Appraisal is an AI-powered web application designed for users to securely manage, analyze, and appraise antique items. Leveraging advanced AI, the platform supports monetization through a token-based system, premium valuation features, and now incorporates a user referral program.
+**Antiques Appraisal** is a web application that leverages advanced AI to evaluate and value antique items. The platform integrates image analysis, voice/text feedback, and detailed follow-up interactions to generate a comprehensive appraisal report. Recent updates include a modified appraisal flow that combines image uploads and feedback submission, enriched UI components for a seamless user experience, and robust authentication and monetization features powered by Supabase and simulated Stripe integration.
 
 ### **1.2 Key Objectives**
 
-* Offer an intuitive interface for users to analyze antiques using AI (image upload, summary generation, text-to-speech).  
-* Enable secure storage and retrieval of user data via Supabase.  
-* Monetize the platform through premium valuation features and a token system.  
-* Boost user acquisition and retention through a structured referral program rewarding premium valuations.
+* **Streamlined Appraisal Process**:
+
+  * Enable users to upload images and provide feedback (via text or transcribed voice notes) concurrently.
+
+  * Generate an AI-driven, detailed appraisal report using a structured prompt template and optional web search integration.
+
+* **Enhanced User Experience & Feedback Loop**:
+
+  * Present analysis data in an intuitive, accordion-style Detailed Analysis component.
+
+  * Allow real-time feedback submission to refine appraisals.
+
+* **Monetization & Token System**:
+
+  * Offer one free valuation per day, with additional valuations requiring token usage or direct payment.
+
+  * Provide a premium detailed valuation upgrade for an extra fee.
+
+* **Secure, Scalable, and Extensible Platform**:
+
+  * Use Supabase for authentication, data storage, and route protection.
+
+  * Prepare for future expansion with additional features such as referrals, comprehensive token purchase flows, and advanced analytics.
+
+### **1.3 Target Users**
+
+* **Casual Users & Hobbyists**: Seeking quick, free valuations.
+
+* **Collectors & Enthusiasts**: Frequently evaluating items and purchasing tokens for additional analyses.
+
+* **Professionals & Institutions**: Auctioneers, curators, and museums requiring detailed and accurate appraisals.
 
 ---
 
-## 2\. Functional Requirements
+## **2\. Functional Requirements**
 
-### **2.1 User Authentication (Supabase)**
+### **2.1 User Authentication & Data Security**
 
-* **Registration and Login**:
+* **Authentication Mechanism**:
 
-  * Users can securely register and log in using email/password or OAuth providers (e.g., Google).  
-  * Validation of email address and password complexity enforced at sign-up.  
-  * Email verification to confirm identity upon registration.  
+  * Utilize Supabase (JWT-based, OAuth support) for secure sign-up/login.
+
+  * Middleware enforces protected routes (e.g., `/appraisal`, `/my-valuations`, `/buy-tokens`, `/referrals`).
+
 * **Session Management**:
 
-  * JWT tokens for secure, automatic session expiration and renewal.  
-  * Secure session invalidation upon logout or timeout.  
-  * Persistent sessions for enhanced user experience.  
-* **Access Control**:
+  * Automatic session refresh and token expiration handled via Supabase auth-helpers.
 
-  * Protected routes for sensitive actions (image uploads, valuations, token transactions, referral tracking).  
-  * Clear redirection and login/signup prompts for unauthenticated users.
+### **2.2 Appraisal Flow**
 
-### **2.2 Antique Valuation Workflow**
+#### **2.2.1 Image & Feedback Submission**
 
-**Image Upload & Validation**
+* **Modified Workflow**:
 
-* Acceptable formats: JPEG, PNG (maximum file size: 10MB).  
-* User-friendly drag-and-drop or file selection interface.  
-* Real-time progress indicators and immediate error messaging.
+  * **Image Upload**: Users can select and upload up to 3 images with drag-and-drop support and thumbnail previews.
 
-**AI Analysis & Summarization**
+  * **Concurrent Feedback Submission**:
 
-* Image analysis via AI assistant "Antiques\_Appraisal".  
-  * Detailed descriptions, historical context, condition analysis.  
-* Concise summarization using GPT4o-mini.  
-* Text-to-Speech playback for summaries.
+    * Users may provide additional information (text or simulated voice recording that is transcribed) concurrently with image uploads.
 
-**Voice Feedback & Refinement**
+    * The optional feedback (passed as an `additionalInfo` field) is sent together with image URLs in the analysis request.
 
-* Voice recording for user feedback.  
-* Transcription through OpenAI Whisper.  
-* AI refinement of the initial appraisal based on feedback.
+* **Error Handling**:
 
-**Structured Valuation Report Storage (Supabase)**:
+  * Validate file type (JPEG, PNG) and size (max 10MB).
 
-* **valuations** table fields:  
-  * `valuation_id`  
-  * `user_id`  
-  * `created_at`  
-  * `is_detailed` (boolean)
+  * Display clear error messages and prevent memory leaks (e.g., revoking object URLs).
 
-`valuation_report` (JSON)  
- {  
-  "preliminaryCategory": "string",  
-  "physicalAttributes": {  
-    "materials": "string",  
-    "measurements": "string",  
-    "condition": "string"  
-  },  
-  "inscriptions": {  
-    "signatures": "string",  
-    "hallmarks": "string",  
-    "additionalIdentifiers": "string"  
-  },  
-  "uniqueFeatures": {  
-    "motifs": "string",  
-    "restoration": "string",  
-    "anomalies": "string"  
-  },  
-  "stylistic": {  
-    "indicators": "string",  
-    "estimatedEra": "string",  
-    "confidenceLevel": "string"  
-  },  
-  "attribution": {  
-    "likelyMaker": "string",  
-    "evidence": "string",  
-    "probability": "string"  
-  },  
-  "provenance": {  
-    "infoInPhotos": "string",  
-    "historicIndicators": "string",  
-    "recommendedFollowup": "string"  
-  },  
-  "intake": {  
-    "photoCount": "string",  
-    "photoQuality": "string",  
-    "lightingAngles": "string",  
-    "overallImpression": "string"  
-  },  
-  "valueIndicators": {  
-    "factors": "string",  
-    "redFlags": "string",  
-    "references": "string",  
-    "followupQuestions": \["string"\]  
-  },  
-  "summary": "string",  
-  "fullReport": "string"  
-}
+#### **2.2.2 AI Analysis & Refinement**
 
-* 
+* **Initial Analysis API**:
 
-### **2.3 Monetization Logic**
+  * **Endpoint**: `/api/analyze-antique`
 
-**Subscription Plans**:
+  * **Input**: Uploaded image URLs and optional `additionalInfo`.
 
-* **Hobby Plan**:
+  * **Output**: Structured appraisal report using the enhanced prompt template.
 
-  * 10 initial standard valuations.  
-  * Additional tokens available for purchase.  
-* **Advanced Plan**:
+* **Enhanced Prompt Template**:
 
-  * 5 initial standard valuations and 1 premium valuation.  
-  * Unlimited valuations via token system.
+  * The AI acts as an antiques evaluation expert generating a section-by-section report covering:
 
-**Token System**:
+    1. Preliminary Object Category
 
-* 5 tokens provided on registration.  
-* Purchase options: 10 tokens for $10  
-* Token deduction automated per valuation usage.
+    2. Observed Physical Attributes (materials, measurements, condition)
 
-**Premium Valuation**:
+    3. Inscriptions and Marks
 
-* Cost: $10 per valuation.  
-* Enhanced insights and market data.
+    4. Distinguishing or Unique Features
 
-### **2.4 User Referral Program**
+    5. Stylistic Assessment & Possible Period (including confidence level)
 
-**Referral Mechanics**:
+    6. Preliminary Attribution and Provenance Clues
 
-* Unique referral links per user.  
-* Automatic tracking via Supabase.
+    7. Intake & Identification (photo perspectives, quality)
 
-**Reward Structure**:
+    8. Value Indicators & Follow-up Questions
 
-* 1 Premium valuation awarded per successful referral.  
-* Immediate reward availability upon new user's first login.
+  * **Web Search Integration**: Configured via the tools array to enrich analysis with external data when needed.
 
-**Referral Status & Notifications**:
+* **Refinement via Feedback**:
 
-* Real-time updates on referral dashboard.  
-* Email notifications upon successful referrals.
+  * **Endpoint**: `/api/refine-analysis`
 
-#### **Data Storage (Supabase)\*\*:**
+  * The API refines the initial analysis based on the feedback provided and returns an updated report.
 
-* **referrals**: `id`, `referrer_user_id`, `referred_user_id`, `created_at`, `reward_granted`  
-* **users**: `user_id`, `email`, `created_at`, `last_login`, `profile_data` (preferences, plan)  
-* **tokens**: `user_id`, `token_balance`, `transaction_history` (timestamp, tokens, cost)
+#### **2.2.3 Audio Summary Generation**
+
+* **Endpoint**: `/api/generate-audio`
+
+* **Process**: Convert the text summary of the appraisal into an audio file (using TTS-1) for playback within the app.
+
+### **2.3 UI Components & User Experience**
+
+#### **2.3.1 Appraisal Interface**
+
+* **AppraiseAntique Component**:
+
+  * Manages the image upload process, preview display, feedback recording (with simulated voice functionality), and triggers the AI analysis.
+
+  * Transitions from an "upload" tab to an "analysis" tab once images are uploaded.
+
+* **DetailedAnalysis Component**:
+
+  * Displays the structured appraisal report in an accordion interface.
+
+  * Shows follow-up questions and confidence level badges to prompt further interaction if needed.
+
+#### **2.3.2 Additional UI Pages**
+
+* **Home Page**:
+
+  * Includes a Hero section, features overview, and "How It Works" component.
+
+* **Login & Registration Pages**:
+
+  * Facilitate user authentication with options for email/password and OAuth.
+
+* **My Valuations**:
+
+  * List view (`/my-valuations`) showing summaries of all saved valuations.
+
+  * Detail view (`/my-valuations/[id]`) for full appraisal reports with images and user comments.
+
+* **Buy Tokens Page**:
+
+  * Allows users to select token packages (e.g., 5 for $5 or 10 for $9) with a simulated payment flow.
+
+* **Referrals & Verification**:
+
+  * Dedicated pages for referral system management and email verification status.
+
+### **2.4 Monetization & Token System**
+
+#### **2.4.1 Valuation & Payment Flow**
+
+* **Daily Free Valuation**:
+
+  * One free valuation per user per day (00:00–23:59 UTC).
+
+* **Token Usage**:
+
+  * Additional valuations require the use of tokens, fetched via the `getTokenBalance` function.
+
+  * A premium detailed valuation upgrade is available for an extra fee ($3).
+
+* **Payment Integration**:
+
+  * Simulated Stripe-based payment (with future plans to integrate actual Stripe functionality).
+
+  * A dedicated `/buy-tokens` page facilitates token purchases.
+
+### **2.5 API Endpoints & Backend Integration**
+
+* **/api/upload-image**:
+
+  * Handles image upload to Supabase storage and returns public URLs.
+
+* **/api/analyze-antique**:
+
+  * Accepts image URLs and optional additional information; returns a structured appraisal report.
+
+* **/api/refine-analysis**:
+
+  * Processes user feedback and refines the initial analysis.
+
+* **/api/generate-audio**:
+
+  * Converts the appraisal summary into an audio file URL.
+
+* **Authentication & Middleware**:
+
+  * Middleware (`middleware.ts`) enforces route protection for appraisal, valuations, referrals, and token purchase pages.
+
+### **2.6 Third-Party Integrations**
+
+* **OpenAI Integration**:
+
+  * Uses GPT-4o for detailed analysis and TTS-1 for audio summary generation.
+
+  * Web search capability enabled through the tools array for enriched data.
+
+* **Supabase**:
+
+  * Provides authentication, storage, and database functionalities.
+
+* **Stripe (Simulated)**:
+
+  * Manages token purchases and payment flows.
+
+* **UI Libraries**:
+
+  * Uses Next.js with React, Tailwind CSS, and Radix UI for components and styling.
 
 ---
 
 ## **3\. Non-Functional Requirements**
 
-### **Performance**
+### **3.1 Performance & Scalability**
 
-* AI analysis response time \< 10 seconds.  
-* Referral status checks \< 1 second.
+* **Latency**:
 
-### **Security**
+  * API responses (analysis, token checks, payment processing) should be under 2 seconds.
 
-* Supabase JWT authentication.  
-* Stripe PCI-compliant payments.  
-* HTTPS and encrypted sensitive data.
+* **Concurrent Users**:
 
-### **Scalability**
+  * Support at least 1,000 concurrent users.
 
-* Designed for seamless user growth and traffic spikes.
+* **Optimized Assets**:
 
-### **Usability**
+  * Use efficient image handling and state management to prevent memory leaks.
 
-* User-friendly referral and monetization interfaces.  
-* WCAG 2.1 accessibility compliance.
+### **3.2 Security**
 
-### **Reliability**
+* **Authentication & Data Privacy**:
 
-* 99.9% uptime target.  
-* Automated backups and disaster recovery.
+  * Secure user data with Supabase’s JWT-based authentication and HTTPS.
+
+* **Payment Security**:
+
+  * Simulated payment flows adhere to PCI compliance; production will use fully PCI-compliant Stripe integration.
+
+### **3.3 Usability & Accessibility**
+
+* **User Interface**:
+
+  * Intuitive navigation with clear state indicators (upload progress, analysis state, error messages).
+
+* **Accessibility**:
+
+  * Comply with WCAG 2.1 guidelines (keyboard navigation, screen readers, etc.).
+
+### **3.4 Reliability & Maintainability**
+
+* **Robust Error Handling**:
+
+  * API routes and UI components include detailed error logging and user-friendly error messages.
+
+* **Modular Architecture**:
+
+  * Clear separation of concerns across components, API routes, and utility libraries to facilitate future updates and scalability.
 
 ---
 
 ## **4\. System Architecture**
 
-### **Technology Stack**
+### **4.1 Frontend**
 
-* Frontend: Next.js, React, Tailwind CSS  
-* Backend: Next.js API routes, Node.js  
-* Database/Auth: Supabase (PostgreSQL)  
-* Payment Processing: Stripe  
-* AI Services: OpenAI (Whisper, GPT4o-mini)
+* **Framework**: Next.js with React (App Router)
 
-### **Architectural Flow Diagram**
+* **Styling**: Tailwind CSS with Radix UI components for a modern and accessible UI.
 
-User \-\> Supabase Auth  
-|  
-|---\> Image Upload  
-|       |--\> AI Analysis (Antiques\_Appraisal)  
-|              |--\> GPT4o-mini Summarization  
-|                     |--\> TTS (Audio Playback)  
-|                             |--\> User Voice Feedback  
-|                                     |--\> Whisper Transcription  
-|                                             |--\> AI Refinement  
-|                                                     |--\> Valuation Creation  
-|                                                             |--\> Monetization Logic (Tokens/Premium)  
-|  
-|---\> Referral System  
-        |--\> User Shares Referral Link  
-        |--\> New User Registers via Link  
-        |--\> Supabase Referral Tracking  
-        |--\> Reward Allocation (Premium Valuation)
+* **Routing**:
+
+  * Pages include home, appraisal, login, my-valuations, buy-tokens, referrals, and verification-sent.
+
+### **4.2 Backend & API**
+
+* **API Routes**:
+
+  * `/api/upload-image`, `/api/analyze-antique`, `/api/refine-analysis`, `/api/generate-audio`
+
+* **Authentication Middleware**:
+
+  * Implemented in `middleware.ts` to enforce protected routes.
+
+* **Data Storage**:
+
+  * Supabase used for storing valuations, token balances, and user data.
+
+### **4.3 Third-Party Integrations**
+
+* **OpenAI**:
+
+  * AI models for image analysis and TTS, with web search for additional context.
+
+* **Supabase**:
+
+  * Auth, storage, and database services.
+
+* **Stripe (Simulated)**:
+
+  * Payment flow for token purchase and detailed valuation upgrades.
 
 ---
 
-## **5\. UI Components & User Flow**
+## **5\. Folder Structure**
 
-#### **UI Flow:**
-
-1. User signs up (chooses Hobby or Advanced).  
-2. Upon signup, user sees initial valuation allotment and available referral option.  
-3. User performs valuation (upload image → AI analysis → summary → playback → feedback).  
-4. System checks valuation eligibility (free, token-based, premium).  
-5. User notified clearly via UI elements about token deductions or daily limits.  
-6. User prompted occasionally to refer friends for more premium valuations.  
-7. Upon successful referral, immediate UI feedback through Toast notifications, and rewards are reflected clearly on the user's dashboard.
-
-#### **Registration and Monetization Logic**
-
-When users register/sign up, they have two subscription options:
-
-**Hobby Plan:**
-
-* 10 initial free valuations (standard)  
-* Option to purchase additional tokens for further valuations or premium valuations.
-
-**Advanced Plan:**
-
-* 5 initial free standard valuations  
-* 1 free premium (Advanced) valuation  
-* No daily limit; valuations subject to available token balance  
-* Option to purchase tokens for additional valuations
-
-#### **Token System**
-
-* Tokens act as credits for performing valuations beyond initial free allocations.  
-* Users purchase tokens through integrated Stripe payments.  
-* Each premium (Advanced) valuation or additional standard valuation beyond free allotments requires token expenditure.  
-* Tokens are credited immediately upon successful payment.
-
-#### **Referral Rewards**
-
-* Every successful referral grants the referring user 1 additional Advanced valuation.  
-* Referral reward valuation is immediately available upon the referral’s first successful login.
-
-#### **Referral Dashboard**
-
-* Accessible through the main user dashboard  
-* Features include:  
-  * Unique referral link for easy sharing (email, social media, messaging apps)  
-  * Overview of referral status (total referrals, pending referrals, rewarded referrals)  
-  * Visual indicators and progress tracking bars showing referral goals and earned rewards
-
-#### **Notifications (Toast Notifications)**
-
-* Instant feedback for referral actions:  
-  * Confirmation when a referral successfully registers  
-  * Notification upon earning referral rewards  
-* Clear, concise messages to enhance user experience (e.g., “You’ve earned a Premium Valuation\!”)
-
-#### **Integration within User Valuation Workflow**
-
-* Seamless referral experience embedded directly within valuation creation and account management workflows  
-* Users prompted gently to refer friends at key moments (e.g., post-valuation completion, upon token purchase)  
-* Dedicated "Earn Rewards" button visible across primary navigation, directing users to the referral dashboard for immediate action
-
-This comprehensive UI and monetization approach enhances user experience, drives platform growth through referrals, and provides clear, rewarding interaction pathways for both hobbyist and advanced users.
+bash  
+Copy  
+`datainvest23-antiques-appraisal-v2/`  
+`├── app/`  
+`│   ├── globals.css`  
+`│   ├── layout.tsx`  
+`│   ├── page.tsx`  
+`│   ├── api/`  
+`│   │   ├── analyze-antique/route.ts`  
+`│   │   ├── generate-audio/route.ts`  
+`│   │   ├── refine-analysis/route.ts`  
+`│   │   └── upload-image/route.ts`  
+`│   ├── appraisal/page.tsx`  
+`│   ├── auth/callback/route.ts`  
+`│   ├── buy-tokens/page.tsx`  
+`│   ├── login/page.tsx`  
+`│   ├── my-valuations/page.tsx`  
+`│   ├── my-valuations/[id]/page.tsx`  
+`│   ├── referrals/page.tsx`  
+`│   └── verification-sent/page.tsx`  
+`├── components/`  
+`│   ├── appraise-antique.tsx`  
+`│   ├── detailed-analysis.tsx`  
+`│   ├── footer.tsx`  
+`│   ├── hero-section.tsx`  
+`│   ├── how-it-works.tsx`  
+`│   ├── navbar.tsx`  
+`│   ├── protected-route.tsx`  
+`│   ├── referral-banner.tsx`  
+`│   ├── referral-system.tsx`  
+`│   ├── referred-signup-bonus.tsx`  
+`│   ├── theme-provider.tsx`  
+`│   ├── user-status.tsx`  
+`│   ├── valuation-detail.tsx`  
+`│   ├── valuations-list.tsx`  
+`│   └── ui/ (various UI components)`  
+`├── contexts/`  
+`│   └── auth-context.tsx`  
+`├── lib/`  
+`│   ├── openai.ts`  
+`│   ├── supabase-client.ts`  
+`│   └── utils.ts`  
+`├── middleware.ts`  
+`├── next.config.mjs`  
+`├── package.json`  
+`├── package.json.example`  
+`├── pnpm-lock.yaml`  
+`├── postcss.config.mjs`  
+`├── tailwind.config.ts`  
+`└── tsconfig.json`
 
 ---
 
 ## **6\. API Specifications**
 
-### **`Supabase APIs`**
+### **6.1 POST /api/upload-image**
 
-* **`User Authentication`**
+* **Description**: Uploads image files to Supabase storage and returns public URLs.
 
-  * **`POST /auth/signup`**`: Register new users. Response: { user_id, session, error }`  
-  * **`POST /auth/login`**`: User login. Response: { session, error }`  
-  * **`POST /auth/logout`**`: User logout. Response: { success, error }`  
-* **`Token Management`**
+* **Input**: FormData with file.
 
-  * **`GET /api/tokens`**`: Retrieve user token balance and transaction history. Response: { token_balance, transaction_history }`  
-  * **`POST /api/buy-tokens`**`: Purchase additional tokens. Body: { user_id, amount }, Response: { new_balance, success }`  
-* **`Valuation Management`**
+* **Output**: `{ "url": "publicUrl" }`
 
-  * **`POST /api/create-valuation`**`: Create new antique valuation. Body: { user_id, analysis_summary, image_urls, is_detailed }, Response: { valuation_id, success, payment_required }`  
-  * **`GET /api/my-valuations`**`: Retrieve user's valuations. Response: { valuations: [{ valuation_id, created_at, summary, image_urls, is_detailed }] }`  
-* **`Image Upload Management`**
+### **6.2 POST /api/analyze-antique**
 
-  * **`POST /api/upload-image`**`: Upload images and receive URL. Body: { user_id, image_file }, Response: { image_url, success }`
+* **Description**: Analyzes uploaded image URLs with optional feedback (`additionalInfo`).
 
-### **`Referral APIs`**
+**Input**:
 
-* **`POST /api/referral-register`**
+ json  
+Copy  
+`{`  
+  `"imageUrls": ["url1", "url2"],`  
+  `"additionalInfo": "Optional feedback text"`  
+`}`
 
-  * `Tracks referrals and assigns rewards.`  
-  * `Body: { referrer_user_id, referred_user_email }`  
-  * `Response: { status, referral_id }`  
-* **`GET /api/user-referrals`**
+*   
+* **Output**: Structured appraisal report (sections as per enhanced prompt) and follow-up questions.
 
-  * `Retrieves user's referral status and rewards.`  
-  * `Response: { total_referrals, rewarded_referrals }`
+### **6.3 POST /api/refine-analysis**
 
-### **`OpenAI APIs`**
+* **Description**: Refines the initial analysis using provided user feedback.
 
-* **`POST /api/ai-analysis`**
+**Input**:
 
-  * `Sends uploaded images for AI analysis.`  
-  * `Body: { image_urls }`  
-  * `Response: { description, historical_context, condition_estimate }`  
-* **`POST /api/gpt-summary`**
+ json  
+Copy  
+`{`  
+  `"initialAnalysis": { ... },`  
+  `"userFeedback": "Feedback text"`  
+`}`
 
-  * `Summarizes AI analysis.`  
-  * `Body: { analysis_text }`  
-  * `Response: { summary_text }`  
-* **`POST /api/text-to-speech`**
+*   
+* **Output**: Updated analysis report and revised follow-up questions.
 
-  * `Converts summary text to speech.`  
-  * `Body: { summary_text }`  
-  * `Response: { audio_url }`  
-* **`POST /api/voice-feedback`**
+### **6.4 POST /api/generate-audio**
 
-  * `Transcribes user voice feedback using OpenAI Whisper.`  
-  * `Body: { audio_file }`  
-  * `Response: { transcript_text }`
+* **Description**: Generates an audio summary from provided text.
 
-### **`Stripe APIs`**
+**Input**:
 
-* **`POST /api/create-payment-session`**
+ json  
+Copy  
+`{`  
+  `"text": "Summary text"`  
+`}`
 
-  * `Initiates payment session for tokens or premium valuations.`  
-  * `Body: { user_id, item_type, quantity }`  
-  * `Response: { session_id, checkout_url }`  
-* **`POST /api/webhook/stripe`**
-
-  * `Handles Stripe payment confirmations.`  
-  * `Response: { success, user_id, new_token_balance, valuation_created }`
+*   
+* **Output**: `{ "audioUrl": "url" }`
 
 ---
 
-## **7\. Testing & Deployment**
+## **7\. Testing, Deployment & Future Enhancements**
 
-* Unit tests: Referral tracking, reward allocation.
+### **7.1 Testing Strategy**
 
-* Integration tests: Referral flows with Supabase, Stripe.
+* **Unit Testing**:
 
-* End-to-end tests: Full user journey including referrals.
+  * Validate API endpoints, token logic, and error handling.
 
-* Deployment via Vercel.
+* **Integration Testing**:
 
-* CI/CD via GitHub Actions.
+  * Ensure the full appraisal flow (upload → analysis with concurrent feedback → audio generation) functions correctly.
+
+* **End-to-End Testing**:
+
+  * Simulate complete user journeys covering authentication, appraisal, token purchase, and valuation creation.
+
+### **7.2 Deployment**
+
+* **Platform**: Vercel for hosting the Next.js application.
+
+* **CI/CD**: GitHub Actions for automated testing and deployment pipelines.
+
+### **7.3 Future Enhancements**
+
+* **Voice Transcription**:
+
+  * Implement real-time voice recording and transcription.
+
+* **Enhanced Payment Integration**:
+
+  * Integrate a fully functional Stripe payment system.
+
+* **Advanced Analytics Dashboard**:
+
+  * Develop detailed metrics on appraisal trends and user engagement.
+
+* **Referral System Expansion**:
+
+  * Enhance referral incentives and bonus mechanisms.
+
+* **External Data Integration**:
+
+  * Enrich appraisal reports with live auction data and historical records.
 
 ---
 
-## **8\. Success Metrics**
-
-To effectively evaluate the referral program and the overall success of the *Antiques Appraisal* platform, we will track the following expanded metrics:
-
-* **User Acquisition Growth via Referrals**  
-  * **Definition**: The increase in new users who join the platform through referral links.  
-  * **Target**: Achieve a 20% month-over-month increase in new users acquired via referrals.  
-  * **Measurement**: Track the number of new users who sign up using a referral link and complete their first valuation. This ensures we measure engaged users rather than just sign-ups.  
-  * **Why It Matters**: This metric reflects the referral program’s ability to drive scalable user growth, a key pillar of the app’s expansion strategy.  
-* **Referral Conversion Rate**  
-  * **Definition**: The percentage of referred users who complete their first valuation after signing up.  
-  * **Target**: Achieve a conversion rate of at least 50%.  
-  * **Measurement**: Calculated as (Number of referred users completing a valuation ÷ Total number of referred sign-ups) × 100\.  
-  * **Why It Matters**: A high conversion rate indicates that the referral program attracts users who are genuinely interested in the app’s core offering, ensuring quality over quantity.  
-* **Revenue Uplift from Referral-Driven Premium Valuations**  
-  * **Definition**: The additional revenue generated from premium valuations purchased by referred users.  
-  * **Measurement**:  
-    * Track the total number of premium valuations purchased by referred users.  
-    * Calculate the total revenue from these purchases.  
-    * Compare the average revenue per user (ARPU) between referred and non-referred users to assess the referral program’s monetization impact.  
-  * **Target**: Increase revenue from referred users’ premium valuations by 15% within the first six months.  
-  * **Why It Matters**: This metric ties the referral program directly to revenue generation, ensuring it contributes to the app’s financial success.
-
-These enhanced success metrics provide a clear, actionable framework to measure the referral program’s impact on growth, engagement, and profitability.
-
----
-
-## **9\. Future Enhancements**
-
-To build on the referral program and elevate the *Antiques Appraisal* platform, we propose the following expanded features and improvements:
-
-* **Advanced Analytics Dashboard for Referrals**  
-  * **Description**: A user-facing dashboard offering real-time insights into referral performance.  
-  * **Features**:  
-    * Display metrics such as referral link clicks, sign-ups, and valuations completed by referred users.  
-    * Include visual progress indicators (e.g., “3 more referrals to unlock a reward”) to motivate users.  
-  * **Impact**: By providing transparency and feedback, this dashboard will encourage users to actively participate in the referral program, boosting its effectiveness.  
-* **Multi-Tier Referral Incentives**  
-  * **Description**: A structured reward system that escalates based on referral milestones.  
-  * **Additional Perks**: Offer exclusive titles (e.g., “Referral Champion”) or badges for top referrers.  
-  * **Impact**: This tiered approach incentivizes users to refer more people, amplifying user acquisition and creating a competitive, engaging experience.  
-* **Integration with Social Platforms for Seamless Sharing**  
-  * **Description**: Enable effortless sharing of referral links across major social platforms.  
-  * **Features**:  
-    * One-click sharing to Facebook, Twitter, Instagram, and WhatsApp.  
-    * Option to share valuation results (with user-controlled privacy settings) to showcase the app’s value.  
-  * **Impact**: Simplifying the sharing process will increase referral activity and leverage social networks for organic growth, enhancing the app’s virality.
-
-These expanded enhancements will strengthen the referral program, improve user engagement, and pave the way for sustained growth and revenue generation.
+This PRD (v2.3) captures the current state of the application, including the streamlined image and feedback submission flow, comprehensive AI-driven analysis, robust UI/UX enhancements, secure authentication, and a token-based monetization system. Further refinements and feature enhancements are planned to continue evolving the platform.
 

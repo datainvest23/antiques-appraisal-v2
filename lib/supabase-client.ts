@@ -16,7 +16,7 @@ export async function uploadImage(file: File, userId: string): Promise<string> {
     const fileName = `${userId}/${Date.now()}.${fileExt}`
     
     // Upload the file to the 'antique-images' bucket
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('antique-images')
       .upload(fileName, file, {
         cacheControl: '3600',

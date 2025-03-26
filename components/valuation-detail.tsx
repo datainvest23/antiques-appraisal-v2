@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Award, Download, Play, Share2 } from "lucide-react"
+import Image from "next/image"
 
 interface Valuation {
   id: string
@@ -56,27 +57,17 @@ export default function ValuationDetail({ valuation }: ValuationDetailProps) {
             <CardDescription>Images of your antique item</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-2">
-              {valuation.images && valuation.images.length > 0
-                ? valuation.images.map((image, index) => (
-                    <div key={index} className="aspect-square overflow-hidden rounded-lg border">
-                      <img
-                        src={image || "/placeholder.svg?height=200&width=200"}
-                        alt={`Antique item ${index + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ))
-                : // Placeholder images if no real images available
-                  Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="aspect-square overflow-hidden rounded-lg border">
-                      <img
-                        src="/placeholder.svg?height=200&width=200"
-                        alt={`Placeholder ${index + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ))}
+            <div className="grid grid-cols-2 gap-4">
+              {valuation.images.map((image, index) => (
+                <div key={index} className="relative aspect-square">
+                  <Image
+                    src={image}
+                    alt={`Antique item ${index + 1}`}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

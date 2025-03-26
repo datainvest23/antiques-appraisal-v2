@@ -54,8 +54,12 @@ export default function Login() {
 
     try {
       await signUp(email, password, firstName, lastName)
-    } catch (err: any) {
-      setError(err.message || "Failed to create account")
+    } catch (error: unknown) {
+      if (error instanceof AuthError) {
+        setError(error.message)
+      } else {
+        setError("Failed to create account")
+      }
     }
   }
 

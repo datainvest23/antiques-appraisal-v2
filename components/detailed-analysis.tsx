@@ -19,7 +19,9 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
             {analysis.stylistic.confidenceLevel} Confidence
           </Badge>
         </div>
-        <p className="text-muted-foreground">{analysis.summary}</p>
+        <p className="text-muted-foreground">
+          Here&apos;s what we&apos;ve found about your antique item.
+        </p>
       </div>
 
       <Alert>
@@ -57,7 +59,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
           <AccordionContent>
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium">Signatures / Maker's Marks</h4>
+                <h4 className="font-medium">Signatures / Maker&apos;s Marks</h4>
                 <p className="text-sm text-muted-foreground">{analysis.inscriptions.signatures}</p>
               </div>
               <div>
@@ -220,6 +222,10 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
           </CardContent>
         </Card>
       )}
+
+      <p className="text-muted-foreground">
+        We&apos;ll analyze the item&apos;s condition, materials, and other key features.
+      </p>
     </div>
   )
 }
