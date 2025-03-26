@@ -47,6 +47,8 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
   const [valuationTitle, setValuationTitle] = useState("")
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
   const { toast } = useToast()
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -194,22 +196,96 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
     }
   }
 
-  const handleRecordFeedback = () => {
-    setIsRecording(!isRecording)
-
-    if (!isRecording) {
-      // Start recording logic would go here
-      // For demo, we'll just simulate recording
-      setTimeout(() => {
-        setFeedback(
-          "The table actually has a maker's mark underneath that says 'Thompson & Sons, London'. Also, I believe it's rosewood, not mahogany, based on the grain pattern.",
-        )
-        setIsRecording(false)
-      }, 3000)
-    } else {
-      // Stop recording logic
+  const handleRecordFeedback = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+      }
+      return;
     }
-  }
+
+    try {
+      // Request permission to use microphone
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Clear previous audio chunks
+      const chunks: Blob[] = [];
+      
+      // Create new media recorder
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
+      
+      // Handle recorded data
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+      
+      // Handle recording stop
+      recorder.onstop = async () => {
+        // Create audio blob from recorded chunks
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        
+        // Set recording state to false
+        setIsRecording(false);
+        setIsTranscribing(true);
+        
+        // Transcribe the audio
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.webm');
+        
+        try {
+          const response = await fetch('/api/transcribe-audio', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to transcribe audio');
+          }
+          
+          const data = await response.json();
+          setFeedback(data.text);
+          toast({
+            title: "Transcription complete",
+            description: "Your audio has been successfully transcribed.",
+          });
+        } catch (error: any) {
+          console.error('Error transcribing audio:', error);
+          setError('Failed to transcribe audio. Please try again or type your feedback.');
+          toast({
+            title: "Transcription failed",
+            description: error.message || "Please try again or type your feedback.",
+            variant: "destructive"
+          });
+        } finally {
+          setIsTranscribing(false);
+        }
+        
+        // Stop all tracks in the stream to release the microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      // Start recording
+      recorder.start();
+      setIsRecording(true);
+      toast({
+        title: "Recording started",
+        description: "Speak clearly and click the button again to stop recording.",
+      });
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setError('Unable to access microphone. Please check permissions and try again.');
+      toast({
+        title: "Microphone error",
+        description: "Please check microphone permissions and try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handlePlayAudio = () => {
     if (!audioSummary) return
@@ -272,138 +348,153 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
               <TabsTrigger value="analysis">Analysis</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="upload" className="space-y-6 pt-4">
-              {imageUrls.length > 0 ? (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Uploaded Images</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    {imageUrls.map((url, index) => (
-                      <div key={index} className="relative rounded-lg border overflow-hidden">
-                        <Image
-                          src={url}
-                          alt={`Antique item ${index + 1}`}
-                          width={160}
-                          height={160}
-                          className="h-40 w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/90 p-1 text-foreground/90 hover:bg-background"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
+            <TabsContent value="upload" className="pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left column: Image upload */}
+                <div>
+                  {imageUrls.length > 0 ? (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Uploaded Images</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {imageUrls.map((url, index) => (
+                          <div key={index} className="relative rounded-lg border overflow-hidden">
+                            <Image
+                              src={url}
+                              alt={`Antique item ${index + 1}`}
+                              width={160}
+                              height={160}
+                              className="h-40 w-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/90 p-1 text-foreground/90 hover:bg-background"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col h-full items-center justify-center py-12 border-2 border-primary border-dashed rounded-lg shadow-sm animate-pulse-light bg-primary/5">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Camera className="h-10 w-10 text-primary" />
+                        <h3 className="text-lg font-medium">Upload Antique Images</h3>
+                        <p className="text-sm text-muted-foreground text-center">
+                          Take a photo or upload images of your antique
+                        </p>
+                        <p className="text-xs text-primary font-medium">Step 1: Add up to 3 images</p>
+                      </div>
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
+                          <label>
+                            <Camera className="mr-2 h-4 w-4" />
+                            Take Picture
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              className="sr-only"
+                              onChange={handleFileChange}
+                            />
+                          </label>
+                        </Button>
+                        <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
+                          <label>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Browse Files
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="sr-only"
+                              onChange={handleFileChange}
+                            />
+                          </label>
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed rounded-lg">
-                  <div className="flex flex-col items-center justify-center space-y-2">
-                    <Camera className="h-8 w-8 text-muted-foreground" />
-                    <h3 className="text-lg font-medium">Upload Antique Images</h3>
-                    <p className="text-sm text-muted-foreground text-center">
-                      Take a photo or upload images of your antique
-                    </p>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-4">
-                    <Button variant="outline" asChild>
-                      <label>
-                        <Camera className="mr-2 h-4 w-4" />
-                        Take Picture
-                        <input
-                          type="file"
-                          accept="image/*"
-                          capture="environment"
-                          className="sr-only"
-                          onChange={handleFileChange}
-                        />
-                      </label>
+
+                {/* Right column: Information about item */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Add Information About Your Item</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Provide additional context or details about your antique to help with the analysis.
+                  </p>
+
+                  <div className="flex items-center space-x-4">
+                    <Button 
+                      variant={isRecording ? "destructive" : imageUrls.length > 0 ? "default" : "outline"} 
+                      onClick={handleRecordFeedback}
+                      className={imageUrls.length > 0 ? "animate-pulse-subtle shadow-md" : ""}
+                      disabled={isTranscribing}
+                    >
+                      {isRecording ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Recording... (Click to stop)
+                        </>
+                      ) : isTranscribing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Transcribing...
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="mr-2 h-4 w-4" />
+                          Record Info
+                          {imageUrls.length > 0 && (
+                            <span className="ml-2 text-xs font-medium">(Step 2)</span>
+                          )}
+                        </>
+                      )}
                     </Button>
-                    <Button variant="outline" asChild>
-                      <label>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Browse Files
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="sr-only"
-                          onChange={handleFileChange}
-                        />
-                      </label>
-                    </Button>
                   </div>
-                </div>
-              )}
 
-              {/* Voice/Text Feedback section */}
-              <div className="space-y-4 mt-6 border-t pt-6">
-                <h3 className="text-lg font-medium">Add Information About Your Item</h3>
-                <p className="text-sm text-muted-foreground">
-                  Provide additional context or details about your antique to help with the analysis.
-                </p>
-
-                <div className="flex items-center space-x-4">
-                  <Button variant={isRecording ? "destructive" : "outline"} onClick={handleRecordFeedback}>
-                    {isRecording ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Recording...
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="mr-2 h-4 w-4" />
-                        Record Info
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="mt-4">
-                  <Label htmlFor="text-feedback" className="text-sm font-medium">
-                    Or type information:
-                  </Label>
-                  <Textarea
-                    id="text-feedback"
-                    placeholder="Add any details you know: age, origin, history, markings, or other information that might help with the analysis..."
-                    className="mt-2"
-                    value={feedback || ""}
-                    onChange={(e) => setFeedback(e.target.value)}
-                  />
+                  <div className="mt-2">
+                    <Label htmlFor="text-feedback" className="text-sm font-medium">
+                      Or type information:
+                    </Label>
+                    <Textarea
+                      id="text-feedback"
+                      placeholder="Add any details you know: age, origin, history, markings, or other information that might help with the analysis..."
+                      className="mt-2 min-h-[160px]"
+                      value={feedback || ""}
+                      onChange={(e) => setFeedback(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="text-sm text-muted-foreground">
-                By registering, you agree to our Terms of Service and Privacy Policy.
-                <br />
-                <span className="font-medium text-primary">New users receive 5 free tokens!</span>
-              </div>
+              <div className="mt-6">
+                <Button 
+                  onClick={handleUpload} 
+                  disabled={isUploading || images.length === 0} 
+                  className="w-full"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload and Analyze
+                    </>
+                  )}
+                </Button>
 
-              <Button 
-                onClick={handleUpload} 
-                disabled={isUploading || images.length === 0} 
-                className="w-full mt-4"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload and Analyze
-                  </>
+                {error && (
+                  <Alert variant="destructive" className="mt-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
                 )}
-              </Button>
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+              </div>
             </TabsContent>
 
             <TabsContent value="analysis" className="space-y-6 pt-4">
@@ -415,56 +506,26 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                 </div>
               ) : (
                 <>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Images</h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        {imageUrls.slice(0, 4).map((url, index) => (
-                          <div key={index} className="aspect-square overflow-hidden rounded-lg border">
-                            <Image
-                              src={url || "/placeholder.svg?height=200&width=200"}
-                              alt={`Antique item ${index + 1}`}
-                              width={200}
-                              height={200}
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">AI Analysis</h3>
-                      <div className="rounded-lg border p-4 h-[200px] overflow-y-auto">
-                        <p className="text-sm">{analysisData?.summary || analysisResult?.summary}</p>
-                      </div>
+                  {/* Images horizontally at the top */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium mb-3">Images</h3>
+                    <div className="flex justify-center gap-4 overflow-x-auto pb-2">
+                      {imageUrls.map((url, index) => (
+                        <div key={index} className="relative flex-shrink-0 w-[200px] h-[200px] rounded-lg border overflow-hidden">
+                          <Image
+                            src={url}
+                            alt={`Antique item ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
 
                   {analysisData && (
                     <div className="space-y-6">
                       <DetailedAnalysis analysis={analysisData} />
-
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handlePlayAudio}
-                          disabled={!audioSummary || isPlaying}
-                        >
-                          {isPlaying ? (
-                            <>
-                              <Pause className="mr-2 h-4 w-4" />
-                              Pause Audio
-                            </>
-                          ) : (
-                            <>
-                              <Play className="mr-2 h-4 w-4" />
-                              Play Audio Summary
-                            </>
-                          )}
-                        </Button>
-                      </div>
                     </div>
                   )}
                 </>

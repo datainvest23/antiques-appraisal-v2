@@ -188,10 +188,10 @@ export async function analyzeAntique(imageUrls: string[], additionalInfo?: strin
 
     // Call the OpenAI API
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: messages,
-      temperature: 0.2,
-      max_tokens: 2000,
+      temperature: 0.8,
+      max_tokens: 2064,
       response_format: { type: "json_object" }
     })
 
