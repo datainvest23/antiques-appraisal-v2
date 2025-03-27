@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
@@ -53,7 +54,13 @@ function NavbarContent() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold">Antiques Appraisal</span>
+            <Image 
+              src="/aa_logo.png"
+              alt="Antiques Appraisal Logo"
+              width={120}
+              height={120}
+              className="h-10 w-auto object-contain"
+            />
           </Link>
         </div>
 
@@ -253,7 +260,15 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="text-xl font-bold">Antiques Appraisal</div>
+            <div className="flex items-center">
+              <Image 
+                src="/aa_logo.png"
+                alt="Antiques Appraisal Logo"
+                width={120}
+                height={120}
+                className="h-10 w-auto object-contain"
+              />
+            </div>
           </div>
           <div className="flex items-center">
             <Loader2 className="h-5 w-5 animate-spin" />

@@ -2,90 +2,117 @@ import { Check } from "lucide-react"
 
 export default function HowItWorks() {
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 bg-muted" id="how-it-works">
-      <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
+    <section className="w-full py-20 md:py-28 lg:py-32 bg-muted relative" id="how-it-works">
+      {/* Decorative curved shape divider */}
+      <div className="absolute top-0 left-0 right-0 h-16 bg-background" aria-hidden="true">
+        <div className="absolute bottom-0 w-full h-16 bg-muted" style={{ 
+          clipPath: "ellipse(50% 100% at 50% 100%)" 
+        }}></div>
+      </div>
+      
+      <div className="container px-4 md:px-6 relative z-10">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+          <div className="space-y-3 max-w-3xl">
+            <div className="inline-block rounded-full bg-primary/20 dark:bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               How It Works
             </div>
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Simple Process, Valuable Results</h2>
-            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight lg:text-5xl">
+              Simple Process, Valuable Results
+            </h2>
+            <p className="mx-auto max-w-[800px] text-muted-foreground md:text-xl/relaxed mt-3">
               Our streamlined workflow makes it easy to get professional appraisals for your antique items.
             </p>
           </div>
         </div>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 py-12 md:grid-cols-3">
-          <div className="relative flex flex-col items-center space-y-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
-              1
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-16 max-w-6xl mx-auto relative">
+          {/* Process steps with improved UI */}
+          {steps.map((step, index) => (
+            <div key={index} className="relative flex flex-col items-center">
+              {/* Connection lines between steps */}
+              {index < steps.length - 1 && (
+                <div className="absolute left-1/2 top-8 hidden md:block w-full h-0.5 bg-border/60 z-0"></div>
+              )}
+              
+              {/* Step number */}
+              <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-primary-foreground border-4 border-primary text-xl font-bold text-primary mb-6 shadow-md">
+                {index + 1}
+              </div>
+              
+              {/* Step content */}
+              <div className="flex flex-col items-center space-y-4 text-center bg-background rounded-xl p-6 border border-border/50 shadow-sm w-full h-full">
+                <h3 className="text-2xl font-bold mb-2">{step.title}</h3>
+                <p className="text-muted-foreground">
+                  {step.description}
+                </p>
+                <ul className="space-y-3 mt-4 w-full">
+                  {step.points.map((point, i) => (
+                    <li key={i} className="flex items-start">
+                      <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mr-3 mt-0.5">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <span className="text-sm text-left">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div className="absolute left-full top-6 hidden h-0.5 w-full -translate-x-6 bg-border md:block"></div>
-            <h3 className="text-xl font-bold">Upload Images</h3>
-            <p className="text-center text-muted-foreground">
-              Take clear photos of your antique item and upload them to our platform.
-            </p>
-            <ul className="space-y-2 text-left">
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Supports JPEG and PNG formats</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Multiple angles for better analysis</span>
-              </li>
-            </ul>
-          </div>
-          <div className="relative flex flex-col items-center space-y-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
-              2
+          ))}
+        </div>
+        
+        {/* Call to action */}
+        <div className="mt-20 bg-background rounded-2xl border border-border/60 p-8 shadow-lg max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <h3 className="text-2xl font-bold">Ready to discover your antique's value?</h3>
+              <p className="text-muted-foreground max-w-md">
+                Start your first appraisal today and unlock the history and value of your unique items.
+              </p>
             </div>
-            <div className="absolute left-full top-6 hidden h-0.5 w-full -translate-x-6 bg-border md:block"></div>
-            <h3 className="text-xl font-bold">Receive AI Analysis</h3>
-            <p className="text-center text-muted-foreground">
-              Our AI assistant analyzes your images and provides a detailed appraisal.
-            </p>
-            <ul className="space-y-2 text-left">
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Item description and history</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Condition assessment</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Audio summary available</span>
-              </li>
-            </ul>
-          </div>
-          <div className="flex flex-col items-center space-y-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
-              3
-            </div>
-            <h3 className="text-xl font-bold">Create Valuation</h3>
-            <p className="text-center text-muted-foreground">
-              Provide voice feedback to refine the analysis and create your final valuation.
-            </p>
-            <ul className="space-y-2 text-left">
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>One free valuation daily</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Use tokens for additional valuations</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-4 w-4 text-primary" />
-                <span>Option for detailed premium valuations</span>
-              </li>
-            </ul>
+            <a href="/appraise" className="inline-flex h-12 items-center justify-center rounded-full border bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1">
+              Start Your Appraisal
+            </a>
           </div>
         </div>
+      </div>
+      
+      {/* Bottom wave pattern */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-muted" aria-hidden="true">
+        <div className="absolute bottom-0 w-full h-16 bg-background" style={{ 
+          clipPath: "ellipse(50% 100% at 50% 0%)" 
+        }}></div>
       </div>
     </section>
   )
 }
+
+const steps = [
+  {
+    title: "Upload Images",
+    description: "Take clear photos of your antique item and upload them to our platform.",
+    points: [
+      "Supports multiple image formats",
+      "Multiple angles for better analysis",
+      "High-resolution images recommended"
+    ]
+  },
+  {
+    title: "Receive AI Analysis",
+    description: "Our AI assistant analyzes your images and provides a detailed appraisal.",
+    points: [
+      "Item description and history",
+      "Condition assessment",
+      "Audio summary available"
+    ]
+  },
+  {
+    title: "Create Valuation",
+    description: "Provide voice feedback to refine the analysis and create your final valuation.",
+    points: [
+      "One free valuation daily",
+      "Use tokens for additional valuations",
+      "Option for detailed premium valuations"
+    ]
+  }
+];
 
