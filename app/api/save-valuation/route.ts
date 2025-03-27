@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import type { AntiqueAnalysisResult } from '@/lib/openai';
 
 export const POST = async (request: NextRequest) => {
   try {

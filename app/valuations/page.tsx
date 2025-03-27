@@ -37,37 +37,38 @@ export default function MyValuations() {
         router.push('/login');
         return;
       }
+      
+      async function fetchValuations(userId: string) {
+        try {
+          setLoading(true);
+          const { data, error } = await supabase
+            .from('valuations')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+    
+          if (error) {
+            throw error;
+          }
+    
+          setValuations(data || []);
+        } catch (error) {
+          console.error('Error fetching valuations:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load your valuations. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
+        }
+      }
+      
       fetchValuations(session.user.id);
     }
 
     checkSession();
-  }, [router, supabase]);
-
-  async function fetchValuations(userId: string) {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('valuations')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      setValuations(data || []);
-    } catch (error) {
-      console.error('Error fetching valuations:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load your valuations. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [router, supabase, toast]);
 
   function getValueEstimate(valuation: Valuation) {
     const report = valuation.valuation_report;

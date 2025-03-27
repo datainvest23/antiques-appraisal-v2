@@ -194,7 +194,7 @@ export async function analyzeAntique(imageUrls: string[], additionalInfo?: strin
     // Call the OpenAI API with increased timeout
     const response = await Promise.race([
       openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: messages,
         temperature: 0.8,
         max_tokens: 2064,

@@ -1,10 +1,4 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { AlertCircle, HelpCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import type { AntiqueAnalysisResult } from "@/lib/openai"
 import {
   Table,
   TableBody,
@@ -13,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import type { AntiqueAnalysisResult } from "@/lib/openai"
 
 interface DetailedAnalysisProps {
   analysis: AntiqueAnalysisResult | null;
@@ -34,7 +29,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
       return path.split('.').reduce((prev, curr) => {
         return prev && prev[curr] !== undefined ? prev[curr] : fallback;
       }, obj) || fallback;
-    } catch (e) {
+    } catch {
       return fallback;
     }
   };

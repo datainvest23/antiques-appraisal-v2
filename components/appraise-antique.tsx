@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { AlertCircle, Camera, Upload, Mic, Play, Pause, Loader2, X } from "lucide-react"
+import { AlertCircle, Camera, Upload, Mic, Loader2, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
@@ -39,7 +39,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<AntiqueAnalysisResult | null>(null)
+  const [_analysisResult, setAnalysisResult] = useState<AntiqueAnalysisResult | null>(null)
   const [analysisData, setAnalysisData] = useState<AntiqueAnalysisResult | null>(null)
   const [audioSummary, setAudioSummary] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -309,7 +309,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
     }
   };
 
-  const handlePlayAudio = () => {
+  const _handlePlayAudio = () => {
     if (!audioSummary) return
 
     if (isPlaying && audioElement) {

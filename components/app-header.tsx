@@ -1,12 +1,9 @@
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { useAuth } from "@/contexts/auth-context";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { MainNav } from "@/components/main-nav";
+import { UserNav } from "@/components/user-nav";
 
 export function AppHeader() {
   const { user, signOut } = useAuth();
