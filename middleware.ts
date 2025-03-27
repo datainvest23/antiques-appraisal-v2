@@ -31,14 +31,16 @@ export async function middleware(req: NextRequest) {
   
   const isAuthRoute = 
     path === '/login' || 
-    path === '/verification-sent'
+    path === '/verification-sent' ||
+    path === '/forgot-password'
   
   // Public routes that don't need special handling
   const isPublicRoute = 
     path === '/' || 
     path.startsWith('/auth/callback') ||
     path.startsWith('/api/') ||
-    path.startsWith('/_next/')
+    path.startsWith('/_next/') ||
+    path === '/reset-password'
   
   // Handle protected routes - redirect to login if not authenticated
   if (isProtectedRoute && !session) {
@@ -49,7 +51,8 @@ export async function middleware(req: NextRequest) {
   }
   
   // Handle auth routes - redirect to main app if already authenticated
-  if (isAuthRoute && session) {
+  // Note: We don't redirect from reset-password page even when authenticated
+  if (isAuthRoute && session && path !== '/forgot-password') {
     return NextResponse.redirect(new URL('/appraisal', req.url))
   }
   

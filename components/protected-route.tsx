@@ -36,7 +36,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
       </div>
     }>
-      <ProtectedRouteContent children={children} />
+      <ProtectedRouteContent>
+        {children}
+      </ProtectedRouteContent>
     </Suspense>
   )
 } 

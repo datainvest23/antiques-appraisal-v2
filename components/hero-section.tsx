@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect, useRef } from "react"
 
@@ -13,15 +12,15 @@ export default function HeroSection() {
     // Try to autoplay with sound first (will likely be blocked by browsers)
     const playVideo = async () => {
       if (videoRef.current) {
+        // First try to play with sound
+        videoRef.current.muted = false;
         try {
-          // First try to play with sound
-          videoRef.current.muted = false;
           await videoRef.current.play();
           setIsMuted(false);
-        } catch (e) {
-          // If that fails, play muted (which browsers allow)
+        } catch {
+          // If playing with sound fails, play muted (which browsers usually allow)
+          videoRef.current.muted = true;
           try {
-            videoRef.current.muted = true;
             await videoRef.current.play();
             setIsMuted(true);
             console.log("Video playing muted due to browser autoplay policy");
