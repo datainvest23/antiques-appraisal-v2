@@ -110,7 +110,7 @@ export default function ValuationPage({ params }: ValuationPageProps) {
               <CardTitle>Detailed Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <DetailedAnalysis analysisData={report} />
+              <DetailedAnalysis analysis={report} />
             </CardContent>
           </Card>
         </div>
