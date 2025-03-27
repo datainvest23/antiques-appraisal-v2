@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { Analytics } from '@vercel/analytics/react'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             </div>
           </ThemeProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )
