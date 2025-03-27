@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRouteContent({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -27,4 +27,16 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   // Only render the children if the user is authenticated
   return user ? <>{children}</> : null
+}
+
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <ProtectedRouteContent children={children} />
+    </Suspense>
+  )
 } 

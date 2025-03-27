@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
-import { Menu, Award, User, LogOut } from "lucide-react"
+import { Menu, Award, User, LogOut, Loader2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import type { Database } from "@/types/supabase"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-export default function Navbar() {
+function NavbarContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [userFullName, setUserFullName] = useState<string | null>(null)
   const pathname = usePathname()
@@ -244,5 +244,24 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+  )
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="text-xl font-bold">Antiques Appraisal</div>
+          </div>
+          <div className="flex items-center">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        </div>
+      </header>
+    }>
+      <NavbarContent />
+    </Suspense>
   )
 } 
