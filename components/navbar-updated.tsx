@@ -61,29 +61,29 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-6">
           {user && (
             <>
-          <Link
+              <Link
                 href="/appraise"
                 className="px-6 py-2 font-medium text-black bg-yellow-400 hover:bg-yellow-500 rounded-md shadow-md transition-all hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 Appraise an Antique
-          </Link>
-          <Link
+              </Link>
+              <Link
                 href="/valuations"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "sm" }),
                   "px-4"
                 )}
-          >
-            My Valuations
-          </Link>
-          <Link
-            href="/buy-tokens"
-            className={`text-sm font-medium transition-colors hover:text-primary ${
-              pathname === "/buy-tokens" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            Buy Tokens
-          </Link>
+              >
+                My Valuations
+              </Link>
+              <Link
+                href="/buy-tokens"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === "/buy-tokens" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Buy Tokens
+              </Link>
             </>
           )}
           <Link
@@ -163,16 +163,16 @@ export default function Navbar() {
                     >
                       <Link href="/appraise">
                         Appraise an Antique
-                </Link>
+                      </Link>
                     </Button>
                     <Button asChild variant="outline" className="w-full justify-center">
                       <Link href="/valuations" onClick={() => setIsMenuOpen(false)}>
-                  My Valuations
-                </Link>
+                        My Valuations
+                      </Link>
                     </Button>
-                <Link href="/buy-tokens" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
-                  Buy Tokens
-                </Link>
+                    <Link href="/buy-tokens" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
+                      Buy Tokens
+                    </Link>
                   </>
                 )}
                 <Link href="/#features" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
@@ -245,4 +245,4 @@ export default function Navbar() {
       </div>
     </header>
   )
-}
+} 

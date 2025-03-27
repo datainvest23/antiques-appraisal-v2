@@ -29,16 +29,16 @@ export default function AppraisalPage() {
 
   return (
     <ProtectedRoute>
-      <main className="flex min-h-screen flex-col items-center p-4 md:p-8">
-        <div className="w-full max-w-6xl">
+    <main className="flex min-h-screen flex-col items-center p-4 md:p-8">
+      <div className="w-full max-w-6xl">
           {/* Clean layout focusing on the appraisal interface */}
           <AppraiseAntique 
             userId={user?.id || ""} 
             freeValuationsLeft={freeValuationsLeft} 
             tokenBalance={tokenBalance} 
           />
-        </div>
-      </main>
+      </div>
+    </main>
     </ProtectedRoute>
   )
 }

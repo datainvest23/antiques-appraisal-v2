@@ -163,6 +163,11 @@ Please provide your response in JSON format with the following structure:
 
 export async function analyzeAntique(imageUrls: string[], additionalInfo?: string): Promise<AntiqueAnalysisResult> {
   try {
+    // Limit the number of images to process (OpenAI has limits)
+    const limitedUrls = imageUrls.slice(0, 3); // Max 3 images
+    
+    console.log(`Processing ${limitedUrls.length} images for analysis`);
+    
     // Prepare the messages for the API call
     const messages = [
       {
@@ -178,25 +183,31 @@ export async function analyzeAntique(imageUrls: string[], additionalInfo?: strin
               additionalInfo ? ` Additional information: ${additionalInfo}` : ""
             }`,
           },
-          ...imageUrls.map((url) => ({
+          ...limitedUrls.map((url) => ({
             type: "image_url",
             image_url: { url },
           })),
         ],
       },
-    ]
+    ];
 
-    // Call the OpenAI API
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: messages,
-      temperature: 0.8,
-      max_tokens: 2064,
-      response_format: { type: "json_object" }
-    })
+    // Call the OpenAI API with increased timeout
+    const response = await Promise.race([
+      openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: messages,
+        temperature: 0.8,
+        max_tokens: 2064,
+        response_format: { type: "json_object" }
+      }),
+      // Set timeout promise
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("OpenAI API timeout after 60 seconds")), 60000)
+      )
+    ]);
 
     // Parse the response
-    const result = JSON.parse(response.choices[0].message.content || "{}")
+    const result = JSON.parse(response.choices[0].message.content || "{}");
 
     // Return a structured result
     return {
@@ -247,8 +258,11 @@ export async function analyzeAntique(imageUrls: string[], additionalInfo?: strin
       fullReport: result.fullReport || "",
     }
   } catch (error) {
-    console.error("Error analyzing antique:", error)
-    throw new Error("Failed to analyze the antique. Please try again.")
+    console.error("Error analyzing antique:", error);
+    if (error.message?.includes("timeout")) {
+      throw new Error("Analysis timed out. Please try with fewer or smaller images.");
+    }
+    throw new Error("Failed to analyze the antique. Please try again with clearer images.");
   }
 }
 

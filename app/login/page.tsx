@@ -41,7 +41,7 @@ export default function Login() {
       // Middleware will handle the redirect
     } catch (error: unknown) {
       if (error instanceof AuthError) {
-        setError(error.message)
+      setError(error.message)
       } else {
         setError("An unexpected error occurred")
       }
@@ -56,7 +56,7 @@ export default function Login() {
       await signUp(email, password, firstName, lastName)
     } catch (error: unknown) {
       if (error instanceof AuthError) {
-        setError(error.message)
+      setError(error.message)
       } else {
         setError("Failed to create account")
       }

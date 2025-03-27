@@ -1,23 +1,23 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import type { Database } from '@/types/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the user session
+    // Fix: correctly handle cookies
     const cookieStore = cookies()
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const supabase = createServerComponentClient({ cookies: () => cookieStore })
+    
+    // Get authenticated user
     const { data: { session } } = await supabase.auth.getSession()
     
-    if (!session) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    // Get the user ID from the session
     const userId = session.user.id
     
-    // Get the form data with file
+    // Get the file from the request
     const formData = await request.formData()
     const file = formData.get('file') as File
     
@@ -25,41 +25,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
     
-    // Validate the file type
+    // Validate file type
     if (!file.type.startsWith('image/')) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
     
-    // Validate the file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 })
+    // Limit file size (3MB)
+    const maxSize = 3 * 1024 * 1024 // 3MB
+    if (file.size > maxSize) {
+      return NextResponse.json({ 
+        error: 'File size exceeds 3MB limit. Please use smaller images.' 
+      }, { status: 400 })
     }
     
-    // Create a unique file name
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${userId}/${Date.now()}.${fileExt}`
+    // Create a unique filename with timestamp
+    const timestamp = Date.now()
+    const fileExtension = file.name.split('.').pop()
+    const fileName = `${timestamp}.${fileExtension}`
+    const folderPath = `${userId}`
     
-    // Upload the file to Supabase storage
-    const { error } = await supabase.storage
+    // Upload to Supabase Storage
+    const { data, error } = await supabase
+      .storage
       .from('antique-images')
-      .upload(fileName, file, {
+      .upload(`${folderPath}/${fileName}`, file, {
         cacheControl: '3600',
         upsert: false
       })
     
     if (error) {
-      console.error('Supabase storage error:', error)
+      console.error('Error uploading to Supabase Storage:', error)
       return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
     }
     
-    // Get public URL for the uploaded file
-    const { data: urlData } = supabase.storage
+    // Get the public URL
+    const { data: { publicUrl } } = supabase
+      .storage
       .from('antique-images')
-      .getPublicUrl(fileName)
+      .getPublicUrl(`${folderPath}/${fileName}`)
     
-    return NextResponse.json({ url: urlData.publicUrl })
+    // Return the upload result with CORS headers
+    return NextResponse.json({ 
+      url: publicUrl,
+      uploadPath: data.path
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    })
+    
   } catch (error) {
     console.error('Error in upload-image API route:', error)
-    return NextResponse.json({ error: 'Failed to process image upload' }, { status: 500 })
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 } 

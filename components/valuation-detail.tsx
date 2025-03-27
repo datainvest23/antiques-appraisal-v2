@@ -62,12 +62,12 @@ export default function ValuationDetail({ valuation }: ValuationDetailProps) {
                 <div key={index} className="relative aspect-square">
                   <Image
                     src={image}
-                    alt={`Antique item ${index + 1}`}
+                        alt={`Antique item ${index + 1}`}
                     fill
                     className="object-cover rounded-lg"
-                  />
-                </div>
-              ))}
+                      />
+                    </div>
+                  ))}
             </div>
           </CardContent>
         </Card>

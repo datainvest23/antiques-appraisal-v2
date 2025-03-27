@@ -22,6 +22,8 @@ import type { AntiqueAnalysisResult } from "@/lib/openai"
 import DetailedAnalysis from "@/components/detailed-analysis"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
+import { saveValuation } from "@/lib/supabase-client"
+import { useAuth } from "@/contexts/auth-context"
 
 export interface AppraiseAntiqueProps {
   tokenBalance: number
@@ -29,6 +31,7 @@ export interface AppraiseAntiqueProps {
 
 export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("upload")
   const [images, setImages] = useState<File[]>([])
   const [imageUrls, setImageUrls] = useState<string[]>([])
@@ -49,6 +52,10 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
   const { toast } = useToast()
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isHistoryExpertAnalyzing, setIsHistoryExpertAnalyzing] = useState(false);
+  const [isEvaluationExpertAnalyzing, setIsEvaluationExpertAnalyzing] = useState(false);
+  const [historyExpertResult, setHistoryExpertResult] = useState<any>(null);
+  const [evaluationExpertResult, setEvaluationExpertResult] = useState<any>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -133,7 +140,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError("Failed to upload images. Please try again.")
+      setError("Failed to upload images. Please try again.")
       }
       setIsUploading(false)
     }
@@ -170,6 +177,21 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
       setAnalysisData(analysisData)
       setAnalysisResult(analysisData)
 
+      // Save valuation to Supabase if user is authenticated
+      if (user?.id) {
+        try {
+          // Default to not detailed (user can upgrade later)
+          await saveValuation(user.id, analysisData, false)
+          toast({
+            title: "Valuation saved",
+            description: "Your valuation has been saved to your account.",
+          })
+        } catch (saveError) {
+          console.error("Error saving valuation:", saveError)
+          // Continue even if saving fails - user still gets their analysis
+        }
+      }
+
       // Generate audio summary
       const audioResponse = await fetch('/api/generate-audio', {
         method: 'POST',
@@ -190,7 +212,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError("Failed to analyze images. Please try again.")
+      setError("Failed to analyze images. Please try again.")
       }
       setIsAnalyzing(false)
     }
@@ -338,6 +360,90 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
     }
   }
 
+  const handleHistoryExpertAnalysis = async () => {
+    if (!analysisData) return;
+    
+    setIsHistoryExpertAnalyzing(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/history-expert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          imageUrls: imageUrls,
+          category: analysisData.preliminaryCategory,
+          summary: analysisData.summary,
+          additionalInfo: feedback
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to get history expert analysis');
+      }
+      
+      const result = await response.json();
+      setHistoryExpertResult(result);
+      toast({
+        title: "History Expert Analysis Complete",
+        description: "Historical and cultural context analysis is now available.",
+      });
+    } catch (error: any) {
+      console.error('Error getting history expert analysis:', error);
+      setError(error.message || 'Failed to get history expert analysis');
+      toast({
+        title: "Analysis Failed",
+        description: "Unable to complete the historical analysis. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsHistoryExpertAnalyzing(false);
+    }
+  };
+  
+  const handleEvaluationExpertAnalysis = async () => {
+    if (!analysisData) return;
+    
+    setIsEvaluationExpertAnalyzing(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/evaluation-expert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          imageUrls: imageUrls,
+          category: analysisData.preliminaryCategory,
+          summary: analysisData.summary,
+          additionalInfo: feedback
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to get evaluation expert analysis');
+      }
+      
+      const result = await response.json();
+      setEvaluationExpertResult(result);
+      toast({
+        title: "Evaluation Expert Analysis Complete",
+        description: "Market valuation and comparison analysis is now available.",
+      });
+    } catch (error: any) {
+      console.error('Error getting evaluation expert analysis:', error);
+      setError(error.message || 'Failed to get evaluation expert analysis');
+      toast({
+        title: "Analysis Failed",
+        description: "Unable to complete the market evaluation. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsEvaluationExpertAnalyzing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -353,27 +459,27 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                 {/* Left column: Image upload */}
                 <div>
                   {imageUrls.length > 0 ? (
-                    <div className="space-y-4">
+                <div className="space-y-4">
                       <h3 className="text-lg font-medium">Uploaded Images</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {imageUrls.map((url, index) => (
+                    {imageUrls.map((url, index) => (
                           <div key={index} className="relative rounded-lg border overflow-hidden">
                             <Image
                               src={url}
-                              alt={`Antique item ${index + 1}`}
+                            alt={`Antique item ${index + 1}`}
                               width={160}
                               height={160}
                               className="h-40 w-full object-cover"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
+                          />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
                               className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/90 p-1 text-foreground/90 hover:bg-background"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
                       </div>
                     </div>
                   ) : (
@@ -467,7 +573,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                     />
                   </div>
                 </div>
-              </div>
+                  </div>
 
               <div className="mt-6">
                 <Button 
@@ -475,25 +581,25 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                   disabled={isUploading || images.length === 0} 
                   className="w-full"
                 >
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload and Analyze
-                    </>
-                  )}
-                </Button>
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload and Analyze
+                      </>
+                    )}
+                  </Button>
 
-                {error && (
+              {error && (
                   <Alert variant="destructive" className="mt-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               </div>
             </TabsContent>
 
@@ -514,18 +620,75 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                         <div key={index} className="relative flex-shrink-0 w-[200px] h-[200px] rounded-lg border overflow-hidden">
                           <Image
                             src={url}
-                            alt={`Antique item ${index + 1}`}
+                              alt={`Antique item ${index + 1}`}
                             fill
                             className="object-cover"
-                          />
-                        </div>
-                      ))}
+                            />
+                          </div>
+                        ))}
                     </div>
                   </div>
 
                   {analysisData && (
                     <div className="space-y-6">
-                      <DetailedAnalysis analysis={analysisData} />
+                      <DetailedAnalysis analysis={analysisData.analysis || analysisData} />
+
+                      <div className="mt-6 space-y-3">
+                        <h3 className="text-lg font-medium text-center">Get Additional Expert Analysis</h3>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button
+                            onClick={handleHistoryExpertAnalysis}
+                            disabled={isHistoryExpertAnalyzing}
+                            className="flex-1"
+                          >
+                            {isHistoryExpertAnalyzing ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Analyzing History...
+                            </>
+                          ) : (
+                              "History Expert"
+                            )}
+                          </Button>
+                          
+                          <Button
+                            onClick={handleEvaluationExpertAnalysis}
+                            disabled={isEvaluationExpertAnalyzing}
+                            className="flex-1"
+                          >
+                            {isEvaluationExpertAnalyzing ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Evaluating Market...
+                              </>
+                            ) : (
+                              "Evaluation Expert"
+                          )}
+                        </Button>
+                      </div>
+                      </div>
+
+                      {historyExpertResult && (
+                        <Card className="mt-6">
+                          <CardContent className="p-6">
+                            <h3 className="text-xl font-semibold mb-4">Historical & Cultural Context</h3>
+                            <div className="prose max-w-none">
+                              <div dangerouslySetInnerHTML={{ __html: historyExpertResult.content }} />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {evaluationExpertResult && (
+                        <Card className="mt-6">
+                          <CardContent className="p-6">
+                            <h3 className="text-xl font-semibold mb-4">Market Valuation & Comparisons</h3>
+                            <div className="prose max-w-none">
+                              <div dangerouslySetInnerHTML={{ __html: evaluationExpertResult.content }} />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
                     </div>
                   )}
                 </>
