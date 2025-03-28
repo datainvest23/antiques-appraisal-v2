@@ -33,13 +33,13 @@ export default function FeaturesSection() {
             >
               <div className="absolute -top-6 rounded-full bg-primary/10 p-3 border border-border/50 shadow-sm group-hover:bg-primary/20 transition-colors duration-300">
                 <feature.icon className="h-6 w-6 text-primary" />
-              </div>
+            </div>
               <div className="space-y-4 mt-6 pt-6 text-center">
                 <h3 className="text-xl font-bold">{feature.title}</h3>
                 <p className="text-muted-foreground">
                   {feature.description}
-                </p>
-              </div>
+            </p>
+          </div>
             </div>
           ))}
         </div>

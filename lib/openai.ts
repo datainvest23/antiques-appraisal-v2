@@ -1,354 +1,535 @@
-import OpenAI from "openai"
+import OpenAI from "openai";
 
 // Initialize the OpenAI client with the API key from environment variables
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-})
+});
+
+// Read the designated assistant ID from environment variables
+const assistantId = process.env.OPENAI_ASSISTANT_ID;
+
+if (!assistantId) {
+  throw new Error("OPENAI_ASSISTANT_ID is not set in environment variables");
+}
+
+// Maximum number of retries for API calls
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// Helper function to validate the assistant's response
+function validateAssistantResponse(result: any): boolean {
+  const requiredFields = [
+    'introduction',
+    'full_report',
+    'identification',
+    'physical_attributes',
+    'inscriptions_marks_labels',
+    'distinguishing_features',
+    'stylistic_assessment',
+    'provenance_and_attribution',
+    'value_indicators',
+    'recommendations'
+  ];
+
+  return requiredFields.every(field => {
+    const hasField = field in result;
+    if (!hasField) {
+      console.error(`Missing required field: ${field}`);
+    }
+    return hasField;
+  });
+}
+
+// Helper function to clean up resources
+async function cleanupThread(threadId: string) {
+  try {
+    await openai.beta.threads.del(threadId);
+  } catch (error) {
+    console.error(`Failed to delete thread ${threadId}:`, error);
+  }
+}
+
+// Helper function to retry API calls
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = MAX_RETRIES
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`Attempt ${attempt} failed:`, error);
+      
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+        continue;
+      }
+    }
+  }
+  
+  throw lastError || new Error('Operation failed after all retries');
+}
 
 export interface AntiqueAnalysisResult {
-  preliminaryCategory: string
+  preliminaryCategory: string;
   physicalAttributes: {
-    materials: string
-    measurements: string
-    condition: string
-  }
+    materials: string;
+    measurements: string;
+    condition: string;
+  };
   inscriptions: {
-    signatures: string
-    hallmarks: string
-    additionalIdentifiers: string
-  }
+    signatures: string;
+    hallmarks: string;
+    additionalIdentifiers: string;
+  };
   uniqueFeatures: {
-    motifs: string
-    restoration: string
-    anomalies: string
-  }
+    motifs: string;
+    restoration: string;
+    anomalies: string;
+  };
   stylistic: {
-    indicators: string
-    estimatedEra: string
-    confidenceLevel: string
-  }
+    indicators: string;
+    estimatedEra: string;
+    confidenceLevel: string;
+  };
   attribution: {
-    likelyMaker: string
-    evidence: string
-    probability: string
-  }
+    likelyMaker: string;
+    evidence: string;
+    probability: string;
+  };
   provenance: {
-    infoInPhotos: string
-    historicIndicators: string
-    recommendedFollowup: string
-  }
+    infoInPhotos: string;
+    historicIndicators: string;
+    recommendedFollowup: string;
+  };
   intake: {
-    photoCount: string
-    photoQuality: string
-    lightingAngles: string
-    overallImpression: string
-  }
+    photoCount: string;
+    photoQuality: string;
+    lightingAngles: string;
+    overallImpression: string;
+  };
   valueIndicators: {
-    factors: string
-    redFlags: string
-    references: string
-    followupQuestions: string[]
-  }
-  summary: string
-  fullReport: string
+    factors: string;
+    redFlags: string;
+    references: string;
+    followupQuestions: string[];
+  };
+  summary: string;
+  fullReport: string;
 }
 
-const ANTIQUE_EVALUATION_PROMPT = `
-You are an antiques evaluation expert. You will be provided with photographs and minimal descriptions of a single antique or collectible item, and your task is to create a fully elaborated, section-by-section initial valuation report based only on those images and details. 
-
-**Important:** 
-- Do not leave any section blank or respond with "null" if there's insufficient data. 
-- Instead, explain what is missing or state "No visible markings found," "Measurements cannot be determined from photos alone," etc. 
-- Always provide as much detail and context as possible within each section, even if you are making cautious assumptions based on limited evidence. 
-- Include potential possibilities, comparisons, or hypothetical scenarios when exact information is unavailable.
-
-### **Initial Valuation Template**
-**Preliminary Object Category (Based on Photos)**  
-Choose from (Furniture, Decorative Art, Jewelry, Silverware, Porcelain & Pottery, Paintings, Clocks, Coins, Tribal & Ethnographic, Other Collectibles). If uncertain, share your best guess and explain why.
-
-**Observed Physical Attributes**  
-1. **Materials & Techniques:** Identify what it appears to be made of (wood, metal, canvas, porcelain, etc.). Note any decorative elements or special craftsmanship.  
-2. **Measurements (If Indicated or Estimable):** If no scale is provided, explain that you cannot confirm size. Otherwise, estimate or note any scale references in the photos.  
-3. **Condition (From Photo Observations Only):** Describe surface wear, cracks, discoloration, or anything else you observe. Be clear that you're limited to visual cues only.
-
-**Inscriptions, Marks, or Labels**  
-1. **Signatures / Maker's Marks:** Transcribe what you see. If none are visible, say so.  
-2. **Hallmarks, Stamps, or Labels:** If you see any partial or unclear marks, note your best interpretation.  
-3. **Additional Identifiers:** Possibly inventory tags, prior ownership labels.
-
-**Distinguishing or Unique Features**  
-1. **Motifs & Decorations:** Describe any patterns, engravings, painted scenes, or stylized forms.  
-2. **Signs of Restoration or Alteration:** Mismatched finishes, replaced components, etc.  
-3. **Anomalies:** Anything that stands out as unusual, possibly modern replacements.
-
-**Stylistic Assessment & Possible Period**  
-1. **Style Indicators:** Mention design elements that suggest Art Deco, Victorian, Baroque, etc.  
-2. **Estimated Era / Date Range:** If you see typical features from a particular century or region, hypothesize.  
-3. **Confidence Level:** High, Medium, or Preliminary.
-
-**Preliminary Attribution (If Possible)**  
-1. **Likely Maker / Workshop / Artist:** If the style or mark points to a known manufacturer, list it.  
-2. **Evidence or Rationale:** Cite hallmark guides, references, or known brand logos.  
-3. **Probability & Next Steps:** If you're unsure, propose further research or expert consultation.
-
-**Potential Provenance Clues**  
-1. **Provenance Info in Photos:** Auction tags, collector labels, inscriptions.  
-2. **Historic or Regional Indicators:** Coats of arms, shipping labels, anything referencing a specific locale or time.  
-3. **Recommended Follow-up:** e.g., request prior bills of sale, old receipts, or previous auction listings.
-
-**Intake & Identification**  
-1. **Number and Type of Photos Provided:** List the photo perspectives.  
-2. **Photo Quality & Clarity:** High, medium, or low? Mention how lighting or angles might affect your assessment.  
-3. **Lighting & Angles:** Are critical areas visible (e.g., maker's mark, underside, any damage)?  
-4. **Overall Impression:** Provide a short summary of your very first impression of its appearance, style, or potential category.
-
-**Initial Value Indicators & Caveats**  
-1. **Factors Affecting Value:** Rarity, brand/maker reputation, current demand, condition, authenticity.  
-2. **Red Flags or Concerns:** If you suspect a reproduction, forgery, or mismatched details, note it.  
-3. **References and further Research:** Provide specific topics, keywords or references that will help to undertake targeted specific research on the item, origin, era, historic context and value.
-4. **Follow-up questions:** Based on the context, available information and your reasoning, ask the user clear questions to obtain specific answers to open questions that will raise your certainty of confidence when creating a valuation.
-
-### **Usage Notes & Disclaimers**
-Always clarify that this is a **preliminary review** based solely on photographs. Explain that a **physical inspection** and deeper research may be needed to confirm authenticity, condition, or value.
-
-Please provide your response in JSON format with the following structure:
-{
-  "preliminaryCategory": "string",
-  "physicalAttributes": {
-    "materials": "string",
-    "measurements": "string",
-    "condition": "string"
-  },
-  "inscriptions": {
-    "signatures": "string",
-    "hallmarks": "string",
-    "additionalIdentifiers": "string"
-  },
-  "uniqueFeatures": {
-    "motifs": "string",
-    "restoration": "string",
-    "anomalies": "string"
-  },
-  "stylistic": {
-    "indicators": "string",
-    "estimatedEra": "string",
-    "confidenceLevel": "string"
-  },
-  "attribution": {
-    "likelyMaker": "string",
-    "evidence": "string",
-    "probability": "string"
-  },
-  "provenance": {
-    "infoInPhotos": "string",
-    "historicIndicators": "string",
-    "recommendedFollowup": "string"
-  },
-  "intake": {
-    "photoCount": "string",
-    "photoQuality": "string",
-    "lightingAngles": "string",
-    "overallImpression": "string"
-  },
-  "valueIndicators": {
-    "factors": "string",
-    "redFlags": "string",
-    "references": "string",
-    "followupQuestions": ["string"]
-  },
-  "summary": "string",
-  "fullReport": "string"
-}
-`
-
-export async function analyzeAntique(imageUrls: string[], additionalInfo?: string): Promise<AntiqueAnalysisResult> {
+/**
+ * Sends a request to the dedicated assistant to generate an antique appraisal report.
+ * Since your assistant is pre-configured with instructions and schema,
+ * we only need to send a concise user message.
+ */
+export async function analyzeAntique(
+  imageUrls: string[],
+  additionalInfo?: string
+): Promise<AntiqueAnalysisResult> {
+  let threadId: string | null = null;
+  
   try {
-    // Limit the number of images to process (OpenAI has limits)
-    const limitedUrls = imageUrls.slice(0, 3); // Max 3 images
-    
+    // Limit to a maximum of 3 images
+    const limitedUrls = imageUrls.slice(0, 3);
     console.log(`Processing ${limitedUrls.length} images for analysis`);
-    
-    // Prepare the messages for the API call
-    const messages = [
+
+    // Validate image URLs
+    if (!limitedUrls.every(url => url.startsWith('http'))) {
+      throw new Error('Invalid image URLs provided');
+    }
+
+    // Prepare message content
+    const messageContent = [
       {
-        role: "system",
-        content: ANTIQUE_EVALUATION_PROMPT,
+        type: "text" as const,
+        text: `Analyze these images of an antique item.${additionalInfo ? ` Additional information: ${additionalInfo}` : ""}`,
       },
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: `Please analyze these images of an antique item.${
-              additionalInfo ? ` Additional information: ${additionalInfo}` : ""
-            }`,
-          },
-          ...limitedUrls.map((url) => ({
-            type: "image_url",
-            image_url: { url },
-          })),
-        ],
-      },
+      ...limitedUrls.map((url) => ({
+        type: "image_url" as const,
+        image_url: { url },
+      })),
     ];
 
-    // Call the OpenAI API with increased timeout
-    const response = await Promise.race([
-      openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: messages,
-        temperature: 0.8,
-        max_tokens: 2064,
-        response_format: { type: "json_object" }
-      }),
-      // Set timeout promise
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("OpenAI API timeout after 60 seconds")), 60000)
+    // Create a thread with retry
+    const thread = await withRetry(() => openai.beta.threads.create());
+    threadId = thread.id;
+
+    // Add a message to the thread with retry
+    await withRetry(() => 
+      openai.beta.threads.messages.create(
+        thread.id,
+        {
+          role: "user",
+          content: messageContent,
+        }
       )
-    ]);
+    );
 
-    // Parse the response
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    // Run the assistant on the thread with retry
+    const run = await withRetry(() =>
+      openai.beta.threads.runs.create(
+        thread.id,
+        {
+          assistant_id: assistantId,
+        }
+      )
+    );
 
-    // Return a structured result
+    // Wait for the run to complete with timeout
+    let runStatus = await withRetry(() => 
+      openai.beta.threads.runs.retrieve(thread.id, run.id)
+    );
+
+    // Poll for completion (with timeout)
+    const startTime = Date.now();
+    while (runStatus.status !== "completed" && runStatus.status !== "failed") {
+      // Check for timeout (60 seconds)
+      if (Date.now() - startTime > 60000) {
+        throw new Error("OpenAI API timeout after 60 seconds");
+      }
+
+      // Wait before polling again
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Check status with retry
+      runStatus = await withRetry(() => 
+        openai.beta.threads.runs.retrieve(thread.id, run.id)
+      );
+      
+      if (runStatus.status === "failed") {
+        throw new Error("Assistant run failed: " + (runStatus.last_error?.message || "Unknown error"));
+      }
+    }
+
+    // Retrieve the messages from the thread with retry
+    const messages = await withRetry(() => 
+      openai.beta.threads.messages.list(thread.id)
+    );
+    
+    // Get the last assistant message
+    const assistantMessages = messages.data.filter(msg => msg.role === "assistant");
+    if (assistantMessages.length === 0) {
+      throw new Error("No response from assistant");
+    }
+    
+    // Parse the JSON content from the last assistant message
+    const lastMessage = assistantMessages[0];
+    const jsonContent = lastMessage.content.find(
+      content => content.type === "text"
+    );
+    
+    if (!jsonContent || !jsonContent.text) {
+      throw new Error("Assistant response did not contain text content");
+    }
+    
+    // Parse the JSON response
+    let result;
+    try {
+      // First parse the outer JSON object
+      const outerJson = JSON.parse(jsonContent.text);
+      
+      // Extract the inner JSON string from the value property
+      if (outerJson.value) {
+        result = JSON.parse(outerJson.value);
+      } else {
+        result = outerJson;
+      }
+
+      // Validate the response structure
+      if (!validateAssistantResponse(result)) {
+        throw new Error("Assistant response missing required fields");
+      }
+    } catch (parseError) {
+      console.error("Error parsing JSON response:", parseError);
+      console.error("Raw response:", jsonContent.text);
+      throw new Error("Failed to parse the analysis response");
+    }
+
+    // Transform the assistant's response into our expected format
     return {
-      preliminaryCategory: result.preliminaryCategory || "",
+      preliminaryCategory: result.introduction?.category || "",
       physicalAttributes: {
-        materials: result.physicalAttributes?.materials || "",
-        measurements: result.physicalAttributes?.measurements || "",
-        condition: result.physicalAttributes?.condition || "",
+        materials: result.physical_attributes?.materials_techniques || "",
+        measurements: result.physical_attributes?.measurements || "",
+        condition: result.physical_attributes?.condition || "",
       },
       inscriptions: {
-        signatures: result.inscriptions?.signatures || "",
-        hallmarks: result.inscriptions?.hallmarks || "",
-        additionalIdentifiers: result.inscriptions?.additionalIdentifiers || "",
+        signatures: result.inscriptions_marks_labels?.markings || "",
+        hallmarks: result.inscriptions_marks_labels?.interpretation || "",
+        additionalIdentifiers: "",
       },
       uniqueFeatures: {
-        motifs: result.uniqueFeatures?.motifs || "",
-        restoration: result.uniqueFeatures?.restoration || "",
-        anomalies: result.uniqueFeatures?.anomalies || "",
+        motifs: result.distinguishing_features?.motifs_decorations || "",
+        restoration: result.distinguishing_features?.alterations || "",
+        anomalies: "",
       },
       stylistic: {
-        indicators: result.stylistic?.indicators || "",
-        estimatedEra: result.stylistic?.estimatedEra || "",
-        confidenceLevel: result.stylistic?.confidenceLevel || "",
+        indicators: result.stylistic_assessment?.style_indicators || "",
+        estimatedEra: result.stylistic_assessment?.estimated_era || "",
+        confidenceLevel: result.stylistic_assessment?.confidence || "",
       },
       attribution: {
-        likelyMaker: result.attribution?.likelyMaker || "",
-        evidence: result.attribution?.evidence || "",
-        probability: result.attribution?.probability || "",
+        likelyMaker: result.provenance_and_attribution?.possible_maker || "",
+        evidence: result.provenance_and_attribution?.rationale || "",
+        probability: "",
       },
       provenance: {
-        infoInPhotos: result.provenance?.infoInPhotos || "",
-        historicIndicators: result.provenance?.historicIndicators || "",
-        recommendedFollowup: result.provenance?.recommendedFollowup || "",
+        infoInPhotos: result.identification?.photos || "",
+        historicIndicators: result.provenance_and_attribution?.hints_of_origin || "",
+        recommendedFollowup: result.recommendations?.next_steps || "",
       },
       intake: {
-        photoCount: result.intake?.photoCount || "",
-        photoQuality: result.intake?.photoQuality || "",
-        lightingAngles: result.intake?.lightingAngles || "",
-        overallImpression: result.intake?.overallImpression || "",
+        photoCount: result.identification?.photos || "",
+        photoQuality: "",
+        lightingAngles: "",
+        overallImpression: result.identification?.impression || "",
       },
       valueIndicators: {
-        factors: result.valueIndicators?.factors || "",
-        redFlags: result.valueIndicators?.redFlags || "",
-        references: result.valueIndicators?.references || "",
-        followupQuestions: result.valueIndicators?.followupQuestions || [],
+        factors: result.value_indicators?.factors || "",
+        redFlags: result.value_indicators?.concerns || "",
+        references: "",
+        followupQuestions: [],
       },
-      summary: result.summary || "",
-      fullReport: result.fullReport || "",
-    }
-  } catch (error) {
+      summary: result.full_report?.description || "",
+      fullReport: JSON.stringify(result, null, 2),
+    };
+  } catch (error: unknown) {
     console.error("Error analyzing antique:", error);
-    if (error.message?.includes("timeout")) {
-      throw new Error("Analysis timed out. Please try with fewer or smaller images.");
+    if (error instanceof Error) {
+      if (error.message?.includes("timeout")) {
+        throw new Error(
+          "Analysis timed out. Please try with fewer or smaller images."
+        );
+      }
+      throw new Error(
+        `Failed to analyze the antique: ${error.message}`
+      );
     }
-    throw new Error("Failed to analyze the antique. Please try again with clearer images.");
+    throw new Error(
+      "Failed to analyze the antique. Please try again with clearer images."
+    );
+  } finally {
+    // Clean up the thread
+    if (threadId) {
+      await cleanupThread(threadId);
+    }
   }
 }
 
+/**
+ * Refines an initial analysis report based on user feedback.
+ */
 export async function refineAnalysis(
   initialAnalysis: AntiqueAnalysisResult,
-  userFeedback: string,
+  userFeedback: string
 ): Promise<AntiqueAnalysisResult> {
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert antiques appraiser. Refine your analysis based on user feedback. Maintain the same JSON structure in your response.",
-        },
-        {
-          role: "assistant",
-          content: JSON.stringify(initialAnalysis),
-        },
-        {
-          role: "user",
-          content: `Please refine your analysis based on this additional information: ${userFeedback}`,
-        },
-      ],
-      temperature: 0.2,
-      max_tokens: 2000,
-      response_format: { type: "json_object" }
-    })
+    // Create a thread
+    const thread = await openai.beta.threads.create();
 
-    // Parse the response
-    const result = JSON.parse(response.choices[0].message.content || "{}")
+    // Add initial analysis as an assistant message
+    await openai.beta.threads.messages.create(
+      thread.id,
+      {
+        role: "assistant",
+        content: JSON.stringify(initialAnalysis),
+      }
+    );
 
-    // Return a structured result
+    // Add user feedback
+    await openai.beta.threads.messages.create(
+      thread.id,
+      {
+        role: "user",
+        content: `Refine your analysis using this additional information: ${userFeedback}`,
+      }
+    );
+
+    // Run the assistant on the thread
+    const run = await openai.beta.threads.runs.create(
+      thread.id,
+      {
+        assistant_id: assistantId,
+      }
+    );
+
+    // Wait for the run to complete
+    let runStatus = await openai.beta.threads.runs.retrieve(
+      thread.id, 
+      run.id
+    );
+
+    // Poll for completion (with timeout)
+    const startTime = Date.now();
+    while (runStatus.status !== "completed" && runStatus.status !== "failed") {
+      // Check for timeout (60 seconds)
+      if (Date.now() - startTime > 60000) {
+        throw new Error("OpenAI API timeout after 60 seconds");
+      }
+
+      // Wait before polling again
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Check status
+      runStatus = await openai.beta.threads.runs.retrieve(
+        thread.id, 
+        run.id
+      );
+      
+      if (runStatus.status === "failed") {
+        throw new Error("Assistant run failed: " + (runStatus.last_error?.message || "Unknown error"));
+      }
+    }
+
+    // Retrieve the messages from the thread
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    
+    // Get the last assistant message
+    const assistantMessages = messages.data.filter(msg => msg.role === "assistant");
+    if (assistantMessages.length === 0 || assistantMessages.length === 1) {
+      throw new Error("No new response from assistant");
+    }
+    
+    // Parse the JSON content from the last assistant message (should be the newest one)
+    const lastMessage = assistantMessages[0];
+    const jsonContent = lastMessage.content.find(
+      content => content.type === "text"
+    );
+    
+    if (!jsonContent || !jsonContent.text) {
+      throw new Error("Assistant response did not contain text content");
+    }
+    
+    // Parse the JSON response
+    let result;
+    try {
+      // First parse the outer JSON object
+      const outerJson = JSON.parse(jsonContent.text);
+      
+      // Extract the inner JSON string from the value property
+      if (outerJson.value) {
+        result = JSON.parse(outerJson.value);
+      } else {
+        result = outerJson;
+      }
+
+      // Validate the response structure
+      if (!validateAssistantResponse(result)) {
+        throw new Error("Assistant response missing required fields");
+      }
+    } catch (parseError) {
+      console.error("Error parsing JSON response:", parseError);
+      console.error("Raw response:", jsonContent.text);
+      throw new Error("Failed to parse the refined analysis response");
+    }
+
     return {
-      preliminaryCategory: result.preliminaryCategory || initialAnalysis.preliminaryCategory,
+      preliminaryCategory:
+        result.preliminaryCategory || initialAnalysis.preliminaryCategory,
       physicalAttributes: {
-        materials: result.physicalAttributes?.materials || initialAnalysis.physicalAttributes.materials,
-        measurements: result.physicalAttributes?.measurements || initialAnalysis.physicalAttributes.measurements,
-        condition: result.physicalAttributes?.condition || initialAnalysis.physicalAttributes.condition,
+        materials:
+          result.physical_attributes?.materials ||
+          initialAnalysis.physicalAttributes.materials,
+        measurements:
+          result.physical_attributes?.measurements ||
+          initialAnalysis.physicalAttributes.measurements,
+        condition:
+          result.physical_attributes?.condition ||
+          initialAnalysis.physicalAttributes.condition,
       },
       inscriptions: {
-        signatures: result.inscriptions?.signatures || initialAnalysis.inscriptions.signatures,
-        hallmarks: result.inscriptions?.hallmarks || initialAnalysis.inscriptions.hallmarks,
+        signatures:
+          result.inscriptions?.signatures ||
+          initialAnalysis.inscriptions.signatures,
+        hallmarks:
+          result.inscriptions?.hallmarks ||
+          initialAnalysis.inscriptions.hallmarks,
         additionalIdentifiers:
-          result.inscriptions?.additionalIdentifiers || initialAnalysis.inscriptions.additionalIdentifiers,
+          result.inscriptions?.additionalIdentifiers ||
+          initialAnalysis.inscriptions.additionalIdentifiers,
       },
       uniqueFeatures: {
-        motifs: result.uniqueFeatures?.motifs || initialAnalysis.uniqueFeatures.motifs,
-        restoration: result.uniqueFeatures?.restoration || initialAnalysis.uniqueFeatures.restoration,
-        anomalies: result.uniqueFeatures?.anomalies || initialAnalysis.uniqueFeatures.anomalies,
+        motifs:
+          result.uniqueFeatures?.motifs ||
+          initialAnalysis.uniqueFeatures.motifs,
+        restoration:
+          result.uniqueFeatures?.restoration ||
+          initialAnalysis.uniqueFeatures.restoration,
+        anomalies:
+          result.uniqueFeatures?.anomalies ||
+          initialAnalysis.uniqueFeatures.anomalies,
       },
       stylistic: {
-        indicators: result.stylistic?.indicators || initialAnalysis.stylistic.indicators,
-        estimatedEra: result.stylistic?.estimatedEra || initialAnalysis.stylistic.estimatedEra,
-        confidenceLevel: result.stylistic?.confidenceLevel || initialAnalysis.stylistic.confidenceLevel,
+        indicators:
+          result.stylistic?.indicators ||
+          initialAnalysis.stylistic.indicators,
+        estimatedEra:
+          result.stylistic?.estimatedEra ||
+          initialAnalysis.stylistic.estimatedEra,
+        confidenceLevel:
+          result.stylistic?.confidenceLevel ||
+          initialAnalysis.stylistic.confidenceLevel,
       },
       attribution: {
-        likelyMaker: result.attribution?.likelyMaker || initialAnalysis.attribution.likelyMaker,
-        evidence: result.attribution?.evidence || initialAnalysis.attribution.evidence,
-        probability: result.attribution?.probability || initialAnalysis.attribution.probability,
+        likelyMaker:
+          result.attribution?.likelyMaker ||
+          initialAnalysis.attribution.likelyMaker,
+        evidence:
+          result.attribution?.evidence ||
+          initialAnalysis.attribution.evidence,
+        probability:
+          result.attribution?.probability ||
+          initialAnalysis.attribution.probability,
       },
       provenance: {
-        infoInPhotos: result.provenance?.infoInPhotos || initialAnalysis.provenance.infoInPhotos,
-        historicIndicators: result.provenance?.historicIndicators || initialAnalysis.provenance.historicIndicators,
-        recommendedFollowup: result.provenance?.recommendedFollowup || initialAnalysis.provenance.recommendedFollowup,
+        infoInPhotos:
+          result.provenance?.infoInPhotos ||
+          initialAnalysis.provenance.infoInPhotos,
+        historicIndicators:
+          result.provenance?.historicIndicators ||
+          initialAnalysis.provenance.historicIndicators,
+        recommendedFollowup:
+          result.provenance?.recommendedFollowup ||
+          initialAnalysis.provenance.recommendedFollowup,
       },
       intake: {
-        photoCount: result.intake?.photoCount || initialAnalysis.intake.photoCount,
-        photoQuality: result.intake?.photoQuality || initialAnalysis.intake.photoQuality,
-        lightingAngles: result.intake?.lightingAngles || initialAnalysis.intake.lightingAngles,
-        overallImpression: result.intake?.overallImpression || initialAnalysis.intake.overallImpression,
+        photoCount:
+          result.intake?.photoCount ||
+          initialAnalysis.intake.photoCount,
+        photoQuality:
+          result.intake?.photoQuality ||
+          initialAnalysis.intake.photoQuality,
+        lightingAngles:
+          result.intake?.lightingAngles ||
+          initialAnalysis.intake.lightingAngles,
+        overallImpression:
+          result.intake?.overallImpression ||
+          initialAnalysis.intake.overallImpression,
       },
       valueIndicators: {
-        factors: result.valueIndicators?.factors || initialAnalysis.valueIndicators.factors,
-        redFlags: result.valueIndicators?.redFlags || initialAnalysis.valueIndicators.redFlags,
-        references: result.valueIndicators?.references || initialAnalysis.valueIndicators.references,
+        factors:
+          result.valueIndicators?.factors ||
+          initialAnalysis.valueIndicators.factors,
+        redFlags:
+          result.valueIndicators?.redFlags ||
+          initialAnalysis.valueIndicators.redFlags,
+        references:
+          result.valueIndicators?.references ||
+          initialAnalysis.valueIndicators.references,
         followupQuestions:
-          result.valueIndicators?.followupQuestions || initialAnalysis.valueIndicators.followupQuestions,
+          result.valueIndicators?.followupQuestions ||
+          initialAnalysis.valueIndicators.followupQuestions,
       },
       summary: result.summary || initialAnalysis.summary,
       fullReport: result.fullReport || initialAnalysis.fullReport,
-    }
+    };
   } catch (error) {
-    console.error("Error refining analysis:", error)
-    throw new Error("Failed to refine the analysis. Please try again.")
+    console.error("Error refining analysis:", error);
+    throw new Error("Failed to refine the analysis. Please try again.");
   }
 }
 
@@ -358,17 +539,13 @@ export async function generateAudioSummary(text: string): Promise<string> {
       model: "tts-1",
       voice: "alloy",
       input: text,
-    })
+    });
 
-    // Get the audio data
-    await response.arrayBuffer()
-
-    // In a real app, you would save this to a file or cloud storage
-    // and return the URL. For this example, we'll just return a mock URL
-    return "/api/audio/summary.mp3"
+    // Get the audio data (simulate saving and returning a URL)
+    await response.arrayBuffer();
+    return "/api/audio/summary.mp3";
   } catch (error) {
-    console.error("Error generating audio summary:", error)
-    throw new Error("Failed to generate audio summary. Please try again.")
+    console.error("Error generating audio summary:", error);
+    throw new Error("Failed to generate audio summary. Please try again.");
   }
 }
-

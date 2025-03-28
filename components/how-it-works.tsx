@@ -37,7 +37,7 @@ export default function HowItWorks() {
               {/* Step number */}
               <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-primary-foreground border-4 border-primary text-xl font-bold text-primary mb-6 shadow-md">
                 {index + 1}
-              </div>
+            </div>
               
               {/* Step content */}
               <div className="flex flex-col items-center space-y-4 text-center bg-background rounded-xl p-6 border border-border/50 shadow-sm w-full h-full">
@@ -52,10 +52,10 @@ export default function HowItWorks() {
                         <Check className="h-3.5 w-3.5 text-primary" />
                       </div>
                       <span className="text-sm text-left">{point}</span>
-                    </li>
+              </li>
                   ))}
-                </ul>
-              </div>
+            </ul>
+          </div>
             </div>
           ))}
         </div>
