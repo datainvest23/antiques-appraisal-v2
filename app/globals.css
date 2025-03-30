@@ -6,6 +6,94 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Expert Appraisal Styling */
+.expert-appraisal-container {
+  font-family: 'Georgia', serif;
+  line-height: 1.6;
+}
+
+.expert-appraisal {
+  font-family: 'Georgia', serif;
+  line-height: 1.6;
+}
+
+.expert-appraisal h2 {
+  color: #2c5282;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.expert-appraisal h3 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.expert-appraisal h4 {
+  color: #4a5568;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.expert-appraisal p {
+  margin-bottom: 1rem;
+}
+
+.expert-appraisal ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  list-style-type: disc;
+}
+
+.expert-appraisal li {
+  margin-bottom: 0.5rem;
+}
+
+.expert-appraisal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.expert-appraisal table th {
+  background-color: #f7fafc;
+  text-align: left;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.expert-appraisal table td {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.expert-appraisal table tr:nth-child(even) {
+  background-color: #f7fafc;
+}
+
+.expert-appraisal hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.expert-appraisal strong {
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.expert-appraisal em {
+  font-style: italic;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

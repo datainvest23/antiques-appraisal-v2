@@ -1050,8 +1050,11 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
                         <Card className="mt-6">
                           <CardContent className="p-6">
                             <h3 className="text-xl font-semibold mb-4">Comprehensive Expert Appraisal</h3>
-                            <div className="prose max-w-none">
-                              <div dangerouslySetInnerHTML={{ __html: evaluationExpertResult.content }} />
+                            <div className="prose prose-slate max-w-none">
+                              <div 
+                                dangerouslySetInnerHTML={{ __html: evaluationExpertResult.content }} 
+                                className="expert-appraisal-container"
+                              />
                             </div>
                           </CardContent>
                         </Card>

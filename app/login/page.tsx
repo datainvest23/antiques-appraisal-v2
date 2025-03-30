@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AuthError } from "@supabase/supabase-js"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import type { Database } from "@/types/supabase"
 
 interface FormFieldProps {
   id: string
@@ -96,6 +98,7 @@ interface AuthFormProps {
   setPassword: (password: string) => void
   error: string | null
   isLoading: boolean
+  isGoogleSignInLoading: boolean
   onGoogleSignIn: () => void
 }
 
@@ -113,6 +116,7 @@ function LoginForm({
   setPassword, 
   error, 
   isLoading,
+  isGoogleSignInLoading,
   onGoogleSignIn,
   onSubmit 
 }: AuthFormProps & { onSubmit: (e: React.FormEvent) => void }) {
@@ -156,10 +160,17 @@ function LoginForm({
           type="button"
           variant="outline"
           onClick={onGoogleSignIn}
-          disabled={isLoading}
+          disabled={isLoading || isGoogleSignInLoading}
           className="w-full"
         >
-          Continue with Google
+          {isGoogleSignInLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Connecting to Google...
+            </>
+          ) : (
+            "Continue with Google"
+          )}
         </Button>
       </CardFooter>
     </form>
@@ -177,6 +188,7 @@ function RegisterForm({
   setLastName,
   error, 
   isLoading,
+  isGoogleSignInLoading,
   onGoogleSignIn,
   onSubmit 
 }: RegisterFormProps & { onSubmit: (e: React.FormEvent) => void }) {
@@ -236,10 +248,17 @@ function RegisterForm({
           type="button"
           variant="outline"
           onClick={onGoogleSignIn}
-          disabled={isLoading}
+          disabled={isLoading || isGoogleSignInLoading}
           className="w-full"
         >
-          Continue with Google
+          {isGoogleSignInLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Connecting to Google...
+            </>
+          ) : (
+            "Continue with Google"
+          )}
         </Button>
       </CardFooter>
     </form>
@@ -252,10 +271,12 @@ function LoginFormContainer() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [isGoogleSignInLoading, setIsGoogleSignInLoading] = useState(false)
   const { signIn, signUp, isLoading, user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectPath = searchParams.get('redirect') || '/appraise'
+  const supabase = createClientComponentClient<Database>()
   
   useEffect(() => {
     if (user) {
@@ -294,7 +315,27 @@ function LoginFormContainer() {
   }
 
   const handleGoogleSignIn = async () => {
-    setError("Google sign-in is not implemented yet")
+    if (isGoogleSignInLoading) return
+    
+    setError(null)
+    try {
+      setIsGoogleSignInLoading(true)
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      
+      if (error) throw error
+    } catch (error: unknown) {
+      if (error instanceof AuthError) {
+        setError(error.message)
+      } else {
+        setError("Failed to sign in with Google")
+      }
+      setIsGoogleSignInLoading(false)
+    }
   }
 
   return (
@@ -317,6 +358,7 @@ function LoginFormContainer() {
               setPassword={setPassword}
               error={error}
               isLoading={isLoading}
+              isGoogleSignInLoading={isGoogleSignInLoading}
               onGoogleSignIn={handleGoogleSignIn}
               onSubmit={handleSignIn}
             />
@@ -333,6 +375,7 @@ function LoginFormContainer() {
               setLastName={setLastName}
               error={error}
               isLoading={isLoading}
+              isGoogleSignInLoading={isGoogleSignInLoading}
               onGoogleSignIn={handleGoogleSignIn}
               onSubmit={handleSignUp}
             />

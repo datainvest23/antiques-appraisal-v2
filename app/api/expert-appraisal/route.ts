@@ -131,6 +131,47 @@ async function fetchImageAsBase64(url: string): Promise<{data: string, mimeType:
   }
 }
 
+// Function to clean up and process Gemini's markdown response
+function processMarkdownResponse(content: string): string {
+  // Remove any content before the Executive Summary section
+  let cleanedContent = content;
+  const execSummaryIndex = cleanedContent.indexOf('## EXECUTIVE SUMMARY');
+  if (execSummaryIndex !== -1) {
+    cleanedContent = cleanedContent.substring(execSummaryIndex);
+  }
+  
+  // Format markdown to HTML with proper classes for styling
+  // Convert headers
+  cleanedContent = cleanedContent
+    // Format headers
+    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-5 mb-2">$1</h3>')
+    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-4 mb-2">$1</h4>')
+    // Format list items
+    .replace(/^\s*[-*+]\s+(.*$)/gm, '<li class="ml-4 my-1">$1</li>')
+    // Wrap lists - avoid using 's' flag
+    .replace(/(<li.*<\/li>)\n(?![<\s]*li)/g, '<ul class="list-disc pl-5 my-3">$1</ul>')
+    // Format bold and italics
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Format paragraphs
+    .replace(/^(?!<[hl]|<ul|<\/ul|<li|<table|<\/table|$)(.+)$/gm, '<p class="my-2">$1</p>')
+    // Fix any double-wrapped paragraphs
+    .replace(/<p class="my-2">(<h[2-4].*?<\/h[2-4]>)<\/p>/g, '$1')
+    // Handle tables (simple approach)
+    .replace(/\|\s*(.*?)\s*\|/g, '<td class="border px-4 py-2">$1</td>')
+    .replace(/^(<td.*<\/td>)$/gm, '<tr>$1</tr>')
+    // Handle table wrapping - avoid using 's' flag
+    .replace(/(<tr>.*<\/tr>)\n(?!<tr>)/g, '<table class="border-collapse border my-4 w-full">$1</table>')
+    // Handle horizontal rules
+    .replace(/^---$/gm, '<hr class="my-6 border-t border-gray-300">')
+    // Fix spacing
+    .replace(/\n\n+/g, '\n\n');
+  
+  // Wrap everything in a container div with styling
+  return `<div class="expert-appraisal text-gray-800 leading-relaxed">${cleanedContent}</div>`;
+}
+
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
@@ -201,13 +242,8 @@ Please provide a comprehensive expert appraisal following the format in your ins
       // Get the response text
       const content = result.response.text();
 
-      // Format the response as HTML for better presentation
-      const formattedContent = content
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^/, '<p>').replace(/$/, '</p>');
+      // Process the markdown response
+      const formattedContent = processMarkdownResponse(content);
 
       return NextResponse.json({ content: formattedContent });
     } catch (apiError) {
