@@ -1,0 +1,7 @@
+{
+  "platforms": {
+    "linux": {
+      "x64": true
+    }
+  }
+} 

@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import sharp from 'sharp'
+
+// Import sharp dynamically to handle cases where it might not be available
+let sharp: any;
+try {
+  sharp = require('sharp');
+} catch (e) {
+  console.warn('Sharp module not available, image optimization disabled');
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,29 +42,50 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     
-    // Optimize image using sharp
-    const optimizedImage = await sharp(buffer)
-      .resize(1200, 1200, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .jpeg({
-        quality: 85,
-        progressive: true
-      })
-      .toBuffer()
+    // Define variables for image data
+    let processedImage = buffer;
+    let imageFormat = file.type.split('/')[1] || 'jpeg';
+    let imageWidth = 0;
+    let imageHeight = 0;
+    
+    // Optimize image using sharp if available
+    if (sharp) {
+      try {
+        processedImage = await sharp(buffer)
+          .resize(1200, 1200, {
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .jpeg({
+            quality: 85,
+            progressive: true
+          })
+          .toBuffer();
+        
+        // Get the image metadata
+        const metadata = await sharp(processedImage).metadata();
+        imageWidth = metadata.width || 0;
+        imageHeight = metadata.height || 0;
+        imageFormat = 'jpeg';
+      } catch (error) {
+        console.warn('Image optimization failed, using original image', error);
+        // Fallback to original image
+        processedImage = buffer;
+      }
+    }
     
     // Create a unique filename with timestamp
     const timestamp = Date.now()
-    const fileName = `${timestamp}.jpg`  // Always save as jpg after optimization
+    const extension = sharp ? 'jpg' : imageFormat;
+    const fileName = `${timestamp}.${extension}`
     const folderPath = `${userId}`
     
-    // Upload optimized image to Supabase Storage
+    // Upload processed image to Supabase Storage
     const { data, error } = await supabase
       .storage
       .from('antique-images')
-      .upload(`${folderPath}/${fileName}`, optimizedImage, {
-        contentType: 'image/jpeg',
+      .upload(`${folderPath}/${fileName}`, processedImage, {
+        contentType: sharp ? 'image/jpeg' : file.type,
         cacheControl: '3600',
         upsert: false
       })
@@ -77,11 +105,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       url: publicUrl,
       uploadPath: data.path,
-      size: optimizedImage.length,
-      format: 'jpeg',
+      size: processedImage.length,
+      format: imageFormat,
       dimensions: {
-        width: 1200,
-        height: 1200
+        width: imageWidth || 'unknown',
+        height: imageHeight || 'unknown'
       }
     }, {
       headers: {
