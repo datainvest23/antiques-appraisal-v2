@@ -2,10 +2,8 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "installCommand": "pnpm install --ignore-scripts && pnpm add sharp@latest --platform=linux --arch=x64"
-      }
+      "use": "@vercel/next"
     }
-  ]
+  ],
+  "installCommand": "pnpm install"
 } 

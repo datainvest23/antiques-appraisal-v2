@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npm rebuild sharp --platform=linux --arch=x64"
+    "postinstall": "node install-sharp.js"
   },
   "dependencies": {
     "@google/genai": "^0.7.0",
