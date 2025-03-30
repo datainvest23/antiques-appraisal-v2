@@ -2,51 +2,25 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   
-  useEffect(() => {
-    // Try to autoplay with sound first (will likely be blocked by browsers)
-    const playVideo = async () => {
-      if (videoRef.current) {
-        // First try to play with sound
+  const playVideo = async () => {
+    if (videoRef.current) {
+      try {
         videoRef.current.muted = false;
-        try {
-          await videoRef.current.play();
-          setIsMuted(false);
-        } catch {
-          // If playing with sound fails, play muted (which browsers usually allow)
-          videoRef.current.muted = true;
-          try {
-            await videoRef.current.play();
-            setIsMuted(true);
-            console.log("Video playing muted due to browser autoplay policy");
-          } catch (err) {
-            console.error("Video autoplay failed even when muted:", err);
-          }
-        }
-      }
-    };
-    
-    playVideo();
-    
-    // Add a click event listener to the document to unmute
-    const handleDocumentClick = () => {
-      if (videoRef.current && videoRef.current.muted) {
-        videoRef.current.muted = false;
+        await videoRef.current.play();
         setIsMuted(false);
+        setIsPlaying(true);
+      } catch (err) {
+        console.error("Video playback failed:", err);
       }
-    };
-    
-    document.addEventListener('click', handleDocumentClick);
-    
-    return () => {
-      document.removeEventListener('click', handleDocumentClick);
-    };
-  }, []);
+    }
+  };
   
   const toggleMute = () => {
     if (videoRef.current) {
@@ -110,38 +84,46 @@ export default function HeroSection() {
                 ref={videoRef}
                 src="https://twgftxpfiqryfifgajsd.supabase.co/storage/v1/object/public/pub//aa_intro2.mp4"
                 className="w-full h-full object-cover"
-                autoPlay
                 playsInline
+                loop
+                poster="/aa_logo.png"
               />
               
-              {/* Mute toggle button - improved styling */}
-              <button 
-                onClick={toggleMute}
-                className="absolute bottom-4 right-4 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all"
-                aria-label={isMuted ? "Unmute" : "Mute"}
-              >
-                {isMuted ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
-                    <line x1="23" y1="9" x2="17" y2="15"></line>
-                    <line x1="17" y1="9" x2="23" y2="15"></line>
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                  </svg>
-                )}
-              </button>
-              
-              {/* Improved unmute overlay */}
-              {isMuted && (
-                <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/40 backdrop-blur-sm">
-                  <div className="bg-white/90 dark:bg-slate-800/90 p-5 rounded-xl text-center max-w-xs shadow-xl">
-                    <p className="mb-3 font-medium">Click to enable sound</p>
-                    <Button onClick={toggleMute} className="w-full rounded-full">Enable Sound</Button>
-                  </div>
+              {/* Play button overlay */}
+              {!isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <button 
+                    onClick={playVideo}
+                    className="bg-primary/90 hover:bg-primary text-white p-4 rounded-full transition-all transform hover:scale-105 flex items-center gap-2 px-6"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Play Video
+                  </button>
                 </div>
+              )}
+              
+              {/* Mute toggle button - only show when video is playing */}
+              {isPlaying && (
+                <button 
+                  onClick={toggleMute}
+                  className="absolute bottom-4 right-4 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all"
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                      <line x1="23" y1="9" x2="17" y2="15"></line>
+                      <line x1="17" y1="9" x2="23" y2="15"></line>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                  )}
+                </button>
               )}
             </div>
           </div>

@@ -26,7 +26,7 @@ export default function BuyTokensPage() {
 
       // For preview, just show success and redirect
       alert(`Successfully purchased ${selectedPlan === "small" ? "5" : "10"} tokens!`)
-      router.push("/appraisal")
+      router.push("/appraise")
     } catch (error) {
       console.error('Error fetching token balance:', error)
       setError('Failed to fetch token balance')

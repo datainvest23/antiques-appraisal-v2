@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { AlertCircle, Camera, Upload, Mic, Loader2, X } from "lucide-react"
+import { AlertCircle, Camera, Upload, Mic, Loader2, Download } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
@@ -27,9 +27,11 @@ import { useAuth } from "@/contexts/auth-context"
 
 export interface AppraiseAntiqueProps {
   tokenBalance: number
+  _userId: string
+  _freeValuationsLeft: number
 }
 
-export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) {
+export default function AppraiseAntique({ tokenBalance, _userId, _freeValuationsLeft }: AppraiseAntiqueProps) {
   const router = useRouter()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("upload")
@@ -52,10 +54,11 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
   const { toast } = useToast()
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
-  const [isHistoryExpertAnalyzing, setIsHistoryExpertAnalyzing] = useState(false);
+  const [_isHistoryExpertAnalyzing, setIsHistoryExpertAnalyzing] = useState(false);
   const [isEvaluationExpertAnalyzing, setIsEvaluationExpertAnalyzing] = useState(false);
   const [historyExpertResult, setHistoryExpertResult] = useState<any>(null);
   const [evaluationExpertResult, setEvaluationExpertResult] = useState<any>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -79,7 +82,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
     }
   }
 
-  const removeImage = (index: number) => {
+  const _removeImage = (index: number) => {
     const newImages = [...images]
     const newUrls = [...imageUrls]
 
@@ -360,7 +363,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
     }
   }
 
-  const handleHistoryExpertAnalysis = async () => {
+  const _handleHistoryExpertAnalysis = async () => {
     if (!analysisData) return;
     
     setIsHistoryExpertAnalyzing(true);
@@ -409,38 +412,319 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
     setError(null);
     
     try {
-      const response = await fetch('/api/evaluation-expert', {
+      const response = await fetch('/api/expert-appraisal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           imageUrls: imageUrls,
           category: analysisData.preliminaryCategory,
           summary: analysisData.summary,
-          additionalInfo: feedback
+          additionalInfo: feedback,
+          analysisData: analysisData // Pass the complete analysis data
         })
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get evaluation expert analysis');
+        throw new Error(errorData.error || 'Failed to get expert appraisal');
       }
       
       const result = await response.json();
       setEvaluationExpertResult(result);
       toast({
-        title: "Evaluation Expert Analysis Complete",
-        description: "Market valuation and comparison analysis is now available.",
+        title: "Expert Appraisal Complete",
+        description: "Your comprehensive expert appraisal is now available.",
       });
     } catch (error: any) {
-      console.error('Error getting evaluation expert analysis:', error);
-      setError(error.message || 'Failed to get evaluation expert analysis');
+      console.error('Error getting expert appraisal:', error);
+      setError(error.message || 'Failed to get expert appraisal');
       toast({
-        title: "Analysis Failed",
-        description: "Unable to complete the market evaluation. Please try again.",
+        title: "Appraisal Failed",
+        description: "Unable to complete the expert appraisal. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsEvaluationExpertAnalyzing(false);
+    }
+  };
+
+  // Function to generate and download PDF report
+  const handleDownloadReport = async () => {
+    if (!analysisData) return;
+    
+    setIsGeneratingPdf(true);
+    
+    try {
+      // Dynamically import jsPDF and jsPDF-AutoTable to avoid SSR issues
+      const { default: jsPDF } = await import('jspdf');
+      const { default: autoTable } = await import('jspdf-autotable');
+      
+      // Create a new PDF document (landscape orientation for better layout)
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Define colors and styles
+      const primaryColor = [41, 128, 185]; // Blue
+      const secondaryColor = [90, 90, 90]; // Dark gray
+      const lightGrayBg = [245, 245, 245]; // Light gray background
+      
+      // Add the logo at the top left
+      const logoUrl = '/aa_logo_h.png';
+      // Add image to PDF (addImage requires a base64 string, URL, or img element)
+      try {
+        doc.addImage(logoUrl, 'PNG', 15, 15, 60, 15); // x, y, width, height
+      } catch (error) {
+        console.error('Error adding logo to PDF:', error);
+      }
+      
+      // Add a horizontal line below the header
+      doc.setDrawColor(...primaryColor);
+      doc.setLineWidth(0.5);
+      doc.line(15, 35, 195, 35);
+      
+      // Add the title
+      doc.setFontSize(20);
+      doc.setTextColor(...secondaryColor);
+      doc.text("Antiques Appraisal Report", 105, 45, { align: 'center' });
+      
+      // Add the item title/name
+      doc.setFontSize(16);
+      doc.setTextColor(...primaryColor);
+      const itemTitle = analysisData.introduction?.title || analysisData.preliminaryCategory;
+      doc.text(itemTitle, 105, 55, { align: 'center' });
+      
+      // Add user info and date
+      const today = new Date();
+      const dateStr = today.toLocaleDateString();
+      const userName = user?.email?.split('@')[0] || 'User';
+      
+      doc.setFontSize(11);
+      doc.setTextColor(...secondaryColor);
+      doc.text(`Prepared for: ${userName}`, 15, 65);
+      doc.text(`Date: ${dateStr}`, 15, 70);
+      doc.text(`Category: ${analysisData.preliminaryCategory}`, 15, 75);
+      
+      // Add summary section
+      doc.setFillColor(...lightGrayBg);
+      doc.roundedRect(15, 80, 180, 30, 3, 3, 'F');
+      
+      doc.setFontSize(12);
+      doc.setTextColor(...primaryColor);
+      doc.text("Summary", 20, 88);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(...secondaryColor);
+      const summaryText = typeof analysisData.fullReport === 'object' && analysisData.fullReport.description 
+        ? analysisData.fullReport.description 
+        : analysisData.summary;
+      const splitSummary = doc.splitTextToSize(summaryText, 170);
+      doc.text(splitSummary, 20, 93);
+      
+      // Current y position after adding summary
+      let yPos = 115;
+      
+      // Add detailed report sections
+      if (typeof analysisData.fullReport === 'object') {
+        // Define sections to include in the report
+        const sections = [
+          { title: 'Historical Context', content: analysisData.fullReport.historical_context || '' },
+          { title: 'Condition & Authenticity', content: analysisData.fullReport.condition_and_authenticity || '' },
+          { title: 'Purpose & Usage', content: analysisData.fullReport.use || '' },
+          { title: 'Value Assessment', content: analysisData.fullReport.value || '' },
+          { title: 'Next Steps', content: analysisData.fullReport.next_steps || '' }
+        ];
+        
+        // Create a section for Full Report
+        doc.setFontSize(14);
+        doc.setTextColor(...primaryColor);
+        doc.text("Full Report", 15, yPos);
+        
+        yPos += 8;
+        
+        // Add each section
+        for (const section of sections) {
+          // Check if we need to add a new page
+          if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+          }
+          
+          // Add section background
+          doc.setFillColor(...lightGrayBg);
+          
+          // Calculate height needed for this section content
+          const contentLines = doc.splitTextToSize(section.content, 160);
+          const contentHeight = (contentLines.length * 5) + 10; // 5mm per line plus padding
+          
+          doc.roundedRect(15, yPos, 180, contentHeight, 3, 3, 'F');
+          
+          // Add section title
+          doc.setFontSize(12);
+          doc.setTextColor(...primaryColor);
+          doc.text(section.title, 20, yPos + 7);
+          
+          // Add section content
+          doc.setFontSize(10);
+          doc.setTextColor(...secondaryColor);
+          doc.text(contentLines, 20, yPos + 13);
+          
+          yPos += contentHeight + 5; // Add spacing between sections
+        }
+      }
+      
+      // Add specifications section (tables)
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setTextColor(...primaryColor);
+      doc.text("Technical Specifications", 15, yPos);
+      
+      yPos += 8;
+      
+      // Physical Attributes
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Physical Attributes', '']],
+        body: [
+          ['Materials', analysisData.physicalAttributes.materials],
+          ['Measurements', analysisData.physicalAttributes.measurements],
+          ['Condition', analysisData.physicalAttributes.condition],
+          ['Priority', analysisData.physicalAttributes.priority || ''],
+          ['Status', analysisData.physicalAttributes.status || '']
+        ],
+        headStyles: { fillColor: primaryColor, textColor: 255 },
+        alternateRowStyles: { fillColor: lightGrayBg },
+        columnStyles: { 0: { cellWidth: 40 } },
+        styles: { fontSize: 10 },
+        margin: { left: 15, right: 15 }
+      });
+      
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+      
+      // Inscriptions
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Inscriptions', '']],
+        body: [
+          ['Signatures', analysisData.inscriptions.signatures],
+          ['Hallmarks', analysisData.inscriptions.hallmarks],
+          ['Additional Identifiers', analysisData.inscriptions.additionalIdentifiers]
+        ],
+        headStyles: { fillColor: primaryColor, textColor: 255 },
+        alternateRowStyles: { fillColor: lightGrayBg },
+        columnStyles: { 0: { cellWidth: 40 } },
+        styles: { fontSize: 10 },
+        margin: { left: 15, right: 15 }
+      });
+      
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+      
+      // Start a new page if we're too far down
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      // Stylistic Assessment
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Stylistic Assessment', '']],
+        body: [
+          ['Style Indicators', analysisData.stylistic.indicators],
+          ['Estimated Era', analysisData.stylistic.estimatedEra],
+          ['Confidence Level', analysisData.stylistic.confidenceLevel]
+        ],
+        headStyles: { fillColor: primaryColor, textColor: 255 },
+        alternateRowStyles: { fillColor: lightGrayBg },
+        columnStyles: { 0: { cellWidth: 40 } },
+        styles: { fontSize: 10 },
+        margin: { left: 15, right: 15 }
+      });
+      
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+      
+      // Value Indicators
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Value Indicators', '']],
+        body: [
+          ['Factors', analysisData.valueIndicators.factors],
+          ['Red Flags', analysisData.valueIndicators.redFlags]
+        ],
+        headStyles: { fillColor: primaryColor, textColor: 255 },
+        alternateRowStyles: { fillColor: lightGrayBg },
+        columnStyles: { 0: { cellWidth: 40 } },
+        styles: { fontSize: 10 },
+        margin: { left: 15, right: 15 }
+      });
+      
+      // Add a disclaimer at the end
+      doc.addPage();
+      
+      // Add the logo at the top left of the last page too
+      try {
+        doc.addImage(logoUrl, 'PNG', 15, 15, 60, 15);
+      } catch (error) {
+        console.error('Error adding logo to PDF:', error);
+      }
+      
+      // Add a horizontal line below the header
+      doc.setDrawColor(...primaryColor);
+      doc.setLineWidth(0.5);
+      doc.line(15, 35, 195, 35);
+      
+      doc.setFontSize(14);
+      doc.setTextColor(...primaryColor);
+      doc.text("Disclaimer", 15, 50);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(...secondaryColor);
+      const disclaimer = "This is an initial assessment based on provided images and information. A physical inspection by a specialized expert is recommended for a definitive appraisal. Antiques Appraisal does not guarantee the accuracy of this assessment.";
+      const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
+      doc.text(splitDisclaimer, 15, 60);
+      
+      // Add contact information
+      doc.setFontSize(12);
+      doc.setTextColor(...primaryColor);
+      doc.text("Contact Information", 15, 80);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(...secondaryColor);
+      doc.text("Antiques Appraisal", 15, 88);
+      doc.text("support@antiquesappraisal.com", 15, 94);
+      doc.text("www.antiquesappraisal.com", 15, 100);
+      
+      // Add footer to all pages
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Antiques Appraisal - Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+      }
+      
+      // Save the PDF
+      doc.save(`antique-appraisal-${dateStr}.pdf`);
+      
+      toast({
+        title: "Report Downloaded",
+        description: "Your appraisal report has been downloaded successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to generate the PDF report. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -466,20 +750,14 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                           <div key={index} className="relative rounded-lg border overflow-hidden">
                             <Image
                               src={url}
-                            alt={`Antique item ${index + 1}`}
-                              width={160}
-                              height={160}
-                              className="h-40 w-full object-cover"
-                          />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                              className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/90 p-1 text-foreground/90 hover:bg-background"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
+                              alt={`Uploaded image ${index + 1}`}
+                              width={200}
+                              height={200}
+                              className="object-contain rounded-lg"
+                              style={{ width: 'auto', height: 'auto' }}
+                            />
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ) : (
@@ -612,42 +890,131 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                 </div>
               ) : (
                 <>
-                  {/* Images horizontally at the top */}
-                  <div className="mb-6">
-                    <h3 className="text-lg font-medium mb-3">Images</h3>
-                    <div className="flex justify-center gap-4 overflow-x-auto pb-2">
-                      {imageUrls.map((url, index) => (
-                        <div key={index} className="relative flex-shrink-0 w-[200px] h-[200px] rounded-lg border overflow-hidden">
-                          <Image
-                            src={url}
-                              alt={`Antique item ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            />
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
                   {analysisData && (
                     <div className="space-y-6">
-                      <DetailedAnalysis analysis={analysisData.analysis || analysisData} />
+                      {/* Category tag at top */}
+                      <div className="text-center mb-4">
+                        <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                          {analysisData.preliminaryCategory}
+                        </span>
+                      </div>
+                      
+                      {/* Title and Images side by side layout */}
+                      <div className="flex flex-col md:flex-row gap-6 mb-6">
+                        {/* Title and Description on the left */}
+                        <div className="md:w-2/3">
+                          <h2 className="text-2xl font-bold mb-4">
+                            {analysisData.introduction?.title || analysisData.preliminaryCategory}
+                          </h2>
+                          
+                          <div className="text-muted-foreground">
+                            <p className="mb-6">{
+                              typeof analysisData.fullReport === 'object' && analysisData.fullReport.description 
+                                ? analysisData.fullReport.description 
+                                : typeof analysisData.fullReport === 'string' && analysisData.fullReport.includes('description:') 
+                                  ? analysisData.fullReport.split('description:')[1]?.split('\n')[0]?.trim() 
+                                  : typeof analysisData.fullReport === 'string'
+                                    ? analysisData.fullReport
+                                    : analysisData.summary
+                            }</p>
+                          </div>
+                        </div>
+                        
+                        {/* Images mosaic on the right */}
+                        <div className="md:w-1/3">
+                          <div className="grid grid-cols-2 gap-2">
+                            {imageUrls.map((url, index) => (
+                              <div key={index} className="relative aspect-square rounded-lg border overflow-hidden">
+                                <Image
+                                  src={url}
+                                  alt={`Antique item ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Full Report Sections */}
+                      <div className="mt-6 space-y-4 text-slate-700">
+                        {analysisData.fullReport && (
+                          <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-4">
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                  <h4 className="text-base font-semibold mb-2">Historical Context</h4>
+                                  <p>{typeof analysisData.fullReport === 'object' && analysisData.fullReport.historical_context 
+                                    ? analysisData.fullReport.historical_context
+                                    : typeof analysisData.fullReport === 'string' && analysisData.fullReport.includes('historical_context:') 
+                                      ? analysisData.fullReport.split('historical_context:')[1]?.split('\n')[0]?.trim() 
+                                      : ''}</p>
+                                </div>
+                                
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                  <h4 className="text-base font-semibold mb-2">Condition & Authenticity</h4>
+                                  <p>{typeof analysisData.fullReport === 'object' && analysisData.fullReport.condition_and_authenticity 
+                                    ? analysisData.fullReport.condition_and_authenticity 
+                                    : typeof analysisData.fullReport === 'string' && analysisData.fullReport.includes('condition_and_authenticity:') 
+                                      ? analysisData.fullReport.split('condition_and_authenticity:')[1]?.split('\n')[0]?.trim() 
+                                      : ''}</p>
+                                </div>
+                                
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                  <h4 className="text-base font-semibold mb-2">Purpose & Usage</h4>
+                                  <p>{typeof analysisData.fullReport === 'object' && analysisData.fullReport.use 
+                                    ? analysisData.fullReport.use 
+                                    : typeof analysisData.fullReport === 'string' && analysisData.fullReport.includes('use:') 
+                                      ? analysisData.fullReport.split('use:')[1]?.split('\n')[0]?.trim() 
+                                      : ''}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-4">
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                  <h4 className="text-base font-semibold mb-2">Value Assessment</h4>
+                                  <p>{typeof analysisData.fullReport === 'object' && analysisData.fullReport.value 
+                                    ? analysisData.fullReport.value 
+                                    : typeof analysisData.fullReport === 'string' && analysisData.fullReport.includes('value:') 
+                                      ? analysisData.fullReport.split('value:')[1]?.split('\n')[0]?.trim() 
+                                      : ''}</p>
+                                </div>
+                                
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                  <h4 className="text-base font-semibold mb-2">Next Steps</h4>
+                                  <p>{typeof analysisData.fullReport === 'object' && analysisData.fullReport.next_steps 
+                                    ? analysisData.fullReport.next_steps 
+                                    : typeof analysisData.fullReport === 'string' && analysisData.fullReport.includes('next_steps:') 
+                                      ? analysisData.fullReport.split('next_steps:')[1]?.split('\n')[0]?.trim() 
+                                      : ''}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      <DetailedAnalysis analysis={analysisData as AntiqueAnalysisResult} />
 
                       <div className="mt-6 space-y-3">
                         <h3 className="text-lg font-medium text-center">Get Additional Expert Analysis</h3>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button
-                            onClick={handleHistoryExpertAnalysis}
-                            disabled={isHistoryExpertAnalyzing}
+                          <Button
+                            onClick={handleDownloadReport}
+                            disabled={isGeneratingPdf}
                             className="flex-1"
                           >
-                            {isHistoryExpertAnalyzing ? (
+                            {isGeneratingPdf ? (
                               <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Analyzing History...
-                            </>
-                          ) : (
-                              "History Expert"
+                                Generating PDF...
+                              </>
+                            ) : (
+                              <>
+                                <Download className="mr-2 h-4 w-4" />
+                                Download Report
+                              </>
                             )}
                           </Button>
                           
@@ -662,10 +1029,10 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                                 Evaluating Market...
                               </>
                             ) : (
-                              "Evaluation Expert"
-                          )}
-                        </Button>
-                      </div>
+                              "Create Expert Appraisal"
+                            )}
+                          </Button>
+                        </div>
                       </div>
 
                       {historyExpertResult && (
@@ -682,7 +1049,7 @@ export default function AppraiseAntique({ tokenBalance }: AppraiseAntiqueProps) 
                       {evaluationExpertResult && (
                         <Card className="mt-6">
                           <CardContent className="p-6">
-                            <h3 className="text-xl font-semibold mb-4">Market Valuation & Comparisons</h3>
+                            <h3 className="text-xl font-semibold mb-4">Comprehensive Expert Appraisal</h3>
                             <div className="prose max-w-none">
                               <div dangerouslySetInnerHTML={{ __html: evaluationExpertResult.content }} />
                             </div>

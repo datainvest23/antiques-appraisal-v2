@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import sharp from 'sharp'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,25 +31,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
     
-    // Limit file size (3MB)
-    const maxSize = 3 * 1024 * 1024 // 3MB
-    if (file.size > maxSize) {
-      return NextResponse.json({ 
-        error: 'File size exceeds 3MB limit. Please use smaller images.' 
-      }, { status: 400 })
-    }
+    // Convert File to Buffer for processing
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    
+    // Optimize image using sharp
+    const optimizedImage = await sharp(buffer)
+      .resize(1200, 1200, {
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .jpeg({
+        quality: 85,
+        progressive: true
+      })
+      .toBuffer()
     
     // Create a unique filename with timestamp
     const timestamp = Date.now()
-    const fileExtension = file.name.split('.').pop()
-    const fileName = `${timestamp}.${fileExtension}`
+    const fileName = `${timestamp}.jpg`  // Always save as jpg after optimization
     const folderPath = `${userId}`
     
-    // Upload to Supabase Storage
+    // Upload optimized image to Supabase Storage
     const { data, error } = await supabase
       .storage
       .from('antique-images')
-      .upload(`${folderPath}/${fileName}`, file, {
+      .upload(`${folderPath}/${fileName}`, optimizedImage, {
+        contentType: 'image/jpeg',
         cacheControl: '3600',
         upsert: false
       })
@@ -67,7 +76,13 @@ export async function POST(request: NextRequest) {
     // Return the upload result with CORS headers
     return NextResponse.json({ 
       url: publicUrl,
-      uploadPath: data.path
+      uploadPath: data.path,
+      size: optimizedImage.length,
+      format: 'jpeg',
+      dimensions: {
+        width: 1200,
+        height: 1200
+      }
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -78,6 +93,8 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('Error in upload-image API route:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : 'Server error'
+    }, { status: 500 })
   }
 } 

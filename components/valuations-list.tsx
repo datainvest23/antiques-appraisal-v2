@@ -25,7 +25,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
         <p className="text-muted-foreground mb-6">
           Upload images of your antiques to get started with your first valuation.
         </p>
-        <Link href="/appraisal">
+        <Link href="/appraise">
           <Button>Create Your First Valuation</Button>
         </Link>
       </div>
@@ -36,7 +36,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">My Valuations</h2>
-        <Link href="/appraisal">
+        <Link href="/appraise">
           <Button>New Valuation</Button>
         </Link>
       </div>

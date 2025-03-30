@@ -23,7 +23,7 @@ export async function middleware(req: NextRequest) {
   
   // Define route types
   const isProtectedRoute = 
-    path.startsWith('/appraisal') || 
+    path.startsWith('/appraise') || 
     path.startsWith('/my-valuations') || 
     path.startsWith('/referrals') || 
     path.startsWith('/buy-tokens') ||
@@ -53,7 +53,7 @@ export async function middleware(req: NextRequest) {
   // Handle auth routes - redirect to main app if already authenticated
   // Note: We don't redirect from reset-password page even when authenticated
   if (isAuthRoute && session && path !== '/forgot-password') {
-    return NextResponse.redirect(new URL('/appraisal', req.url))
+    return NextResponse.redirect(new URL('/appraise', req.url))
   }
   
   // For everything else, continue with enhanced response
@@ -68,7 +68,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     // Protected routes
-    '/appraisal/:path*',
+    '/appraise/:path*',
     '/my-valuations/:path*',
     '/referrals/:path*',
     '/buy-tokens/:path*',

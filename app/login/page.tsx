@@ -14,7 +14,239 @@ import { AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AuthError } from "@supabase/supabase-js"
 
-function LoginForm() {
+interface FormFieldProps {
+  id: string
+  label: string
+  type?: string
+  placeholder?: string
+  value: string
+  onChange: (value: string) => void
+  required?: boolean
+}
+
+function FormField({ id, label, type = "text", placeholder, value, onChange, required = false }: FormFieldProps) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+      />
+    </div>
+  )
+}
+
+interface FormErrorProps {
+  error: string | null
+}
+
+function FormError({ error }: FormErrorProps) {
+  if (!error) return null
+  
+  return (
+    <Alert variant="destructive">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
+  )
+}
+
+interface FormDividerProps {
+  text?: string
+}
+
+function FormDivider({ text = "or" }: FormDividerProps) {
+  return (
+    <div className="relative flex items-center justify-center">
+      <span className="absolute inset-x-0 h-px bg-muted"></span>
+      <span className="relative bg-background px-2 text-muted-foreground text-sm">{text}</span>
+    </div>
+  )
+}
+
+interface SubmitButtonProps {
+  isLoading: boolean
+  loadingText: string
+  text: string
+}
+
+function SubmitButton({ isLoading, loadingText, text }: SubmitButtonProps) {
+  return (
+    <Button type="submit" className="w-full" disabled={isLoading}>
+      {isLoading ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+          {loadingText}
+        </>
+      ) : (
+        text
+      )}
+    </Button>
+  )
+}
+
+interface AuthFormProps {
+  email: string
+  setEmail: (email: string) => void
+  password: string
+  setPassword: (password: string) => void
+  error: string | null
+  isLoading: boolean
+  onGoogleSignIn: () => void
+}
+
+interface RegisterFormProps extends AuthFormProps {
+  firstName: string
+  setFirstName: (firstName: string) => void
+  lastName: string
+  setLastName: (lastName: string) => void
+}
+
+function LoginForm({ 
+  email, 
+  setEmail, 
+  password, 
+  setPassword, 
+  error, 
+  isLoading,
+  onGoogleSignIn,
+  onSubmit 
+}: AuthFormProps & { onSubmit: (e: React.FormEvent) => void }) {
+  return (
+    <form onSubmit={onSubmit}>
+      <CardContent className="space-y-4 pt-4">
+        <FormError error={error} />
+        <FormField
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={setEmail}
+          required
+        />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link href="/forgot-password" className="text-sm text-primary underline-offset-4 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-col space-y-4">
+        <SubmitButton
+          isLoading={isLoading}
+          loadingText="Signing in..."
+          text="Sign In"
+        />
+        <FormDivider />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onGoogleSignIn}
+          disabled={isLoading}
+          className="w-full"
+        >
+          Continue with Google
+        </Button>
+      </CardFooter>
+    </form>
+  )
+}
+
+function RegisterForm({ 
+  email, 
+  setEmail, 
+  password, 
+  setPassword, 
+  firstName,
+  setFirstName,
+  lastName,
+  setLastName,
+  error, 
+  isLoading,
+  onGoogleSignIn,
+  onSubmit 
+}: RegisterFormProps & { onSubmit: (e: React.FormEvent) => void }) {
+  return (
+    <form onSubmit={onSubmit}>
+      <CardContent className="space-y-4 pt-4">
+        <FormError error={error} />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            id="firstName"
+            label="First Name"
+            placeholder="John"
+            value={firstName}
+            onChange={setFirstName}
+            required
+          />
+          <FormField
+            id="lastName"
+            label="Last Name"
+            placeholder="Doe"
+            value={lastName}
+            onChange={setLastName}
+            required
+          />
+        </div>
+        <FormField
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={setEmail}
+          required
+        />
+        <FormField
+          id="password"
+          label="Password"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          required
+        />
+        <div className="text-sm text-muted-foreground">
+          By registering, you agree to our Terms of Service and Privacy Policy.
+          <br />
+          <span className="font-medium text-primary">New users receive 5 free tokens!</span>
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-col space-y-4">
+        <SubmitButton
+          isLoading={isLoading}
+          loadingText="Creating account..."
+          text="Create Account"
+        />
+        <FormDivider />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onGoogleSignIn}
+          disabled={isLoading}
+          className="w-full"
+        >
+          Continue with Google
+        </Button>
+      </CardFooter>
+    </form>
+  )
+}
+
+function LoginFormContainer() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [firstName, setFirstName] = useState("")
@@ -23,9 +255,8 @@ function LoginForm() {
   const { signIn, signUp, isLoading, user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectPath = searchParams.get('redirect') || '/appraisal'
+  const redirectPath = searchParams.get('redirect') || '/appraise'
   
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       router.push(redirectPath)
@@ -38,10 +269,9 @@ function LoginForm() {
 
     try {
       await signIn(email, password)
-      // Middleware will handle the redirect
     } catch (error: unknown) {
       if (error instanceof AuthError) {
-      setError(error.message)
+        setError(error.message)
       } else {
         setError("An unexpected error occurred")
       }
@@ -56,7 +286,7 @@ function LoginForm() {
       await signUp(email, password, firstName, lastName)
     } catch (error: unknown) {
       if (error instanceof AuthError) {
-      setError(error.message)
+        setError(error.message)
       } else {
         setError("Failed to create account")
       }
@@ -64,7 +294,6 @@ function LoginForm() {
   }
 
   const handleGoogleSignIn = async () => {
-    // This will be implemented later
     setError("Google sign-in is not implemented yet")
   }
 
@@ -81,152 +310,32 @@ function LoginForm() {
             <TabsTrigger value="register">Register</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <form onSubmit={handleSignIn}>
-              <CardContent className="space-y-4 pt-4">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot-password" className="text-sm text-primary underline-offset-4 hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-4">
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                      Signing in...
-                    </>
-                  ) : (
-                    "Sign In"
-                  )}
-                </Button>
-                <div className="relative flex items-center justify-center">
-                  <span className="absolute inset-x-0 h-px bg-muted"></span>
-                  <span className="relative bg-background px-2 text-muted-foreground text-sm">or</span>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  Continue with Google
-                </Button>
-              </CardFooter>
-            </form>
+            <LoginForm
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              error={error}
+              isLoading={isLoading}
+              onGoogleSignIn={handleGoogleSignIn}
+              onSubmit={handleSignIn}
+            />
           </TabsContent>
           <TabsContent value="register">
-            <form onSubmit={handleSignUp}>
-              <CardContent className="space-y-4 pt-4">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      placeholder="John"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      placeholder="Doe"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  By registering, you agree to our Terms of Service and Privacy Policy.
-                  <br />
-                  <span className="font-medium text-primary">New users receive 5 free tokens!</span>
-                </div>
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-4">
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                      Creating account...
-                    </>
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
-                <div className="relative flex items-center justify-center">
-                  <span className="absolute inset-x-0 h-px bg-muted"></span>
-                  <span className="relative bg-background px-2 text-muted-foreground text-sm">or</span>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  Continue with Google
-                </Button>
-              </CardFooter>
-            </form>
+            <RegisterForm
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
+              error={error}
+              isLoading={isLoading}
+              onGoogleSignIn={handleGoogleSignIn}
+              onSubmit={handleSignUp}
+            />
           </TabsContent>
         </Tabs>
       </Card>
@@ -244,7 +353,7 @@ export default function Login() {
         </Card>
       </div>
     }>
-      <LoginForm />
+      <LoginFormContainer />
     </Suspense>
   )
 }

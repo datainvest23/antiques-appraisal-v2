@@ -38,26 +38,38 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
   const materials = getNestedProperty(analysis, 'physicalAttributes.materials');
   const measurements = getNestedProperty(analysis, 'physicalAttributes.measurements');
   const condition = getNestedProperty(analysis, 'physicalAttributes.condition');
+  const physicalPriority = getNestedProperty(analysis, 'physicalAttributes.priority', '');
+  const physicalStatus = getNestedProperty(analysis, 'physicalAttributes.status', '');
   
   const signatures = getNestedProperty(analysis, 'inscriptions.signatures');
   const hallmarks = getNestedProperty(analysis, 'inscriptions.hallmarks');
   const additionalIdentifiers = getNestedProperty(analysis, 'inscriptions.additionalIdentifiers');
+  const inscriptionsPriority = getNestedProperty(analysis, 'inscriptions.priority', '');
+  const inscriptionsStatus = getNestedProperty(analysis, 'inscriptions.status', '');
   
   const motifs = getNestedProperty(analysis, 'uniqueFeatures.motifs');
   const restoration = getNestedProperty(analysis, 'uniqueFeatures.restoration');
   const anomalies = getNestedProperty(analysis, 'uniqueFeatures.anomalies');
+  const featuresPriority = getNestedProperty(analysis, 'uniqueFeatures.priority', '');
+  const featuresStatus = getNestedProperty(analysis, 'uniqueFeatures.status', '');
   
   const indicators = getNestedProperty(analysis, 'stylistic.indicators');
   const estimatedEra = getNestedProperty(analysis, 'stylistic.estimatedEra');
   const confidenceLevel = getNestedProperty(analysis, 'stylistic.confidenceLevel');
+  const stylisticPriority = getNestedProperty(analysis, 'stylistic.priority', '');
+  const stylisticStatus = getNestedProperty(analysis, 'stylistic.status', '');
   
   const likelyMaker = getNestedProperty(analysis, 'attribution.likelyMaker');
   const evidence = getNestedProperty(analysis, 'attribution.evidence');
   const probability = getNestedProperty(analysis, 'attribution.probability');
+  const attributionPriority = getNestedProperty(analysis, 'attribution.priority', '');
+  const attributionStatus = getNestedProperty(analysis, 'attribution.status', '');
   
   const infoInPhotos = getNestedProperty(analysis, 'provenance.infoInPhotos');
   const historicIndicators = getNestedProperty(analysis, 'provenance.historicIndicators');
   const recommendedFollowup = getNestedProperty(analysis, 'provenance.recommendedFollowup');
+  const provenancePriority = getNestedProperty(analysis, 'provenance.priority', '');
+  const provenanceStatus = getNestedProperty(analysis, 'provenance.status', '');
   
   const photoCount = getNestedProperty(analysis, 'intake.photoCount');
   const photoQuality = getNestedProperty(analysis, 'intake.photoQuality');
@@ -68,14 +80,39 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
   const redFlags = getNestedProperty(analysis, 'valueIndicators.redFlags');
   const references = getNestedProperty(analysis, 'valueIndicators.references');
   const followupQuestions = analysis.valueIndicators?.followupQuestions || [];
+  const valuePriority = getNestedProperty(analysis, 'valueIndicators.priority', '');
+  const valueStatus = getNestedProperty(analysis, 'valueIndicators.status', '');
+
+  // Helper function to render priority and status badges
+  const renderPriorityStatus = (priority: string, status: string) => {
+    if (!priority && !status) return null;
+    
+    return (
+      <div className="flex items-center space-x-2 mt-2">
+        {priority && (
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            priority === 'High' ? 'bg-red-100 text-red-800' : 
+            priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
+            'bg-blue-100 text-blue-800'
+          }`}>
+            Priority: {priority}
+          </span>
+        )}
+        {status && (
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            status === '✓' ? 'bg-green-100 text-green-800' : 
+            status === '?' ? 'bg-yellow-100 text-yellow-800' : 
+            'bg-red-100 text-red-800'
+          }`}>
+            Status: {status}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-4">{analysis.preliminaryCategory || "Antique Analysis"}</h2>
-        <p className="text-muted-foreground">{analysis.summary || "Analysis summary not available."}</p>
-      </div>
-
       <Table>
         <TableHeader>
           <TableRow>
@@ -91,6 +128,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                 <p><span className="font-semibold">Materials:</span> {materials}</p>
                 <p><span className="font-semibold">Measurements:</span> {measurements}</p>
                 <p><span className="font-semibold">Condition:</span> {condition}</p>
+                {renderPriorityStatus(physicalPriority, physicalStatus)}
               </div>
             </TableCell>
           </TableRow>
@@ -102,6 +140,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                 <p><span className="font-semibold">Signatures:</span> {signatures}</p>
                 <p><span className="font-semibold">Hallmarks:</span> {hallmarks}</p>
                 <p><span className="font-semibold">Additional Identifiers:</span> {additionalIdentifiers}</p>
+                {renderPriorityStatus(inscriptionsPriority, inscriptionsStatus)}
               </div>
             </TableCell>
           </TableRow>
@@ -113,6 +152,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                 <p><span className="font-semibold">Motifs & Decorations:</span> {motifs}</p>
                 <p><span className="font-semibold">Restoration Signs:</span> {restoration}</p>
                 <p><span className="font-semibold">Anomalies:</span> {anomalies}</p>
+                {renderPriorityStatus(featuresPriority, featuresStatus)}
               </div>
             </TableCell>
           </TableRow>
@@ -124,6 +164,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                 <p><span className="font-semibold">Style Indicators:</span> {indicators}</p>
                 <p><span className="font-semibold">Estimated Era:</span> {estimatedEra}</p>
                 <p><span className="font-semibold">Confidence Level:</span> {confidenceLevel}</p>
+                {renderPriorityStatus(stylisticPriority, stylisticStatus)}
               </div>
             </TableCell>
           </TableRow>
@@ -135,6 +176,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                 <p><span className="font-semibold">Likely Maker:</span> {likelyMaker}</p>
                 <p><span className="font-semibold">Evidence:</span> {evidence}</p>
                 <p><span className="font-semibold">Probability:</span> {probability}</p>
+                {renderPriorityStatus(attributionPriority, attributionStatus)}
               </div>
             </TableCell>
           </TableRow>
@@ -146,6 +188,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                 <p><span className="font-semibold">Information in Photos:</span> {infoInPhotos}</p>
                 <p><span className="font-semibold">Historic Indicators:</span> {historicIndicators}</p>
                 <p><span className="font-semibold">Recommended Follow-up:</span> {recommendedFollowup}</p>
+                {renderPriorityStatus(provenancePriority, provenanceStatus)}
               </div>
             </TableCell>
           </TableRow>
@@ -180,6 +223,7 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
                     </ul>
                   </div>
                 )}
+                {renderPriorityStatus(valuePriority, valueStatus)}
               </div>
             </TableCell>
           </TableRow>
