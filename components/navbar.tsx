@@ -109,6 +109,14 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
         </>
       )}
       <Link
+        href="/resources"
+        className={`text-sm font-medium transition-colors hover:text-primary ${
+          pathname?.startsWith("/resources") ? "text-primary" : "text-muted-foreground"
+        }`}
+      >
+        Resources
+      </Link>
+      <Link
         href="/#features"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
@@ -157,6 +165,9 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
           </Link>
         </>
       )}
+      <Link href="/resources" className="text-lg font-medium" onClick={onClose}>
+        Resources
+      </Link>
       <Link href="/#features" className="text-lg font-medium" onClick={onClose}>
         Features
       </Link>

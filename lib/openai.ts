@@ -143,6 +143,8 @@ export interface AntiqueAnalysisResult {
     value?: string;
     next_steps?: string;
   } | string;
+  // Formatted HTML content for Gemini output display
+  content?: string;
 }
 
 function parseAssistantResponse(text: any): any {
@@ -399,7 +401,8 @@ export async function analyzeAntique(
           status: result.value_indicators?.status || ""
         },
         summary: result.full_report?.description || "",
-        fullReport: result.full_report || ""
+        fullReport: result.full_report || "",
+        content: result.full_report?.description || ""
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -582,6 +585,7 @@ export async function refineAnalysis(
       },
       summary: result.full_report?.description || initialAnalysis.summary,
       fullReport: result.full_report || initialAnalysis.fullReport,
+      content: result.full_report?.description || ""
     };
   } catch (error) {
     console.error("Error refining analysis:", error);

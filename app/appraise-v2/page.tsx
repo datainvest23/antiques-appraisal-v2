@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AntiqueAppraisal } from "@/components/antique-appraisal"
 import { LoadingOverlay } from "@/components/loading-overlay"
+import { Card } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { AuthCheck } from "@/components/auth-check"
 
@@ -16,8 +17,7 @@ export default function AppraisePage() {
   const { toast } = useToast()
 
   const handleSubmit = async (images: File[], selectedService: ServiceType, additionalInfo: string = "") => {
-    // This function is only used for basic and initial appraisals
-    // Full appraisals are handled directly in the AntiqueAppraisal component
+    // Full appraisals are handled by the component using the appraise-v2 endpoint
     if (selectedService === "full") {
       return // This will be handled by the component
     }
@@ -30,29 +30,20 @@ export default function AppraisePage() {
       // Upload the images first
       let imageUrls: string[] = [];
       
-      // Handle each image upload individually for better error tracking
+      // Handle each image upload
       for (const image of images) {
         try {
-          const singleFormData = new FormData()
-          singleFormData.append('file', image)
+      const formData = new FormData()
+          formData.append('file', image)
           
           const uploadResponse = await fetch('/api/upload-image', {
             method: 'POST',
-            body: singleFormData,
-            // Include credentials to send authentication cookies
-            credentials: 'include',
+            body: formData,
           })
           
           if (!uploadResponse.ok) {
             const errorData = await uploadResponse.json()
-            console.error('Upload error:', errorData)
-            
-            // Provide a more detailed error message to the user
-            const errorMessage = errorData.details 
-              ? `${errorData.error}: ${errorData.details}` 
-              : errorData.error || 'Failed to upload image';
-              
-            throw new Error(errorMessage)
+            throw new Error(errorData.error || 'Failed to upload image')
           }
           
           const data = await uploadResponse.json()
@@ -61,13 +52,8 @@ export default function AppraisePage() {
           }
           
           imageUrls.push(data.url)
-          
-          toast({
-            title: "Image uploaded",
-            description: `Uploaded ${imageUrls.length} of ${images.length} images`,
-          })
         } catch (uploadError) {
-          console.error('Error uploading individual image:', uploadError)
+          console.error('Error uploading image:', uploadError)
           toast({
             title: "Upload error",
             description: uploadError instanceof Error ? uploadError.message : 'Unknown upload error',
@@ -77,50 +63,30 @@ export default function AppraisePage() {
         }
       }
       
-      // Now send the image URLs to the appropriate API endpoint based on service type
-      try {
-        // Determine the API endpoint based on service type
-        const apiEndpoint = selectedService === "basic" 
-          ? '/api/appraise-basic' 
-          : '/api/appraise-initial';
-        
-        console.log(`Making request to ${apiEndpoint} with ${imageUrls.length} images`);
-        
-        const analysisResponse = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageUrls: imageUrls,
-            additionalInfo,
-          }),
-        })
-        
-        if (!analysisResponse.ok) {
-          const errorData = await analysisResponse.json();
-          console.error(`Error from ${apiEndpoint}:`, errorData);
-          
-          // Provide a more detailed error message to the user
-          const errorMessage = errorData.details 
-            ? `${errorData.error}: ${errorData.details}` 
-            : errorData.error || `Failed to analyze images with ${apiEndpoint}`;
-            
-          throw new Error(errorMessage);
-        }
-        
-        const analysisData = await analysisResponse.json();
-        console.log('Analysis data received:', analysisData);
-        setAnalysisResult(analysisData);
-      } catch (analysisError) {
-        console.error('Error analyzing images:', analysisError)
-        toast({
-          title: "Analysis error",
-          description: analysisError instanceof Error ? analysisError.message : 'Unknown analysis error',
-          variant: "destructive"
-        })
-        throw analysisError
+      // Determine the API endpoint based on service type
+      const apiEndpoint = selectedService === "basic" 
+        ? '/api/appraise-basic' 
+        : '/api/appraise-initial';
+      
+      // Send the analysis request
+      const analysisResponse = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrls: imageUrls,
+          additionalInfo,
+        }),
+      })
+      
+      if (!analysisResponse.ok) {
+        const errorData = await analysisResponse.json()
+        throw new Error(errorData.error || 'Failed to analyze images')
       }
+      
+      const analysisData = await analysisResponse.json()
+      setAnalysisResult(analysisData)
     } catch (error) {
       console.error("Error in appraisal process:", error);
       
@@ -182,16 +148,18 @@ export default function AppraisePage() {
 
   return (
     <AuthCheck>
-      <div className="container mx-auto h-[calc(100vh-5rem)] flex flex-col py-4 px-4">
+      <div className="container mx-auto py-8 px-4">
         <LoadingOverlay isLoading={isAnalyzing} messages={getLoadingMessages()} />
 
         <AntiqueAppraisal 
-          onSubmit={handleSubmit}
-          analysisResult={analysisResult}
+          onSubmit={handleSubmit} 
+          analysisResult={analysisResult} 
           isAnalyzing={isAnalyzing}
           activeServiceType={serviceType}
         />
       </div>
     </AuthCheck>
   )
-} 
+}
+
+

@@ -17,6 +17,179 @@ body {
   line-height: 1.6;
 }
 
+/* Gemini Analysis Styles */
+.gemini-content {
+  font-family: 'Georgia', serif;
+  line-height: 1.7;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.gemini-content h2 {
+  font-size: 1.75rem;
+  color: #334155;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.gemini-content h2:first-child {
+  margin-top: 0;
+}
+
+.gemini-content p {
+  color: #475569;
+  margin-bottom: 1.25rem;
+}
+
+.gemini-content ul {
+  margin-bottom: 1.5rem;
+}
+
+.gemini-content li {
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.gemini-content li::before {
+  content: "•";
+  color: #64748b;
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+}
+
+.gemini-content strong {
+  color: #334155;
+  font-weight: 700;
+}
+
+.gemini-content em {
+  font-style: italic;
+  color: #475569;
+}
+
+/* Section styling for the key parts of the analysis */
+.gemini-content h2:nth-of-type(1) { /* Identification */
+  color: #1e40af;
+}
+
+.gemini-content h2:nth-of-type(2) { /* Features Analysis */
+  color: #0e7490;
+}
+
+.gemini-content h2:nth-of-type(3) { /* Historical Context */
+  color: #9d174d;
+}
+
+.gemini-content h2:nth-of-type(4) { /* Function and Purpose */
+  color: #a16207;
+}
+
+.gemini-content h2:nth-of-type(5) { /* Provenance */
+  color: #4d7c0f;
+}
+
+.gemini-content h2:nth-of-type(6) { /* Artistic Aspects */
+  color: #7e22ce;
+}
+
+.gemini-content h2:nth-of-type(7) { /* Condition and Value */
+  color: #b91c1c;
+}
+
+.gemini-content h2:nth-of-type(8) { /* Conclusion */
+  color: #1e3a8a;
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+  }
+  
+  .gemini-content {
+    page-break-inside: avoid;
+  }
+  
+  .gemini-content h2 {
+    page-break-after: avoid;
+  }
+  
+  /* Ensure colored headings still appear with color in print */
+  .gemini-content h2:nth-of-type(1) { /* Identification */
+    color: #1e40af !important;
+  }
+  
+  .gemini-content h2:nth-of-type(2) { /* Features Analysis */
+    color: #0e7490 !important;
+  }
+  
+  .gemini-content h2:nth-of-type(3) { /* Historical Context */
+    color: #9d174d !important;
+  }
+  
+  .gemini-content h2:nth-of-type(4) { /* Function and Purpose */
+    color: #a16207 !important;
+  }
+  
+  .gemini-content h2:nth-of-type(5) { /* Provenance */
+    color: #4d7c0f !important;
+  }
+  
+  .gemini-content h2:nth-of-type(6) { /* Artistic Aspects */
+    color: #7e22ce !important;
+  }
+  
+  .gemini-content h2:nth-of-type(7) { /* Condition and Value */
+    color: #b91c1c !important;
+  }
+  
+  .gemini-content h2:nth-of-type(8) { /* Conclusion */
+    color: #1e3a8a !important;
+  }
+  
+  /* Hide UI elements not needed in print */
+  nav, footer, button, .print-hide {
+    display: none !important;
+  }
+  
+  /* Ensure the page doesn't break inside important sections */
+  h1, h2, h3, h4, thead {
+    page-break-after: avoid;
+  }
+  
+  img, table, figure {
+    page-break-inside: avoid;
+  }
+  
+  /* Add URL after links */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 90%;
+  }
+  
+  /* Add custom header/footer */
+  @page {
+    margin: 1.5cm;
+  }
+  
+  /* Always show background colors in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
 .expert-appraisal h2 {
   color: #2c5282;
   font-size: 1.75rem;
@@ -249,5 +422,227 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Valuation Report Specific Styles */
+.gemini-valuation-report h1 {
+  font-family: 'Georgia', serif;
+  font-size: 2rem;
+  color: #1e3a8a;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.gemini-valuation-report h2 {
+  position: relative;
+  font-size: 1.5rem;
+  color: #334155;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Add number indicators for sections */
+.gemini-valuation-report h2:before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background-color: #e2e8f0;
+}
+
+/* Color coding for different sections of the valuation report */
+.gemini-valuation-report h2:nth-of-type(1) { /* Overview */
+  color: #1e40af;
+}
+.gemini-valuation-report h2:nth-of-type(1):before {
+  background-color: #1e40af;
+}
+
+.gemini-valuation-report h2:nth-of-type(2) { /* Identification */
+  color: #0e7490;
+}
+.gemini-valuation-report h2:nth-of-type(2):before {
+  background-color: #0e7490;
+}
+
+.gemini-valuation-report h2:nth-of-type(3) { /* Historical Context */
+  color: #9d174d;
+}
+.gemini-valuation-report h2:nth-of-type(3):before {
+  background-color: #9d174d;
+}
+
+.gemini-valuation-report h2:nth-of-type(4) { /* Artistic Aspects */
+  color: #a16207;
+}
+.gemini-valuation-report h2:nth-of-type(4):before {
+  background-color: #a16207;
+}
+
+.gemini-valuation-report h2:nth-of-type(5) { /* Condition Assessment */
+  color: #4d7c0f;
+}
+.gemini-valuation-report h2:nth-of-type(5):before {
+  background-color: #4d7c0f;
+}
+
+.gemini-valuation-report h2:nth-of-type(6) { /* Valuation */
+  color: #7e22ce;
+}
+.gemini-valuation-report h2:nth-of-type(6):before {
+  background-color: #7e22ce;
+}
+
+.gemini-valuation-report h2:nth-of-type(7) { /* Legal Considerations */
+  color: #b91c1c;
+}
+.gemini-valuation-report h2:nth-of-type(7):before {
+  background-color: #b91c1c;
+}
+
+.gemini-valuation-report h2:nth-of-type(8) { /* Conclusion */
+  color: #1e3a8a;
+}
+.gemini-valuation-report h2:nth-of-type(8):before {
+  background-color: #1e3a8a;
+}
+
+/* Enhanced table styling for the features table */
+.gemini-valuation-report table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5rem 0 2rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.gemini-valuation-report table tr:first-child td {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #334155;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.gemini-valuation-report table tr td:first-child {
+  font-weight: 600;
+  color: #334155;
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  width: 30%;
+}
+
+.gemini-valuation-report table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  vertical-align: top;
+}
+
+.gemini-valuation-report table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+/* Text styles */
+.gemini-valuation-report p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: #475569;
+}
+
+.gemini-valuation-report strong {
+  color: #334155;
+  font-weight: 600;
+}
+
+.gemini-valuation-report ul, .gemini-valuation-report ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.gemini-valuation-report li {
+  margin-bottom: 0.5rem;
+  color: #475569;
+}
+
+/* Section specific styling */
+.gemini-valuation-report h2 + p {
+  font-weight: 500;
+  color: #334155;
+}
+
+/* Print styles for the valuation report */
+@media print {
+  .gemini-valuation-report {
+    font-size: 11pt;
+    color: black;
+  }
+  
+  .gemini-valuation-report h1 {
+    font-size: 18pt;
+    margin-top: 0;
+  }
+  
+  .gemini-valuation-report h2 {
+    font-size: 16pt;
+    page-break-after: avoid;
+    margin-top: 20pt;
+  }
+  
+  .gemini-valuation-report h2:before {
+    display: none;
+  }
+  
+  .gemini-valuation-report table {
+    page-break-inside: avoid;
+    width: 100%;
+    margin: 10pt 0 15pt;
+    box-shadow: none;
+    border: 1pt solid #000;
+  }
+  
+  .gemini-valuation-report table td {
+    border: 1pt solid #000;
+    padding: 5pt 8pt;
+  }
+}
+
+@layer components {
+  /* Table styles for responsive display */
+  .prose table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .prose table thead {
+    background-color: #f1f5f9;
+  }
+  
+  .prose table th, 
+  .prose table td {
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .prose table th {
+    font-weight: 600;
+  }
+  
+  /* Override markdown styling */
+  .prose pre {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
   }
 }

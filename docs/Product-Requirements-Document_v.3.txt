@@ -1,0 +1,256 @@
+﻿Product Requirements Document (PRD) – Antiques Appraisal v3
+Last Updated: 2025-03-26
+________________
+
+
+1. Introduction
+1.1 Product Overview
+Antiques Appraisal is a web application leveraging advanced AI to evaluate and value antique items. It integrates image analysis, concurrent voice/text feedback, and detailed follow-up interactions to produce comprehensive appraisal reports. Recent enhancements include a streamlined appraisal flow combining image uploads with feedback submission, enriched UI components for seamless user experience, and robust authentication and monetization features powered by Supabase and a simulated Stripe integration.
+1.2 Key Objectives
+* Streamlined Appraisal Process:
+   * Allow users to upload images and provide feedback (text or transcribed voice notes) simultaneously.
+   * Generate AI-driven, detailed appraisal reports using a structured prompt template with optional web search integration.
+* Enhanced User Experience & Feedback Loop:
+   * Display analysis in an intuitive, accordion-style Detailed Analysis component.
+   * Enable real-time feedback submission to refine appraisals.
+* Monetization & Token System:
+   * Implement a token-based system where users receive free tokens weekly and can purchase additional tokens for more valuations or premium features.
+   * Offer a premium detailed valuation upgrade for an extra fee.
+* Secure, Scalable, and Extensible Platform:
+   * Utilize Supabase for authentication, data storage, and route protection.
+   * Prepare for future expansion with features like referrals, full payment integration, and advanced analytics.
+1.3 Target Users
+* Casual Users & Hobbyists: Seeking quick, free valuations.
+* Collectors & Enthusiasts: Frequently evaluating items and purchasing tokens for additional analyses.
+* Professionals & Institutions: Auctioneers, curators, and museums requiring detailed, accurate appraisals.
+________________
+
+
+2. Functional Requirements
+2.1 User Authentication & Data Security
+* Authentication Mechanism:
+   * Supabase provides JWT-based authentication with OAuth support for secure sign-up/login.
+   * Middleware protects routes: /appraisal, /my-valuations, /buy-tokens, /referrals, /admin.
+* Session Management:
+   * Supabase auth-helpers manage automatic session refresh and token expiration.
+2.2 Appraisal Flow
+2.2.1 Image & Feedback Submission
+* Workflow:
+   * Image Upload: Users upload up to 3 images via drag-and-drop with thumbnail previews.
+   * Feedback: Text input or simulated voice transcription (future real transcription planned) collected concurrently with uploads.
+* Error Handling:
+   * Validates file types (JPEG, PNG) and size (max 10MB).
+   * Displays user-friendly error messages and prevents memory leaks (e.g., revoking object URLs).
+2.2.2 AI Analysis & Refinement
+* Initial Analysis API:
+   * Endpoint: /api/analyze-antique
+   * Input: Image URLs and optional feedback.
+   * Output: Structured appraisal report per the prompt template.
+* Enhanced Prompt Template:
+   * Guides AI to identify the object, analyze features, provide historical context, explain function/purpose, discuss provenance, artistic aspects, condition, value, and conclude with a summary.
+   * Output uses titled sections with bullet points for clarity (see original PRD for detailed template and example).
+* Web Search Integration:
+   * Enabled via the tools array to enrich analysis with external data.
+2.3 UI Components & User Experience
+2.3.1 Appraisal Interface
+* AppraiseAntique Component:
+   * Handles image uploads, feedback recording (simulated voice), and triggers AI analysis.
+   * Transitions from "upload" to "analysis" tab post-upload with a progress indicator.
+* DetailedAnalysis Component:
+   * Presents appraisal report in an accordion layout, mobile-friendly.
+   * Includes follow-up questions and confidence level badges.
+2.3.2 Additional UI Pages
+* Home Page: Hero section, features overview, "How It Works".
+* Login & Registration Pages: Email/password and OAuth options.
+* My Valuations:
+   * List view (/my-valuations): Summaries of saved valuations.
+   * Detail view (/my-valuations/[id]): Full reports with images/comments.
+* Buy Tokens Page: Token package selection with simulated payment.
+* Referrals & Verification: Referral management and email verification pages.
+2.3.3 Resources Section
+* Purpose:
+   * Host SEO-optimized content/articles to attract users and boost search rankings.
+* UI Pages:
+   * /resources: Lists articles with titles, featured images, excerpts, and links.
+   * /resources/[slug]: Displays full article content.
+* Accessibility:
+   * Publicly accessible without authentication.
+2.4 Monetization & Token System
+2.4.1 Valuation & Payment Flow
+* Free Tokens:
+   * 5 tokens upon signup; 5 tokens weekly (non-cumulative, max 5).
+* Token Usage:
+   * Basic Categorization: 1 Token (type/era identification).
+   * Initial Evaluation: 2 Token (basic value/authenticity assessment).
+   * AI Appraisal Report: 3 Tokens (comprehensive analysis).
+* Payment Integration:
+   * Simulated Stripe payment for token purchases via /buy-tokens.
+   * Premium upgrade (e.g., expedited processing or expert review) for an extra fee, TBD in future iterations.
+Optimization Note: Removed "one free valuation per day" inconsistency, unifying under a clear token-based system for simplicity and scalability.
+2.5 Admin Features
+2.5.1 Admin Page
+* Accessibility:
+   * Restricted to users with user_type = 'admin' in Supabase users table, enforced by middleware and client-side checks.
+* User Management:
+   * List View: Displays all users (email, signup date, last login, token balance, valuation count) with pagination.
+   * Search/Filter: By email or other criteria.
+   * Details: Per-user stats (token transaction history, valuation history).
+* Content Management:
+   * CRUD Operations: Create, read, update, delete articles for the Resources Section.
+   * Article Fields:
+      * Title: Text.
+      * Slug: Unique, URL-friendly string (auto-generated, editable).
+      * Featured Image: Uploaded to Supabase storage.
+      * Tags: JSON/array of keywords.
+      * Content: Rich text (HTML/Markdown).
+      * Created At/Updated At: Timestamps.
+      * Author ID: Links to admin user.
+* UI Components:
+   * Dashboard with tabs for user and content management.
+   * User table with search and detail modals.
+   * Article list with edit/delete options; form with rich text editor (e.g., TinyMCE) for content creation.
+2.6 API Endpoints & Backend Integration
+* /api/upload-image: Uploads to Supabase storage, returns URLs.
+* /api/analyze-antique: Processes image URLs/feedback, returns report.
+* Middleware: Protects /admin alongside other routes.
+2.7 Third-Party Integrations
+* Gemini: Gemini 2.5-Pro for analysis with web search.
+* OpenAI: GPT-4o for analysis, TTS-1 for audio, with web search.
+* Supabase: Auth, storage, database.
+* Stripe (Simulated): Token purchases.
+* UI Libraries: Next.js, React, Tailwind CSS, Radix UI.
+________________
+
+
+3. Non-Functional Requirements
+3.1 Performance & Scalability
+* Latency: API responses < 9 seconds.
+* Concurrent Users: Supports ≥ 1,000 users.
+* Optimization: Efficient image handling and state management.
+3.2 Security
+* Authentication: Supabase JWT and HTTPS.
+* Payment: Simulated flows PCI-compliant; future Stripe integration will maintain compliance.
+3.3 Usability & Accessibility
+* UI: Intuitive with clear feedback (e.g., progress bars).
+* Accessibility: WCAG 2.1 compliant.
+3.4 Reliability & Maintainability
+* Error Handling: Robust logging and user-friendly messages.
+* Architecture: Modular for easy updates.
+________________
+
+
+4. System Architecture
+4.1 Frontend
+* Framework: Next.js (App Router), React.
+* Styling: Tailwind CSS, Radix UI.
+* Pages: Home, appraisal, login, my-valuations, buy-tokens, referrals, admin, resources, verification-sent.
+4.2 Backend & API
+* API Routes: /api/upload-image, /api/analyze-antique.
+* Middleware: Protects specified routes.
+* Storage: Supabase for data and images.
+4.3 Third-Party Integrations
+* As per section 2.7.
+________________
+
+
+5. Folder Structure
+text
+CollapseWrapCopy
+datainvest23-antiques-appraisal-v3/
+├── app/
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── api/
+│   │   ├── analyze-antique/route.ts
+│   │   ├── generate-audio/route.ts
+│   │   └── upload-image/route.ts
+│   ├── appraisal/page.tsx
+│   ├── auth/callback/route.ts
+│   ├── buy-tokens/page.tsx
+│   ├── login/page.tsx
+│   ├── my-valuations/page.tsx
+│   ├── my-valuations/[id]/page.tsx
+│   ├── referrals/page.tsx
+│   ├── admin/page.tsx
+│   ├── resources/page.tsx
+│   ├── resources/[slug]/page.tsx
+│   └── verification-sent/page.tsx
+├── components/
+│   ├── appraise-antique.tsx
+│   ├── detailed-analysis.tsx
+│   ├── admin-dashboard.tsx
+│   ├── user-management.tsx
+│   ├── content-management.tsx
+│   └── ... (other components)
+├── contexts/
+│   └── auth-context.tsx
+├── lib/
+│   ├── openai.ts
+│   ├── supabase-client.ts
+│   └── utils.ts
+├── middleware.ts
+├── next.config.mjs
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── tailwind.config.ts
+└── tsconfig.json
+________________
+
+
+6. API Specifications
+* POST /api/upload-image:
+   * Input: FormData (file).
+   * Output: { "url": "publicUrl" }.
+* POST /api/analyze-antique:
+   * Input: { "imageUrls": ["url1", "url2"], "additionalInfo": "text" }.
+   * Output: Structured report + questions.
+* POST /api/refine-analysis:
+   * Input: { "initialAnalysis": {...}, "userFeedback": "text" }.
+   * Output: Updated report + questions.
+* POST /api/generate-audio:
+   * Input: { "text": "summary" }.
+   * Output: { "audioUrl": "url" }.
+________________
+
+
+7. Supabase Setup
+7.1 Database Tables
+* Users (users):
+   * user_id (UUID, PK), email (TEXT, Unique), created_at (TIMESTAMP), last_login (TIMESTAMP), user_type (TEXT, default 'user'), first_name (TEXT), last_name (TEXT), profile_data (JSONB).
+* Tokens (tokens):
+   * user_id (UUID, PK, FK → users), token_balance (INTEGER), transaction_history (JSONB).
+* Valuations (valuations):
+   * valuation_id (UUID, PK), user_id (UUID, FK → users), created_at (TIMESTAMP), is_detailed (BOOLEAN), valuation_report (JSONB).
+* Referrals (referrals):
+   * id (UUID, PK), referrer_user_id (UUID, FK → users), referred_user_id (UUID, FK → users), created_at (TIMESTAMP), reward_granted (BOOLEAN).
+* Articles (articles):
+   * id (UUID, PK), title (TEXT), slug (TEXT, Unique), featured_image_url (TEXT), tags (JSONB), content (TEXT), created_at (TIMESTAMP), updated_at (TIMESTAMP), author_id (UUID, FK → users).
+7.2 Storage Buckets
+* antique-images: User-uploaded images, restricted access.
+* article-images: Article featured images, public view, admin upload.
+7.3 Row-Level Security (RLS)
+* Articles:
+   * SELECT for anon/authenticated: USING (true).
+   * INSERT/UPDATE/DELETE for authenticated: USING (user_type = 'admin').
+* Storage (article-images):
+   * INSERT: WITH CHECK (bucket_id = 'article-images' AND (SELECT user_type FROM users WHERE user_id = auth.uid()) = 'admin').
+   * SELECT: USING (bucket_id = 'article-images').
+________________
+
+
+8. Testing, Deployment & Future Enhancements
+8.1 Testing Strategy
+* Unit: APIs, token logic, error handling.
+* Integration: Full appraisal flow.
+* E2E: User journeys including admin features.
+8.2 Deployment
+* Platform: Vercel.
+* CI/CD: GitHub Actions.
+8.3 Future Enhancements
+* Real voice transcription, full Stripe integration, analytics dashboard, referral expansion, external data integration.
+________________
+
+
+This PRD optimizes the token system for clarity, enhances the appraisal flow with UI feedback (e.g., progress indicators), and adds an Admin Page and Resources Section, fully integrated with Supabase, to meet the query's requirements.

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { ensureDevUserFolder } from '@/lib/storage-helpers'
 
 // Import sharp dynamically to handle cases where it might not be available
 let sharp: any;
@@ -12,19 +13,6 @@ try {
 
 export async function POST(request: NextRequest) {
   try {
-    // Fix: correctly handle cookies
-    const cookieStore = cookies()
-    const supabase = createServerComponentClient({ cookies: () => cookieStore })
-    
-    // Get authenticated user
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    const userId = session.user.id
-    
     // Get the file from the request
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -37,6 +25,25 @@ export async function POST(request: NextRequest) {
     if (!file.type.startsWith('image/')) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
+
+    // Use createRouteHandlerClient with await on cookies()
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    
+    // Get authenticated user using getUser
+    const { data, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !data.user) {
+      console.error('Authentication error:', authError)
+      return NextResponse.json({ 
+        error: 'Authentication required', 
+        details: 'You must be logged in to upload images. If testing in development, please sign in first.' 
+      }, { status: 401 })
+    }
+    
+    // Always use the authenticated user's ID
+    const userId = data.user.id
+    console.log(`Uploading image for authenticated user: ${userId}`)
     
     // Convert File to Buffer for processing
     const arrayBuffer = await file.arrayBuffer()
@@ -80,44 +87,90 @@ export async function POST(request: NextRequest) {
     const fileName = `${timestamp}.${extension}`
     const folderPath = `${userId}`
     
-    // Upload processed image to Supabase Storage
-    const { data, error } = await supabase
-      .storage
-      .from('antique-images')
-      .upload(`${folderPath}/${fileName}`, processedImage, {
-        contentType: sharp ? 'image/jpeg' : file.type,
-        cacheControl: '3600',
-        upsert: false
+    try {
+      // First, check if the user folder exists by listing it
+      const { data: folderExists, error: folderError } = await supabase
+        .storage
+        .from('antique-images')
+        .list(folderPath, { limit: 1 })
+      
+      // If folder doesn't exist or we got an error, try to create it with an empty file
+      if (folderError || !folderExists || folderExists.length === 0) {
+        console.log(`Creating folder for user: ${folderPath}`)
+        try {
+          // Create an empty placeholder file to establish the folder
+          const emptyBuffer = new Uint8Array(0);
+          await supabase
+            .storage
+            .from('antique-images')
+            .upload(`${folderPath}/.folder`, emptyBuffer, {
+              contentType: 'text/plain',
+              upsert: true
+            });
+        } catch (folderCreateError) {
+          console.warn('Failed to create user folder:', folderCreateError);
+          // Continue anyway, as the folder might be created by another process
+        }
+      }
+      
+      // Upload processed image to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('antique-images')
+        .upload(`${folderPath}/${fileName}`, processedImage, {
+          contentType: sharp ? 'image/jpeg' : file.type,
+          cacheControl: '3600',
+          upsert: false
+        })
+      
+      if (uploadError) {
+        console.error('Error uploading to Supabase Storage:', uploadError)
+        
+        // Provide more helpful error messages based on the error type
+        if (uploadError.message?.includes('row-level security') || 
+            uploadError.message?.includes('403')) {
+          return NextResponse.json({ 
+            error: 'Permission denied', 
+            details: 'The storage bucket may not be configured correctly for uploads. See docs/supabase-storage-setup.md for configuration instructions.' 
+          }, { status: 403 })
+        }
+        
+        return NextResponse.json({ 
+          error: 'Failed to upload image', 
+          details: uploadError.message 
+        }, { status: 500 })
+      }
+      
+      // Get the public URL
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('antique-images')
+        .getPublicUrl(`${folderPath}/${fileName}`)
+      
+      // Return the upload result with CORS headers
+      return NextResponse.json({ 
+        url: publicUrl,
+        uploadPath: uploadData.path,
+        size: processedImage.length,
+        format: imageFormat,
+        dimensions: {
+          width: imageWidth || 'unknown',
+          height: imageHeight || 'unknown'
+        }
+      }, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
       })
-    
-    if (error) {
-      console.error('Error uploading to Supabase Storage:', error)
-      return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
+    } catch (storageError) {
+      console.error('Detailed storage error:', storageError)
+      return NextResponse.json({ 
+        error: 'Storage operation failed', 
+        details: storageError instanceof Error ? storageError.message : 'Unknown error'
+      }, { status: 500 })
     }
-    
-    // Get the public URL
-    const { data: { publicUrl } } = supabase
-      .storage
-      .from('antique-images')
-      .getPublicUrl(`${folderPath}/${fileName}`)
-    
-    // Return the upload result with CORS headers
-    return NextResponse.json({ 
-      url: publicUrl,
-      uploadPath: data.path,
-      size: processedImage.length,
-      format: imageFormat,
-      dimensions: {
-        width: imageWidth || 'unknown',
-        height: imageHeight || 'unknown'
-      }
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
-    })
     
   } catch (error) {
     console.error('Error in upload-image API route:', error)

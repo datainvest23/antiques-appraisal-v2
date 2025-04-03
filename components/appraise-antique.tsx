@@ -161,12 +161,14 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
     setError(null)
 
     try {
-      const response = await fetch('/api/analyze-antique', {
+      // Use the new Gemini-powered API endpoint for the full service
+      const response = await fetch('/api/appraise-v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           imageUrls: urls,
-          additionalInfo: feedback
+          additionalInfo: feedback,
+          serviceType: "full" // Always use full service in this component
         })
       })
 
@@ -899,6 +901,7 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
                         </span>
                       </div>
                       
+                      {/* Remove the Title and Images section - START DELETION */}
                       {/* Title and Images side by side layout */}
                       <div className="flex flex-col md:flex-row gap-6 mb-6">
                         {/* Title and Description on the left */}
@@ -936,7 +939,9 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
                           </div>
                         </div>
                       </div>
+                      {/* END DELETION */}
 
+                      {/* Remove the Full Report Sections - START DELETION */}
                       {/* Full Report Sections */}
                       <div className="mt-6 space-y-4 text-slate-700">
                         {analysisData.fullReport && (
@@ -994,71 +999,36 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
                           </>
                         )}
                       </div>
+                      {/* END DELETION */}
 
-                      <DetailedAnalysis analysis={analysisData as AntiqueAnalysisResult} />
+                      <div className="mt-8">
+                        {analysisData && (
+                          <>
+                      <DetailedAnalysis analysis={analysisData as AntiqueAnalysisResult} imageUrls={imageUrls} />
 
-                      <div className="mt-6 space-y-3">
-                        <h3 className="text-lg font-medium text-center">Get Additional Expert Analysis</h3>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            {/* Download PDF button */}
+                            <div className="mt-6 flex justify-center">
                           <Button
                             onClick={handleDownloadReport}
                             disabled={isGeneratingPdf}
-                            className="flex-1"
+                                className="flex items-center gap-2"
                           >
                             {isGeneratingPdf ? (
                               <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-4 w-4 animate-spin" />
                                 Generating PDF...
                               </>
                             ) : (
                               <>
-                                <Download className="mr-2 h-4 w-4" />
-                                Download Report
+                                    <Download className="h-4 w-4" />
+                                    Download PDF Report
                               </>
                             )}
                           </Button>
-                          
-                          <Button
-                            onClick={handleEvaluationExpertAnalysis}
-                            disabled={isEvaluationExpertAnalyzing}
-                            className="flex-1"
-                          >
-                            {isEvaluationExpertAnalyzing ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Evaluating Market...
-                              </>
-                            ) : (
-                              "Create Expert Appraisal"
-                            )}
-                          </Button>
+                            </div>
+                          </>
+                        )}
                         </div>
-                      </div>
-
-                      {historyExpertResult && (
-                        <Card className="mt-6">
-                          <CardContent className="p-6">
-                            <h3 className="text-xl font-semibold mb-4">Historical & Cultural Context</h3>
-                            <div className="prose max-w-none">
-                              <div dangerouslySetInnerHTML={{ __html: historyExpertResult.content }} />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {evaluationExpertResult && (
-                        <Card className="mt-6">
-                          <CardContent className="p-6">
-                            <h3 className="text-xl font-semibold mb-4">Comprehensive Expert Appraisal</h3>
-                            <div className="prose prose-slate max-w-none">
-                              <div 
-                                dangerouslySetInnerHTML={{ __html: evaluationExpertResult.content }} 
-                                className="expert-appraisal-container"
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
                     </div>
                   )}
                 </>

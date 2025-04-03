@@ -1,0 +1,310 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import OpenAI from 'openai';
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || '',
+});
+
+// Process the markdown response for better display
+function processMarkdownResponse(content: string): string {
+  // Process headings (## Heading -> <h2>Heading</h2>)
+  let formattedContent = content.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+  formattedContent = formattedContent.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+  formattedContent = formattedContent.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+
+  // Process lists (- item -> <li>item</li>)
+  formattedContent = formattedContent.replace(/^\s*- (.*$)/gm, '<li>$1</li>');
+  
+  // Wrap lists with <ul></ul>
+  formattedContent = formattedContent.replace(/(<li>.*<\/li>)\s*\n\s*\n/gs, '<ul>$1</ul>\n\n');
+  
+  // Process tables - capture the entire table and wrap it in a scrollable div
+  formattedContent = formattedContent.replace(
+    /\|(.*)\|\s*\n\|[-:|]+\|\s*\n((\|.*\|\s*\n)+)/g,
+    (match, headerRow, bodyRows) => {
+      const headers = headerRow.split('|').filter(cell => cell.trim()).map(cell => `<th>${cell.trim()}</th>`).join('');
+      
+      const rows = bodyRows.trim().split('\n').map(row => {
+        const cells = row.split('|').filter(cell => cell.trim()).map(cell => `<td>${cell.trim()}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      
+      return `<div class="overflow-x-auto my-4 border border-slate-200 rounded-md shadow-sm">
+        <table class="min-w-full">
+          <thead>
+            <tr>${headers}</tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>`;
+    }
+  );
+  
+  // Process paragraphs (separated by blank lines)
+  formattedContent = formattedContent.replace(/^(?!<[hlu]|<div class="overflow).+/gm, '<p>$&</p>');
+  
+  // Process bold text (**text** -> <strong>text</strong>)
+  formattedContent = formattedContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Process italic text (*text* -> <em>text</em>)
+  formattedContent = formattedContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+  return formattedContent;
+}
+
+// Format the assistant response to HTML for display
+function formatAssistantResponse(response: any): string {
+  if (!response) return "<p>No analysis generated</p>";
+  
+  try {
+    // Create a title header
+    let formattedContent = `<h1 class="text-center font-bold mb-6">Initial Appraisal</h1>`;
+    
+    // Object title and category
+    formattedContent += `<h2 class="text-xl font-semibold">${response.Object_Title}</h2>`;
+    formattedContent += `<p class="mb-4"><strong>Category:</strong> ${response.Preliminary_Object_Category}</p>`;
+    
+    // Comprehensive Evaluation Section
+    formattedContent += `<h2>Comprehensive Evaluation</h2>`;
+    
+    formattedContent += `<p><strong>Description:</strong> ${response.Comprehensive_Evaluation.Description}</p>`;
+    formattedContent += `<p><strong>Historical Context:</strong> ${response.Comprehensive_Evaluation.Historical_Context}</p>`;
+    formattedContent += `<p><strong>Condition and Authenticity:</strong> ${response.Comprehensive_Evaluation.Condition_and_Authenticity}</p>`;
+    formattedContent += `<p><strong>Use and Function:</strong> ${response.Comprehensive_Evaluation.Use_and_Function}</p>`;
+    formattedContent += `<p><strong>Value:</strong> ${response.Comprehensive_Evaluation.Value}</p>`;
+    formattedContent += `<p><strong>Recommended Actions:</strong> ${response.Comprehensive_Evaluation.Recommended_Actions}</p>`;
+    
+    // Identification Details Section
+    formattedContent += `<h2>Identification Details</h2>`;
+    formattedContent += `<p><strong>Photos Provided:</strong> ${response.Identification_Details.Photos_Provided}</p>`;
+    formattedContent += `<p><strong>First Impressions:</strong> ${response.Identification_Details.First_Impressions}</p>`;
+    
+    // Physical Attributes Section
+    formattedContent += `<h2>Physical Attributes</h2>`;
+    formattedContent += `<p><strong>Materials & Techniques:</strong> ${response.Physical_Attributes.Materials_Techniques}</p>`;
+    formattedContent += `<p><strong>Measurements:</strong> ${response.Physical_Attributes.Measurements}</p>`;
+    formattedContent += `<p><strong>Condition:</strong> ${response.Physical_Attributes.Condition}</p>`;
+    
+    // Markings and Inscriptions Section
+    formattedContent += `<h2>Markings and Inscriptions</h2>`;
+    formattedContent += `<p><strong>Visible Markings:</strong> ${response.Markings_and_Inscriptions.Visible_Markings}</p>`;
+    formattedContent += `<p><strong>Interpretation:</strong> ${response.Markings_and_Inscriptions.Interpretation}</p>`;
+    
+    // Unique Features Section
+    formattedContent += `<h2>Unique Features</h2>`;
+    formattedContent += `<p><strong>Motifs & Decorations:</strong> ${response.Unique_Features.Motifs_Decorations}</p>`;
+    formattedContent += `<p><strong>Alterations:</strong> ${response.Unique_Features.Alterations}</p>`;
+    
+    // Stylistic Analysis Section
+    formattedContent += `<h2>Stylistic Analysis</h2>`;
+    formattedContent += `<p><strong>Style Indicators:</strong> ${response.Stylistic_Analysis.Style_Indicators}</p>`;
+    formattedContent += `<p><strong>Era Estimation:</strong> ${response.Stylistic_Analysis.Era_Estimation}</p>`;
+    
+    // Provenance and Attribution Section
+    formattedContent += `<h2>Provenance and Attribution</h2>`;
+    formattedContent += `<p><strong>Origin Clues:</strong> ${response.Provenance_and_Attribution.Origin_Clues}</p>`;
+    formattedContent += `<p><strong>Maker Suggestions:</strong> ${response.Provenance_and_Attribution.Maker_Suggestions}</p>`;
+    
+    // Value Indicators and Caveats Section
+    formattedContent += `<h2>Value Indicators and Caveats</h2>`;
+    formattedContent += `<p><strong>Rarity and Concerns:</strong> ${response.Value_Indicators_and_Caveats.Rarity_and_Concerns}</p>`;
+    
+    // Final Recommendations Section
+    formattedContent += `<h2>Final Recommendations</h2>`;
+    formattedContent += `<p><strong>Limitations:</strong> ${response.Final_Recommendations.Limitations}</p>`;
+    formattedContent += `<p><strong>Next Steps:</strong> ${response.Final_Recommendations.Next_Steps}</p>`;
+    
+    return formattedContent;
+  } catch (error) {
+    console.error("Error formatting assistant response:", error);
+    return "<p>Error formatting the analysis. Please try again.</p>";
+  }
+}
+
+// Use the Assistants API to analyze the images
+async function analyzeWithAssistant(imageUrls: string[], additionalInfo: string) {
+  try {
+    // Step 1: Create a Thread
+    const thread = await openai.beta.threads.create();
+    
+    // Step 2: Add the user's message with images to the thread
+    const userMessage = additionalInfo 
+      ? `Please provide an initial appraisal for this antique item described as: ${additionalInfo}` 
+      : 'Please provide an initial appraisal for this antique item.';
+    
+    const userMessageContent: any[] = [
+      {
+        type: "text",
+        text: userMessage
+      }
+    ];
+    
+    // Add image content for each image URL
+    for (const imageUrl of imageUrls) {
+      userMessageContent.push({
+        type: "image_url",
+        image_url: { url: imageUrl }
+      });
+    }
+    
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: userMessageContent,
+    });
+    
+    // Step 3: Run the Assistant on the Thread
+    const assistantId = process.env.OPENAI_ASSISTANT_ID_INITIAL;
+    if (!assistantId) {
+      throw new Error("Assistant ID is not configured");
+    }
+    
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: assistantId,
+    });
+    
+    // Step 4: Poll for the completion of the Run
+    let completedRun;
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes with 5-second intervals
+    
+    while (attempts < maxAttempts) {
+      const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      
+      if (runStatus.status === "completed") {
+        completedRun = runStatus;
+        break;
+      } else if (runStatus.status === "failed" || runStatus.status === "cancelled" || runStatus.status === "expired") {
+        throw new Error(`Run ended with status: ${runStatus.status}`);
+      }
+      
+      // Wait for 5 seconds before checking again
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      attempts++;
+    }
+    
+    if (!completedRun) {
+      throw new Error("Analysis timed out after 5 minutes");
+    }
+    
+    // Step 5: Retrieve the Assistant's messages
+    const messages = await openai.beta.threads.messages.list(thread.id, {
+      order: "desc", // Get the most recent message first
+      limit: 1,
+    });
+    
+    // Get the latest message from the assistant
+    const latestMessage = messages.data.find(msg => msg.role === "assistant");
+    if (!latestMessage) {
+      throw new Error("No response from Assistant");
+    }
+    
+    // Extract the content from the message
+    const messageContents = latestMessage.content;
+    
+    // Find the text content
+    const textContent = messageContents.find((content: any) => content.type === "text");
+    if (!textContent || !("text" in textContent)) {
+      throw new Error("No text content in Assistant's response");
+    }
+    
+    // Parse the response - it should be a JSON object following our schema
+    let parsedResponse;
+    try {
+      // Look for JSON structure in the response
+      const jsonMatch = textContent.text.value.match(/```json\n([\s\S]*?)\n```/);
+      if (jsonMatch && jsonMatch[1]) {
+        parsedResponse = JSON.parse(jsonMatch[1]);
+      } else {
+        // Try to parse the entire response as JSON
+        parsedResponse = JSON.parse(textContent.text.value);
+      }
+    } catch (error) {
+      console.error("Error parsing JSON from Assistant response:", error);
+      throw new Error("Invalid response format from Assistant");
+    }
+    
+    return parsedResponse;
+  } catch (error) {
+    console.error("Error using Assistants API:", error);
+    throw error;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Create a Supabase client for the route handler
+    const cookieStore = await cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    
+    // Get the authenticated user
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+    
+    // Require authentication
+    if (authError || !userData.user) {
+      console.error('Authentication error:', authError);
+      return NextResponse.json({ 
+        error: 'Authentication required', 
+        details: 'You must be logged in to analyze images.' 
+      }, { status: 401 });
+    }
+    
+    // Use authenticated user ID
+    const userId = userData.user.id;
+    
+    const body = await request.json();
+    const { imageUrls, additionalInfo } = body;
+
+    if (!imageUrls || !imageUrls.length) {
+      return NextResponse.json(
+        { error: 'No images provided' },
+        { status: 400 }
+      );
+    }
+
+    try {
+      // Use the Assistants API
+      const assistantResponse = await analyzeWithAssistant(imageUrls, additionalInfo || "");
+      
+      // Format the response for display
+      const formattedContent = formatAssistantResponse(assistantResponse);
+      
+      // Save the analysis to Supabase
+      const { error: insertError } = await supabase
+        .from('analyses')
+        .insert({
+          user_id: userId,
+          analysis_type: 'initial',
+          result: JSON.stringify(assistantResponse),
+          images: imageUrls
+        });
+
+      if (insertError) {
+        console.error('Error saving analysis to database:', insertError);
+      }
+
+      // Return the formatted content along with the images
+      return NextResponse.json({ 
+        content: formattedContent,
+        images: imageUrls 
+      });
+      
+    } catch (analysisError) {
+      console.error('Error in analysis process:', analysisError);
+      return NextResponse.json({ 
+        error: 'Analysis error', 
+        details: analysisError instanceof Error ? analysisError.message : 'Unknown error' 
+      }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('Server error in appraise-initial endpoint:', error);
+    return NextResponse.json({ 
+      error: 'Server error', 
+      details: error instanceof Error ? error.message : 'Unknown server error' 
+    }, { status: 500 });
+  }
+} 

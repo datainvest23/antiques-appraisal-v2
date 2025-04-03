@@ -1,19 +1,15 @@
 import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import type { AntiqueAnalysisResult } from "@/lib/openai"
+import type { AntiqueAnalysisResult } from "@/lib/openai";
+import { Button } from "@/components/ui/button";
+import { Printer, Download } from "lucide-react";
+import Image from "next/image";
 
 interface DetailedAnalysisProps {
   analysis: AntiqueAnalysisResult | null;
+  imageUrls?: string[];
 }
 
-export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
+export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedAnalysisProps) {
   // Safety check - if analysis is null/undefined, return a placeholder
   if (!analysis) {
     return (
@@ -23,220 +19,126 @@ export default function DetailedAnalysis({ analysis }: DetailedAnalysisProps) {
     );
   }
 
-  // Safely access nested properties
-  const getNestedProperty = (obj: any, path: string, fallback: string = "Not available") => {
-    try {
-      return path.split('.').reduce((prev, curr) => {
-        return prev && prev[curr] !== undefined ? prev[curr] : fallback;
-      }, obj) || fallback;
-    } catch {
-      return fallback;
-    }
+  // Function to handle printing
+  const handlePrint = () => {
+    window.print();
   };
 
-  // Ensure each section has data with fallbacks
-  const materials = getNestedProperty(analysis, 'physicalAttributes.materials');
-  const measurements = getNestedProperty(analysis, 'physicalAttributes.measurements');
-  const condition = getNestedProperty(analysis, 'physicalAttributes.condition');
-  const physicalPriority = getNestedProperty(analysis, 'physicalAttributes.priority', '');
-  const physicalStatus = getNestedProperty(analysis, 'physicalAttributes.status', '');
-  
-  const signatures = getNestedProperty(analysis, 'inscriptions.signatures');
-  const hallmarks = getNestedProperty(analysis, 'inscriptions.hallmarks');
-  const additionalIdentifiers = getNestedProperty(analysis, 'inscriptions.additionalIdentifiers');
-  const inscriptionsPriority = getNestedProperty(analysis, 'inscriptions.priority', '');
-  const inscriptionsStatus = getNestedProperty(analysis, 'inscriptions.status', '');
-  
-  const motifs = getNestedProperty(analysis, 'uniqueFeatures.motifs');
-  const restoration = getNestedProperty(analysis, 'uniqueFeatures.restoration');
-  const anomalies = getNestedProperty(analysis, 'uniqueFeatures.anomalies');
-  const featuresPriority = getNestedProperty(analysis, 'uniqueFeatures.priority', '');
-  const featuresStatus = getNestedProperty(analysis, 'uniqueFeatures.status', '');
-  
-  const indicators = getNestedProperty(analysis, 'stylistic.indicators');
-  const estimatedEra = getNestedProperty(analysis, 'stylistic.estimatedEra');
-  const confidenceLevel = getNestedProperty(analysis, 'stylistic.confidenceLevel');
-  const stylisticPriority = getNestedProperty(analysis, 'stylistic.priority', '');
-  const stylisticStatus = getNestedProperty(analysis, 'stylistic.status', '');
-  
-  const likelyMaker = getNestedProperty(analysis, 'attribution.likelyMaker');
-  const evidence = getNestedProperty(analysis, 'attribution.evidence');
-  const probability = getNestedProperty(analysis, 'attribution.probability');
-  const attributionPriority = getNestedProperty(analysis, 'attribution.priority', '');
-  const attributionStatus = getNestedProperty(analysis, 'attribution.status', '');
-  
-  const infoInPhotos = getNestedProperty(analysis, 'provenance.infoInPhotos');
-  const historicIndicators = getNestedProperty(analysis, 'provenance.historicIndicators');
-  const recommendedFollowup = getNestedProperty(analysis, 'provenance.recommendedFollowup');
-  const provenancePriority = getNestedProperty(analysis, 'provenance.priority', '');
-  const provenanceStatus = getNestedProperty(analysis, 'provenance.status', '');
-  
-  const photoCount = getNestedProperty(analysis, 'intake.photoCount');
-  const photoQuality = getNestedProperty(analysis, 'intake.photoQuality');
-  const lightingAngles = getNestedProperty(analysis, 'intake.lightingAngles');
-  const overallImpression = getNestedProperty(analysis, 'intake.overallImpression');
-  
-  const factors = getNestedProperty(analysis, 'valueIndicators.factors');
-  const redFlags = getNestedProperty(analysis, 'valueIndicators.redFlags');
-  const references = getNestedProperty(analysis, 'valueIndicators.references');
-  const followupQuestions = analysis.valueIndicators?.followupQuestions || [];
-  const valuePriority = getNestedProperty(analysis, 'valueIndicators.priority', '');
-  const valueStatus = getNestedProperty(analysis, 'valueIndicators.status', '');
-
-  // Helper function to render priority and status badges
-  const renderPriorityStatus = (priority: string, status: string) => {
-    if (!priority && !status) return null;
-    
-    return (
-      <div className="flex items-center space-x-2 mt-2">
-        {priority && (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            priority === 'High' ? 'bg-red-100 text-red-800' : 
-            priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
-            'bg-blue-100 text-blue-800'
-          }`}>
-            Priority: {priority}
-          </span>
-        )}
-        {status && (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            status === '✓' ? 'bg-green-100 text-green-800' : 
-            status === '?' ? 'bg-yellow-100 text-yellow-800' : 
-            'bg-red-100 text-red-800'
-          }`}>
-            Status: {status}
-          </span>
-        )}
-      </div>
-    );
-  };
+  // Extract title and clean it up if needed
+  const itemTitle = extractTitle(analysis) || analysis.introduction?.title || analysis.preliminaryCategory || "Antique Item";
+  const era = analysis.stylistic?.estimatedEra || "Unknown era";
 
   return (
-    <div className="space-y-6">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[200px]">Category</TableHead>
-            <TableHead>Details</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">Physical Attributes</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Materials:</span> {materials}</p>
-                <p><span className="font-semibold">Measurements:</span> {measurements}</p>
-                <p><span className="font-semibold">Condition:</span> {condition}</p>
-                {renderPriorityStatus(physicalPriority, physicalStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Inscriptions</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Signatures:</span> {signatures}</p>
-                <p><span className="font-semibold">Hallmarks:</span> {hallmarks}</p>
-                <p><span className="font-semibold">Additional Identifiers:</span> {additionalIdentifiers}</p>
-                {renderPriorityStatus(inscriptionsPriority, inscriptionsStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Distinguishing Features</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Motifs & Decorations:</span> {motifs}</p>
-                <p><span className="font-semibold">Restoration Signs:</span> {restoration}</p>
-                <p><span className="font-semibold">Anomalies:</span> {anomalies}</p>
-                {renderPriorityStatus(featuresPriority, featuresStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Stylistic Assessment</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Style Indicators:</span> {indicators}</p>
-                <p><span className="font-semibold">Estimated Era:</span> {estimatedEra}</p>
-                <p><span className="font-semibold">Confidence Level:</span> {confidenceLevel}</p>
-                {renderPriorityStatus(stylisticPriority, stylisticStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Attribution</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Likely Maker:</span> {likelyMaker}</p>
-                <p><span className="font-semibold">Evidence:</span> {evidence}</p>
-                <p><span className="font-semibold">Probability:</span> {probability}</p>
-                {renderPriorityStatus(attributionPriority, attributionStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Provenance</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Information in Photos:</span> {infoInPhotos}</p>
-                <p><span className="font-semibold">Historic Indicators:</span> {historicIndicators}</p>
-                <p><span className="font-semibold">Recommended Follow-up:</span> {recommendedFollowup}</p>
-                {renderPriorityStatus(provenancePriority, provenanceStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Photo Assessment</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Photo Count:</span> {photoCount}</p>
-                <p><span className="font-semibold">Photo Quality:</span> {photoQuality}</p>
-                <p><span className="font-semibold">Lighting & Angles:</span> {lightingAngles}</p>
-                <p><span className="font-semibold">Overall Impression:</span> {overallImpression}</p>
-              </div>
-            </TableCell>
-          </TableRow>
-          
-          <TableRow>
-            <TableCell className="font-medium">Value Indicators</TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Factors:</span> {factors}</p>
-                <p><span className="font-semibold">Red Flags:</span> {redFlags}</p>
-                <p><span className="font-semibold">References:</span> {references}</p>
-                
-                {followupQuestions && followupQuestions.length > 0 && (
-                  <div>
-                    <p className="font-semibold">Follow-up Questions:</p>
-                    <ul className="list-disc pl-5 mt-1 space-y-1">
-                      {followupQuestions.map((question, index) => (
-                        <li key={index}>{question}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {renderPriorityStatus(valuePriority, valueStatus)}
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-
-      <div className="mt-4 text-sm text-muted-foreground">
-        <p className="italic">
-          Note: This is an initial assessment based on provided images and information. 
-          A physical inspection by a specialized expert is recommended for a definitive appraisal.
-        </p>
+    <div className="w-full bg-white animate-fade-in print:animate-none">
+      {/* Header with title and print button */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 print:mb-4">
+        <div className="text-center md:text-left">
+          <h1 className="text-3xl font-serif font-bold text-slate-800 mb-2">{itemTitle}</h1>
+          <p className="text-slate-600 text-lg italic">{era}</p>
+        </div>
+        <div className="mt-4 md:mt-0 print:hidden">
+          <Button
+            onClick={handlePrint}
+            className="flex items-center gap-2"
+            variant="outline"
+          >
+            <Printer size={16} />
+            <span>Print Report</span>
+          </Button>
+        </div>
       </div>
+
+      {/* Full formatted content display */}
+      {analysis.content ? (
+        // If there's formatted content from the API, display it directly 
+        <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: analysis.content }} />
+      ) : (
+        // Fallback to simple display
+      <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left column with summary and details */}
+          <div className="lg:w-2/3 space-y-6">
+            {/* Summary section */}
+            <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="p-4 border-b border-slate-200">
+                <h2 className="font-medium text-slate-900">Summary</h2>
+              </div>
+              <div className="p-6">
+                <p className="text-slate-700">{analysis.summary}</p>
+              </div>
+            </div>
+            
+            {/* Full report section */}
+            <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="p-4 border-b border-slate-200">
+                <h2 className="font-medium text-slate-900">Analysis Report</h2>
+              </div>
+              <div className="p-6 prose prose-slate">
+                <div dangerouslySetInnerHTML={{ __html: typeof analysis.fullReport === 'string' 
+                  ? analysis.fullReport.replace(/\n/g, '<br />') 
+                  : JSON.stringify(analysis.fullReport, null, 2) }} />
+              </div>
+            </div>
+          </div>
+          
+          {/* Right sidebar with image gallery and key details */}
+          <div className="lg:w-1/3 space-y-6">
+            {/* Image gallery */}
+            {imageUrls && imageUrls.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                <div className="p-4 border-b border-slate-200">
+                  <h2 className="font-medium text-slate-900">Item Gallery</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-2 p-4">
+                {imageUrls.slice(0, 4).map((url, index) => (
+                  <div key={index} className="relative aspect-square rounded overflow-hidden">
+                    <Image
+                      src={url}
+                      alt={`${itemTitle} - view ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Key details card */}
+          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+            <div className="p-4 border-b border-slate-200">
+              <h2 className="font-medium text-slate-900">Key Details</h2>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Category</h3>
+                  <p className="mt-1 text-slate-900">{analysis.preliminaryCategory || "Antique Item"}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Material</h3>
+                <p className="mt-1 text-slate-900">{analysis.physicalAttributes?.materials || "Not specified"}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Condition</h3>
+                <p className="mt-1 text-slate-900">{analysis.physicalAttributes?.condition || "Not specified"}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Value Factors</h3>
+                <p className="mt-1 text-slate-900">{analysis.valueIndicators?.factors || "Not specified"}</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
+function extractTitle(analysis: AntiqueAnalysisResult): string | null {
+  if (analysis.introduction?.title) return analysis.introduction.title;
+  if (analysis.preliminaryCategory) return analysis.preliminaryCategory;
+  return null;
+}
