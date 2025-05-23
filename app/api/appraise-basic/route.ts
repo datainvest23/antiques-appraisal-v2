@@ -4,8 +4,9 @@ import { cookies } from 'next/headers';
 import OpenAI from 'openai';
 
 // Initialize OpenAI client
+// IMPORTANT: Ensure OPENAI_API_KEY is set in your environment variables.
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
+  apiKey: process.env.OPENAI_API_KEY || '', // Fallback to empty string if not set, though OpenAI client will likely error.
 });
 
 // Process the markdown response for better display
@@ -221,13 +222,15 @@ async function analyzeWithAssistant(imageUrls: string[], additionalInfo: string)
     });
     
     // Step 3: Run the Assistant on the Thread
+    // IMPORTANT: Ensure OPENAI_ASSISTANT_ID_BASIC is set for this 'basic' appraisal type.
     const assistantId = process.env.OPENAI_ASSISTANT_ID_BASIC;
     if (!assistantId) {
-      throw new Error("Assistant ID is not configured");
+      console.error("CRITICAL: OPENAI_ASSISTANT_ID_BASIC is not configured in environment variables.");
+      throw new Error("Assistant ID for basic appraisal is not configured. This service cannot proceed.");
     }
     
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistantId,
+      assistant_id: assistantId, // Already checked for null/undefined
     });
     
     // Step 4: Poll for the completion of the Run
@@ -360,7 +363,12 @@ async function analyzeWithAssistant(imageUrls: string[], additionalInfo: string)
 }
 
 export async function POST(request: NextRequest) {
+  // RECOMMENDATION: Implement input validation for the request body (e.g., using Zod or a similar library)
+  // to ensure 'imageUrls', 'additionalInfo', etc., are present and correctly typed.
   try {
+    // Log when the request is received
+    console.log(`Received request for basic appraisal: ${request.url}`);
+
     // Create a Supabase client for the route handler
     // Using the recommended pattern from Next.js docs
     const cookieStore = cookies();
@@ -384,61 +392,84 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { imageUrls, additionalInfo } = body;
 
-    if (!imageUrls || !imageUrls.length) {
+    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
       return NextResponse.json(
-        { error: 'No images provided' },
+        { error: 'Invalid input.', details: 'Image URLs must be an array and cannot be empty.' },
         { status: 400 }
       );
     }
 
+    // Call the assistant for analysis
+    const assistantResponse = await analyzeWithAssistant(imageUrls, additionalInfo || "");
+    
+    // Format the response for display
+    // This function now includes its own error handling for formatting issues
+    const formattedContent = formatAssistantResponse(assistantResponse);
+    
+    // Save the analysis to Supabase
+    // This operation is wrapped in a try-catch to prevent it from blocking the response to the user.
     try {
-      // Use the Assistants API
-      const assistantResponse = await analyzeWithAssistant(imageUrls, additionalInfo || "");
-      
-      // Format the response for display
-      const formattedContent = formatAssistantResponse(assistantResponse);
-      
-      // Save the analysis to Supabase
-      try {
-        const { error: insertError } = await supabase
-          .from('analyses')
-          .insert({
-            user_id: userId,
-            analysis_type: 'basic',
-            result: JSON.stringify(assistantResponse),
-            images: imageUrls
-          });
+      const { error: insertError } = await supabase
+        .from('analyses')
+        .insert({
+          user_id: userId, // Ensure user_id is correctly passed
+          analysis_type: 'basic',
+          result: JSON.stringify(assistantResponse), // Store the raw JSON response
+          images: imageUrls
+        });
 
-        if (insertError) {
-          console.error('Error saving analysis to database:', insertError);
-        }
-      } catch (dbError) {
-        console.error('Database error:', dbError);
-        // Continue even if saving to database fails
+      if (insertError) {
+        // Log the error but don't let it break the user response
+        console.error('Supabase insert error:', insertError);
       }
-
-      // Return all data to help with debugging and ensure the UI has what it needs
-      return NextResponse.json({
-        content: formattedContent,
-        images: imageUrls,
-        raw_response: assistantResponse,
-        // Pass these explicitly for the PDF button and to help debugging
-        has_content: true,
-        service_type: 'basic'
-      });
-      
-    } catch (analysisError) {
-      console.error('Error in analysis process:', analysisError);
-      return NextResponse.json({ 
-        error: 'Analysis error', 
-        details: analysisError instanceof Error ? analysisError.message : 'Unknown error' 
-      }, { status: 500 });
+    } catch (dbError) {
+      console.error('Error saving analysis to database:', dbError);
+      // Non-critical error, so we just log it and continue.
     }
+
+    // Return the successful response
+    return NextResponse.json({
+      content: formattedContent,
+      images: imageUrls,
+      raw_response: assistantResponse,
+      has_content: !!formattedContent, // Ensure this reflects actual content
+      service_type: 'basic'
+    });
+      
   } catch (error) {
-    console.error('Server error in appraise-basic endpoint:', error);
-    return NextResponse.json({ 
-      error: 'Server error', 
-      details: error instanceof Error ? error.message : 'Unknown server error' 
-    }, { status: 500 });
+    // Centralized error handling for the POST request
+    console.error('Error in appraise-basic POST handler:', error);
+
+    let errorMessage = 'Failed to process your request.';
+    let errorDetails = 'An unexpected error occurred.';
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      errorDetails = error.message; // Default to the error's message
+      if (error.message.includes('Authentication required')) {
+        errorMessage = 'Authentication Failed.';
+        statusCode = 401;
+      } else if (error.message.includes('No images provided') || error.message.includes('Invalid input')) {
+        errorMessage = 'Invalid Input.';
+        statusCode = 400;
+      } else if (error.message.includes('Analysis timed out') || error.message.includes('No response from Assistant')) {
+        errorMessage = 'Analysis Service Error.';
+        errorDetails = 'The analysis service took too long to respond or returned no data.';
+        statusCode = 504; // Gateway Timeout
+      } else if (error.message.includes('Invalid JSON format') || error.message.includes('No text content in Assistant')) {
+        errorMessage = 'Data Processing Error.';
+        errorDetails = 'The analysis service returned data in an unexpected format.';
+        statusCode = 502; // Bad Gateway
+      }
+      // For other generic errors, the default messages are used.
+    }
+    
+    return NextResponse.json(
+      { 
+        error: errorMessage, 
+        details: errorDetails // Provide a sanitized version of the error message
+      }, 
+      { status: statusCode }
+    );
   }
 } 

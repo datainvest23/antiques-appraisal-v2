@@ -4,7 +4,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // import fetch from 'node-fetch';
 
 // Initialize the Google Generative AI client with API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API || '');
+// IMPORTANT: Ensure GEMINI_API is set in your environment variables.
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API || ''); // Fallback to empty string if not set, though GenAI client will likely error.
 
 // System prompt for the Gemini model
 const SYSTEM_INSTRUCTION = `# ROLE: History and Antiques Expert (Comprehensive Initial Assessment)
@@ -127,53 +128,113 @@ async function fetchImageAsBase64(url: string): Promise<{data: string, mimeType:
     };
   } catch (error) {
     console.error('Error fetching image:', error);
-    throw error;
+    // In case of an error, log the URL that caused the issue
+    console.error(`Error fetching image from URL: ${url}`, error);
+    // Propagate the error to be handled by the main try-catch block
+    throw new Error(`Failed to fetch image at ${url}. Reason: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 // Function to clean up and process Gemini's markdown response
+// #############################################################################
+// # IMPORTANT RECOMMENDATION:
+// # Consider replacing this custom regex-based Markdown processing with a
+// # well-tested third-party library like 'marked', 'showdown', or similar.
+// # Such libraries are generally more robust, secure, and handle edge cases
+// # much better than custom regex solutions. This would lead to more
+// # reliable and maintainable code.
+// #############################################################################
 function processMarkdownResponse(content: string): string {
-  // Remove any content before the Executive Summary section
+  // Remove any content before the Executive Summary section, if present
+  // This helps to standardize the starting point of the content to be processed.
   let cleanedContent = content;
   const execSummaryIndex = cleanedContent.indexOf('## EXECUTIVE SUMMARY');
-  if (execSummaryIndex !== -1) {
+  if (execSummaryIndex > 0) { // Only substring if it's not at the very beginning (or -1)
     cleanedContent = cleanedContent.substring(execSummaryIndex);
+  } else if (execSummaryIndex === -1) {
+    console.warn("processMarkdownResponse: '## EXECUTIVE SUMMARY' not found. Processing entire content.");
   }
   
+  // Remove Markdown code block fences (e.g., ```json ... ``` or ``` ... ```)
+  // This is to clean up potential wrapping of the entire response or parts of it in code blocks.
+  cleanedContent = cleanedContent.replace(/^```(\w+)?\n([\s\S]*?)\n```$/gm, '$2').replace(/^```\n([\s\S]*?)\n```$/gm, '$1');
+
   // Format markdown to HTML with proper classes for styling
-  // Convert headers
-  cleanedContent = cleanedContent
-    // Format headers
-    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
-    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-5 mb-2">$1</h3>')
-    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-4 mb-2">$1</h4>')
-    // Format list items
-    .replace(/^\s*[-*+]\s+(.*$)/gm, '<li class="ml-4 my-1">$1</li>')
-    // Wrap lists - avoid using 's' flag
-    .replace(/(<li.*<\/li>)\n(?![<\s]*li)/g, '<ul class="list-disc pl-5 my-3">$1</ul>')
-    // Format bold and italics
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    // Format paragraphs
-    .replace(/^(?!<[hl]|<ul|<\/ul|<li|<table|<\/table|$)(.+)$/gm, '<p class="my-2">$1</p>')
-    // Fix any double-wrapped paragraphs
-    .replace(/<p class="my-2">(<h[2-4].*?<\/h[2-4]>)<\/p>/g, '$1')
-    // Handle tables (simple approach)
-    .replace(/\|\s*(.*?)\s*\|/g, '<td class="border px-4 py-2">$1</td>')
-    .replace(/^(<td.*<\/td>)$/gm, '<tr>$1</tr>')
-    // Handle table wrapping - avoid using 's' flag
-    .replace(/(<tr>.*<\/tr>)\n(?!<tr>)/g, '<table class="border-collapse border my-4 w-full">$1</table>')
-    // Handle horizontal rules
-    .replace(/^---$/gm, '<hr class="my-6 border-t border-gray-300">')
-    // Fix spacing
-    .replace(/\n\n+/g, '\n\n');
+  let htmlContent = cleanedContent;
+
+  // Format headers (e.g., ## Title, ### Subtitle)
+  // Matches lines starting with '##', '###', or '####'.
+  htmlContent = htmlContent.replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-6 mb-3 text-slate-800 pb-2 border-b border-slate-200">$1</h2>');
+  htmlContent = htmlContent.replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-5 mb-2 text-slate-700">$1</h3>');
+  htmlContent = htmlContent.replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-4 mb-2 text-slate-700">$1</h4>');
   
-  // Wrap everything in a container div with styling
-  return `<div class="expert-appraisal text-gray-800 leading-relaxed">${cleanedContent}</div>`;
+  // Format unordered list items (e.g., - item or * item)
+  // Matches lines starting with '-' or '*' followed by a space.
+  // Then groups consecutive list items into a <ul>.
+  htmlContent = htmlContent.replace(/^\s*[\*\-]\s+(.*$)/gm, '<li class="ml-4 my-1">$1</li>');
+  htmlContent = htmlContent.replace(/(<li class="ml-4 my-1">.*?<\/li>)(?=\s*<li class="ml-4 my-1">|<\/ul>|$)/gs, '$1'); 
+  htmlContent = htmlContent.replace(/(?:<li class="ml-4 my-1">.*?<\/li>)+/gs, (match) => `<ul class="list-disc pl-5 my-3">${match}</ul>`);
+
+  // Format ordered list items (e.g., 1. item)
+  // Matches lines starting with digits, a period, and a space.
+  // Then groups consecutive list items into an <ol>.
+  htmlContent = htmlContent.replace(/^\s*(\d+)\.\s+(.*$)/gm, '<li class="ml-4 my-1" value="$1">$2</li>');
+  htmlContent = htmlContent.replace(/(<li class="ml-4 my-1" value="\d+">.*?<\/li>)(?=\s*<li class="ml-4 my-1" value="\d+">|<\/ol>|$)/gs, '$1');
+  htmlContent = htmlContent.replace(/(?:<li class="ml-4 my-1" value="\d+">.*?<\/li>)+/gs, (match) => `<ol class="list-decimal pl-5 my-3">${match}</ol>`);
+  
+  // Format bold text (e.g., **text**)
+  // Matches text surrounded by double asterisks.
+  htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+  
+  // Format italic text (e.g., *text*)
+  // Matches text surrounded by single asterisks (not part of a bold sequence).
+  htmlContent = htmlContent.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em class="italic text-slate-700">$1</em>');
+  
+  // Format tables (Markdown table syntax)
+  // This regex is complex:
+  // - `^\|(.+)\|\s*\n` matches the header row.
+  // - `\|([\s\S]+?)\|\s*\n` matches the separator row (e.g., |:---|:---:|).
+  // - `((?:\|.*\|\s*\n?)+)` matches all body rows.
+  htmlContent = htmlContent.replace(
+    /^\|(.+)\|\s*\n\|([\s\S]+?)\|\s*\n((?:\|.*\|\s*\n?)+)/gm,
+    (tableMatch, headerRow, separatorRow, bodyRows) => {
+      const headers = headerRow.split('|').slice(1, -1).map(h => `<th class="border px-4 py-2 text-left">${h.trim()}</th>`).join('');
+      
+      const rows = bodyRows.trim().split('\n').map(row => {
+        const cells = row.split('|').slice(1, -1).map(c => `<td class="border px-4 py-2">${c.trim()}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+
+      return `<div class="overflow-x-auto my-6"><table class="min-w-full divide-y divide-gray-200 border border-slate-200 rounded-md shadow-sm"><thead><tr>${headers}</tr></thead><tbody class="divide-y divide-gray-200">${rows}</tbody></table></div>`;
+    }
+  );
+  
+  // Format paragraphs
+  // Matches lines that are not headings, list items, or part of tables, and are not empty.
+  // This should generally come after more specific block-level element processing.
+  htmlContent = htmlContent.replace(/^(?!<(?:h[2-4]|ul|ol|li|table|thead|tbody|tr|th|td|div|\/h[2-4]|\/ul|\/ol|\/li|\/table|\/thead|\/tbody|\/tr|\/th|\/td|\/div)|^\s*$)(.+)$/gm, '<p class="my-2 text-slate-700">$1</p>');
+  
+  // Remove <p> tags that might have incorrectly wrapped block elements (headings, tables, lists).
+  htmlContent = htmlContent.replace(/<p class="my-2 text-slate-700">\s*(<(h[2-4]|ul|ol|table|div class="overflow-x-auto").*?>[\s\S]*?<\/(h[2-4]|ul|ol|table|div)>)\s*<\/p>/g, '$1');
+  
+  // Handle horizontal rules (e.g., ---)
+  // Matches lines consisting only of three or more hyphens.
+  htmlContent = htmlContent.replace(/^---+\s*$/gm, '<hr class="my-6 border-t border-gray-300">');
+  
+  // Clean up multiple sequential newlines to single newlines for better spacing.
+  htmlContent = htmlContent.replace(/\n\s*\n/g, '\n');
+  
+  // Wrap everything in a container div with consistent styling
+  return `<div class="expert-appraisal-response text-gray-800 leading-relaxed">${htmlContent}</div>`;
 }
 
 export const POST = async (request: NextRequest) => {
+  // RECOMMENDATION: Implement input validation for the request body (e.g., using Zod or a similar library)
+  // to ensure 'imageUrls', 'category', 'summary', 'additionalInfo', 'analysisData', etc., are present and correctly typed.
   try {
+    // Log when the request is received
+    console.log(`Received request for expert appraisal: ${request.url}`);
+
     const body = await request.json();
     const { imageUrls, category, summary, additionalInfo, analysisData } = body;
 
@@ -245,19 +306,64 @@ Please provide a comprehensive expert appraisal following the format in your ins
       // Process the markdown response
       const formattedContent = processMarkdownResponse(content);
 
-      return NextResponse.json({ content: formattedContent });
+      // Log the successful response before sending
+      console.log("Successfully processed expert appraisal. Sending formatted content to client.");
+      return NextResponse.json({ content: formattedContent, raw_response: content });
+
     } catch (apiError) {
-      console.error('Error calling Gemini API:', apiError);
+      // Log the error and the raw response if available
+      console.error('Error calling Gemini API or processing its response in expert-appraisal:', apiError);
+      if (apiError instanceof Error && (apiError as any).response) { // Check for Gemini API specific error structure
+        console.error("Gemini API Error Response:", (apiError as any).response);
+      } else if (typeof content === 'string' && content) { // If content was fetched but processing failed later
+        console.error("Raw Gemini response (on processing error):", content.substring(0, 1000) + (content.length > 1000 ? "..." : ""));
+      }
+      
+      let errorMessage = 'Failed to get expert analysis from Gemini.';
+      let errorDetails = 'The AI service encountered an issue during the expert appraisal.';
+      let statusCode = 500;
+
+      if (apiError instanceof Error) {
+        errorDetails = apiError.message; // Default to the error's message for details
+        if (apiError.message.toLowerCase().includes('timeout')) {
+          statusCode = 504; // Gateway Timeout
+          errorMessage = 'Expert analysis request timed out.';
+        } else if (apiError.message.toLowerCase().includes('invalid api key')) {
+          statusCode = 500; // Internal Server Error (as key is server-side)
+          errorMessage = 'AI service configuration error.';
+          errorDetails = 'There is an issue with the server configuration for the AI service (expert appraisal).';
+        } else if (apiError.message.toLowerCase().includes('bad request') || apiError.message.toLowerCase().includes('invalid argument')) {
+          statusCode = 400; // Bad Request
+          errorMessage = 'Invalid request to AI service for expert appraisal.';
+          errorDetails = 'The data sent for expert analysis was not accepted. This might be due to image format or prompt issues.';
+        }
+      }
+      
       return NextResponse.json(
-        { error: 'Failed to get analysis from Gemini' },
-        { status: 500 }
+        { error: errorMessage, details: errorDetails },
+        { status: statusCode }
       );
     }
-  } catch (error) {
-    console.error('Error in expert appraisal analysis:', error);
+  } catch (error) { // Catch-all for other errors, like request parsing or image fetching before API call
+    console.error('Unhandled error in expert-appraisal POST handler:', error);
+    
+    let errorMessage = 'Failed to process the expert appraisal request.';
+    let errorDetails = 'An unexpected server error occurred before communicating with the AI service.';
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+        errorDetails = error.message; // Provide the actual error message for server logs / details
+        if (error.message.includes('No images provided') || error.message.includes('Invalid image URL') || error.message.includes('Failed to fetch image')) {
+            errorMessage = 'Invalid Input.';
+            statusCode = 400;
+        }
+        // Note: Authentication errors should ideally be handled by middleware or a dedicated auth check earlier.
+        // If an auth error somehow reaches here, it would be a generic 500.
+    }
+
     return NextResponse.json(
-      { error: 'Failed to analyze with Expert Appraisal' },
-      { status: 500 }
+      { error: errorMessage, details: errorDetails },
+      { status: statusCode }
     );
   }
 } 

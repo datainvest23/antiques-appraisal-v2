@@ -1,15 +1,18 @@
 import OpenAI from "openai";
 
 // Initialize the OpenAI client with the API key from environment variables
+// IMPORTANT: Ensure OPENAI_API_KEY is set in your environment variables.
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Read the designated assistant ID from environment variables
+// IMPORTANT: Ensure OPENAI_ASSISTANT_ID is set in your environment variables.
 const assistantId = process.env.OPENAI_ASSISTANT_ID;
 
 if (!assistantId) {
-  throw new Error("OPENAI_ASSISTANT_ID is not set in environment variables");
+  // This error is critical as the assistant ID is required for core functionality.
+  throw new Error("CRITICAL: OPENAI_ASSISTANT_ID is not set in environment variables. This ID is required to interact with the OpenAI assistant.");
 }
 
 // Maximum number of retries for API calls
@@ -149,77 +152,73 @@ export interface AntiqueAnalysisResult {
 
 function parseAssistantResponse(text: any): any {
   console.log("Raw input to parseAssistantResponse:", text);
-  
-  // If text is already an object with a value property
-  if (typeof text === 'object' && text !== null && 'value' in text) {
-    try {
-      // For cases where the value might be a template literal string surrounded by backticks
-      let valueStr = text.value;
-      
-      // Check if valueStr is surrounded by backticks and remove them
-      if (typeof valueStr === 'string') {
-        valueStr = valueStr.replace(/^`|`$/g, '');
+
+  if (typeof text === 'object' && text !== null) {
+    if (typeof text.value === 'string') {
+      try {
+        // Attempt to parse text.value if it's a string
+        const parsedValue = JSON.parse(text.value.replace(/^`|`$/g, ''));
+        console.log("Successfully parsed object.value:", parsedValue);
+        return parsedValue;
+      } catch (error) {
+        console.warn("Failed to parse object.value string, attempting to parse object directly:", error);
+        // Fall through to parsing the object itself if text.value parsing fails
       }
-      
-      const parsed = JSON.parse(valueStr);
-      console.log("Successfully parsed object.value:", parsed);
-      return parsed;
+    }
+    // If text.value wasn't a string or parsing it failed, try parsing the object itself
+    // This handles cases where the object is already the correct JSON structure
+    try {
+      // Ensure it's not a stringified version of the object
+      const directParse = (typeof text === 'string') ? JSON.parse(text) : text;
+      console.log("Successfully used direct object or parsed it:", directParse);
+      return directParse;
     } catch (error) {
-      console.error("Failed to parse object.value:", error);
+      console.error("Failed to parse object directly:", error);
+      // Fall through to string parsing if direct object usage/parsing fails
     }
   }
 
-  // If text is a string, try the existing parsing methods
   if (typeof text === 'string') {
-    // First try to parse the entire text as JSON
     try {
+      // Attempt direct JSON parsing first
       const parsed = JSON.parse(text);
-      console.log("Successfully parsed direct JSON:", parsed);
+      console.log("Successfully parsed direct JSON string:", parsed);
       return parsed;
-    } catch {
-      console.log("Direct JSON parsing failed, trying alternative methods");
-    }
-
-    // Try to extract JSON from the value property
-    try {
-      const valueMatch = text.match(/"value"\s*:\s*"([^"]+)"/);
-      if (valueMatch) {
-        const valueStr = valueMatch[1].replace(/\\"/g, '"').replace(/^`|`$/g, '');
-        const parsed = JSON.parse(valueStr);
-        console.log("Successfully parsed value property:", parsed);
-        return parsed;
+    } catch (e1) {
+      // If direct parsing fails, try extracting from ```json ... ```
+      const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        try {
+          const parsed = JSON.parse(jsonMatch[1]);
+          console.log("Successfully parsed JSON from code block:", parsed);
+          return parsed;
+        } catch (e2) {
+          console.error("Failed to parse JSON from code block:", e2);
+          console.error("Problematic string:", text);
+          throw new Error(`Failed to parse JSON from code block: ${e2 instanceof Error ? e2.message : String(e2)}`);
+        }
       }
-    } catch (error) {
-      console.error("Failed to parse value property:", error);
-    }
-
-    // Try to extract JSON from backticks
-    try {
-      const backtickMatch = text.match(/`(\{[\s\S]*\})`/);
-      if (backtickMatch) {
-        const parsed = JSON.parse(backtickMatch[1]);
-        console.log("Successfully parsed backtick-wrapped JSON:", parsed);
-        return parsed;
+      // Fallback for other string encapsulated JSONs or malformed JSONs
+      // This part tries to find a JSON-like structure within a string if other methods fail
+      try {
+          const valueMatch = text.match(/"value"\s*:\s*"([^"]+)"/);
+          if (valueMatch) {
+            const valueStr = valueMatch[1].replace(/\\"/g, '"').replace(/^`|`$/g, '');
+            const parsed = JSON.parse(valueStr);
+            console.log("Successfully parsed value property from string:", parsed);
+            return parsed;
+          }
+      } catch (e3) {
+          // Error already logged by previous attempts or this one if it fails
       }
-    } catch (error) {
-      console.error("Failed to parse backtick-wrapped JSON:", error);
-    }
-
-    // Try to extract any JSON object
-    try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        console.log("Successfully parsed raw JSON:", parsed);
-        return parsed;
-      }
-    } catch (error) {
-      console.error("Failed to parse raw JSON:", error);
+      
+      console.error("All string parsing attempts failed. Problematic string:", text, "Original error:", e1);
+      throw new Error(`No valid JSON found in response after multiple attempts. Direct parse error: ${e1 instanceof Error ? e1.message : String(e1)}`);
     }
   }
 
-  console.error("No valid JSON found in response. Raw input:", text);
-  throw new Error('No valid JSON found in response');
+  console.error("Input is not an object or string, or all parsing attempts failed. Raw input:", text);
+  throw new Error('Invalid input type or unable to parse JSON from response');
 }
 
 /**
@@ -339,73 +338,83 @@ export async function analyzeAntique(
       console.log("Parsed analysis result:", JSON.stringify(result, null, 2));
       
       // Transform the response to match our expected format
+      // Helper function to get a value or log a warning if it's missing
+      const getField = (obj: any, path: string, defaultValue: any, fieldName: string) => {
+        const value = path.split('.').reduce((o, p) => (o && o[p] !== undefined) ? o[p] : undefined, obj);
+        if (value === undefined || value === null || value === "") {
+          console.warn(`Missing or empty field in assistant response: ${fieldName}. Using default value: "${defaultValue}"`);
+          return defaultValue;
+        }
+        return value;
+      };
+
       return {
-        preliminaryCategory: result.introduction?.category || "Unknown",
+        preliminaryCategory: getField(result, "introduction.category", "Unknown Category", "introduction.category"),
         introduction: {
-          title: result.introduction?.title || "",
+          title: getField(result, "introduction.title", "N/A", "introduction.title"),
         },
         physicalAttributes: {
-          materials: result.physical_attributes?.materials_techniques || "",
-          measurements: result.physical_attributes?.measurements || "",
-          condition: result.physical_attributes?.condition || "",
-          priority: result.physical_attributes?.priority || "",
-          status: result.physical_attributes?.status || ""
+          materials: getField(result, "physical_attributes.materials_techniques", "N/A", "physical_attributes.materials_techniques"),
+          measurements: getField(result, "physical_attributes.measurements", "N/A", "physical_attributes.measurements"),
+          condition: getField(result, "physical_attributes.condition", "N/A", "physical_attributes.condition"),
+          priority: getField(result, "physical_attributes.priority", "N/A", "physical_attributes.priority"),
+          status: getField(result, "physical_attributes.status", "N/A", "physical_attributes.status")
         },
         inscriptions: {
-          signatures: result.inscriptions_marks_labels?.markings || "",
-          hallmarks: result.inscriptions_marks_labels?.interpretation || "",
-          additionalIdentifiers: "",
-          priority: result.inscriptions_marks_labels?.priority || "",
-          status: result.inscriptions_marks_labels?.status || ""
+          signatures: getField(result, "inscriptions_marks_labels.markings", "N/A", "inscriptions_marks_labels.markings"),
+          hallmarks: getField(result, "inscriptions_marks_labels.interpretation", "N/A", "inscriptions_marks_labels.interpretation"),
+          additionalIdentifiers: "N/A", // Not present in current assistant response
+          priority: getField(result, "inscriptions_marks_labels.priority", "N/A", "inscriptions_marks_labels.priority"),
+          status: getField(result, "inscriptions_marks_labels.status", "N/A", "inscriptions_marks_labels.status")
         },
         uniqueFeatures: {
-          motifs: result.distinguishing_features?.motifs_decorations || "",
-          restoration: result.distinguishing_features?.alterations || "",
-          anomalies: "",
-          priority: result.distinguishing_features?.priority || "",
-          status: result.distinguishing_features?.status || ""
+          motifs: getField(result, "distinguishing_features.motifs_decorations", "N/A", "distinguishing_features.motifs_decorations"),
+          restoration: getField(result, "distinguishing_features.alterations", "N/A", "distinguishing_features.alterations"),
+          anomalies: "N/A", // Not present in current assistant response
+          priority: getField(result, "distinguishing_features.priority", "N/A", "distinguishing_features.priority"),
+          status: getField(result, "distinguishing_features.status", "N/A", "distinguishing_features.status")
         },
         stylistic: {
-          indicators: result.stylistic_assessment?.style_indicators || "",
-          estimatedEra: result.stylistic_assessment?.estimated_era || "",
-          confidenceLevel: result.stylistic_assessment?.confidence || "",
-          priority: result.stylistic_assessment?.priority || "",
-          status: result.stylistic_assessment?.status || ""
+          indicators: getField(result, "stylistic_assessment.style_indicators", "N/A", "stylistic_assessment.style_indicators"),
+          estimatedEra: getField(result, "stylistic_assessment.estimated_era", "N/A", "stylistic_assessment.estimated_era"),
+          confidenceLevel: getField(result, "stylistic_assessment.confidence", "N/A", "stylistic_assessment.confidence"),
+          priority: getField(result, "stylistic_assessment.priority", "N/A", "stylistic_assessment.priority"),
+          status: getField(result, "stylistic_assessment.status", "N/A", "stylistic_assessment.status")
         },
         attribution: {
-          likelyMaker: result.provenance_and_attribution?.possible_maker || "",
-          evidence: result.provenance_and_attribution?.rationale || "",
-          probability: result.provenance_and_attribution?.attribution_priority || "",
-          priority: result.provenance_and_attribution?.attribution_priority || "",
-          status: result.provenance_and_attribution?.attribution_status || ""
+          likelyMaker: getField(result, "provenance_and_attribution.possible_maker", "N/A", "provenance_and_attribution.possible_maker"),
+          evidence: getField(result, "provenance_and_attribution.rationale", "N/A", "provenance_and_attribution.rationale"),
+          probability: getField(result, "provenance_and_attribution.attribution_priority", "N/A", "provenance_and_attribution.attribution_priority"), // Assuming attribution_priority maps to probability
+          priority: getField(result, "provenance_and_attribution.attribution_priority", "N/A", "provenance_and_attribution.attribution_priority"), // Duplicated from probability as per original
+          status: getField(result, "provenance_and_attribution.attribution_status", "N/A", "provenance_and_attribution.attribution_status")
         },
         provenance: {
-          infoInPhotos: result.provenance_and_attribution?.hints_of_origin || "",
-          historicIndicators: "",
-          recommendedFollowup: result.recommendations?.next_steps || "",
-          priority: result.provenance_and_attribution?.provenance_priority || "",
-          status: result.provenance_and_attribution?.provenance_status || ""
+          infoInPhotos: getField(result, "provenance_and_attribution.hints_of_origin", "N/A", "provenance_and_attribution.hints_of_origin"),
+          historicIndicators: "N/A", // Not present in current assistant response
+          recommendedFollowup: getField(result, "recommendations.next_steps", "N/A", "recommendations.next_steps"),
+          priority: getField(result, "provenance_and_attribution.provenance_priority", "N/A", "provenance_and_attribution.provenance_priority"),
+          status: getField(result, "provenance_and_attribution.provenance_status", "N/A", "provenance_and_attribution.provenance_status")
         },
         intake: {
-          photoCount: result.identification?.photos || "",
-          photoQuality: "",
-          lightingAngles: "",
-          overallImpression: result.identification?.impression || ""
+          photoCount: getField(result, "identification.photos", "N/A", "identification.photos"),
+          photoQuality: "N/A", // Not present in current assistant response
+          lightingAngles: "N/A", // Not present in current assistant response
+          overallImpression: getField(result, "identification.impression", "N/A", "identification.impression")
         },
         valueIndicators: {
-          factors: result.value_indicators?.factors || "",
-          redFlags: result.value_indicators?.concerns || "",
-          references: "",
-          followupQuestions: [],
-          priority: result.value_indicators?.priority || "",
-          status: result.value_indicators?.status || ""
+          factors: getField(result, "value_indicators.factors", "N/A", "value_indicators.factors"),
+          redFlags: getField(result, "value_indicators.concerns", "N/A", "value_indicators.concerns"),
+          references: "N/A", // Not present in current assistant response
+          followupQuestions: [], // Default to empty array
+          priority: getField(result, "value_indicators.priority", "N/A", "value_indicators.priority"),
+          status: getField(result, "value_indicators.status", "N/A", "value_indicators.status")
         },
-        summary: result.full_report?.description || "",
-        fullReport: result.full_report || "",
-        content: result.full_report?.description || ""
+        summary: getField(result, "full_report.description", "No summary provided.", "full_report.description"),
+        fullReport: getField(result, "full_report", { description: "Full report not available." }, "full_report"), // Provide a default object structure
+        content: getField(result, "full_report.description", "No content available.", "full_report.description") // Or handle based on how 'content' is used
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("Error parsing JSON response:", errorMessage);
       console.error("Raw response:", jsonContent.text);
       throw new Error(`Failed to parse the analysis response: ${errorMessage}`);
@@ -508,87 +517,121 @@ export async function refineAnalysis(
     }
     
     let result;
+    let result;
     try {
       result = parseAssistantResponse(jsonContent.text);
 
       // Validate the response structure
       if (!validateAssistantResponse(result)) {
-        throw new Error("Assistant response missing required fields");
+        // validateAssistantResponse logs the missing fields.
+        // Log the entire problematic result for more context during debugging.
+        console.error("Validation failed for refined response. Full response object:", JSON.stringify(result, null, 2));
+        throw new Error("Refined assistant response is missing required fields. Please check server logs for details of which fields are missing.");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error("Error parsing JSON response:", errorMessage);
-      console.error("Raw response:", jsonContent.text);
-      throw new Error(`Failed to parse the refined analysis response: ${errorMessage}`);
+      // Ensure the error is an instance of Error
+      const parsingError = error instanceof Error ? error : new Error(String(error));
+      console.error("Error during parsing or validation of refined JSON response:", parsingError.message);
+      // Log the raw text that caused the error, as it might not be valid JSON.
+      console.error("Raw response text that led to error:", jsonContent.text); 
+      throw new Error(`Failed to parse or validate the refined analysis response: ${parsingError.message}`);
     }
 
+    // Helper function to get a value or log a warning if it's missing, falling back to initialAnalysis
+    const getFieldWithFallback = (
+      parsedResult: any,
+      initialData: any,
+      path: string,
+      fieldName: string,
+      defaultValue?: any // Optional default if even initialData doesn't have it
+    ) => {
+      const value = path.split('.').reduce((o, p) => (o && o[p] !== undefined) ? o[p] : undefined, parsedResult);
+      if (value !== undefined && value !== null && value !== "") {
+        return value;
+      }
+      
+      // Fallback to initialAnalysis
+      const fallbackValue = path.split('.').reduce((o, p) => (o && o[p] !== undefined) ? o[p] : undefined, initialData);
+      if (fallbackValue !== undefined && fallbackValue !== null && fallbackValue !== "") {
+        console.warn(`Refined response missing ${fieldName}, using value from initial analysis.`);
+        return fallbackValue;
+      }
+
+      // If neither has it, use a hardcoded default or "N/A"
+      const finalDefault = defaultValue !== undefined ? defaultValue : "N/A";
+      console.warn(`Missing field in refined response and initial analysis: ${fieldName}. Using default: "${finalDefault}"`);
+      return finalDefault;
+    };
+    
     return {
-      preliminaryCategory: result.introduction?.category || initialAnalysis.preliminaryCategory,
+      preliminaryCategory: getFieldWithFallback(result, initialAnalysis, "introduction.category", "introduction.category", "Unknown Category"),
       introduction: {
-        title: result.introduction?.title || initialAnalysis.introduction?.title || "",
+        title: getFieldWithFallback(result, initialAnalysis, "introduction.title", "introduction.title", "N/A"),
       },
       physicalAttributes: {
-        materials: result.physical_attributes?.materials_techniques || initialAnalysis.physicalAttributes.materials,
-        measurements: result.physical_attributes?.measurements || initialAnalysis.physicalAttributes.measurements,
-        condition: result.physical_attributes?.condition || initialAnalysis.physicalAttributes.condition,
-        priority: result.physical_attributes?.priority || initialAnalysis.physicalAttributes.priority,
-        status: result.physical_attributes?.status || initialAnalysis.physicalAttributes.status,
+        materials: getFieldWithFallback(result, initialAnalysis, "physical_attributes.materials_techniques", "physical_attributes.materials_techniques"),
+        measurements: getFieldWithFallback(result, initialAnalysis, "physical_attributes.measurements", "physical_attributes.measurements"),
+        condition: getFieldWithFallback(result, initialAnalysis, "physical_attributes.condition", "physical_attributes.condition"),
+        priority: getFieldWithFallback(result, initialAnalysis, "physical_attributes.priority", "physical_attributes.priority"),
+        status: getFieldWithFallback(result, initialAnalysis, "physical_attributes.status", "physical_attributes.status"),
       },
       inscriptions: {
-        signatures: result.inscriptions_marks_labels?.markings || initialAnalysis.inscriptions.signatures,
-        hallmarks: result.inscriptions_marks_labels?.interpretation || initialAnalysis.inscriptions.hallmarks,
-        additionalIdentifiers: "",
-        priority: result.inscriptions_marks_labels?.priority || initialAnalysis.inscriptions.priority,
-        status: result.inscriptions_marks_labels?.status || initialAnalysis.inscriptions.status,
+        signatures: getFieldWithFallback(result, initialAnalysis, "inscriptions_marks_labels.markings", "inscriptions_marks_labels.markings"),
+        hallmarks: getFieldWithFallback(result, initialAnalysis, "inscriptions_marks_labels.interpretation", "inscriptions_marks_labels.interpretation"),
+        additionalIdentifiers: getFieldWithFallback(result, initialAnalysis, "inscriptions.additionalIdentifiers", "inscriptions.additionalIdentifiers", "N/A"),
+        priority: getFieldWithFallback(result, initialAnalysis, "inscriptions_marks_labels.priority", "inscriptions_marks_labels.priority"),
+        status: getFieldWithFallback(result, initialAnalysis, "inscriptions_marks_labels.status", "inscriptions_marks_labels.status"),
       },
       uniqueFeatures: {
-        motifs: result.distinguishing_features?.motifs_decorations || initialAnalysis.uniqueFeatures.motifs,
-        restoration: result.distinguishing_features?.alterations || initialAnalysis.uniqueFeatures.restoration,
-        anomalies: "",
-        priority: result.distinguishing_features?.priority || initialAnalysis.uniqueFeatures.priority,
-        status: result.distinguishing_features?.status || initialAnalysis.uniqueFeatures.status,
+        motifs: getFieldWithFallback(result, initialAnalysis, "distinguishing_features.motifs_decorations", "distinguishing_features.motifs_decorations"),
+        restoration: getFieldWithFallback(result, initialAnalysis, "distinguishing_features.alterations", "distinguishing_features.alterations"),
+        anomalies: getFieldWithFallback(result, initialAnalysis, "uniqueFeatures.anomalies", "uniqueFeatures.anomalies", "N/A"),
+        priority: getFieldWithFallback(result, initialAnalysis, "distinguishing_features.priority", "distinguishing_features.priority"),
+        status: getFieldWithFallback(result, initialAnalysis, "distinguishing_features.status", "distinguishing_features.status"),
       },
       stylistic: {
-        indicators: result.stylistic_assessment?.style_indicators || initialAnalysis.stylistic.indicators,
-        estimatedEra: result.stylistic_assessment?.estimated_era || initialAnalysis.stylistic.estimatedEra,
-        confidenceLevel: result.stylistic_assessment?.confidence || initialAnalysis.stylistic.confidenceLevel,
-        priority: result.stylistic_assessment?.priority || initialAnalysis.stylistic.priority,
-        status: result.stylistic_assessment?.status || initialAnalysis.stylistic.status,
+        indicators: getFieldWithFallback(result, initialAnalysis, "stylistic_assessment.style_indicators", "stylistic_assessment.style_indicators"),
+        estimatedEra: getFieldWithFallback(result, initialAnalysis, "stylistic_assessment.estimated_era", "stylistic_assessment.estimated_era"),
+        confidenceLevel: getFieldWithFallback(result, initialAnalysis, "stylistic_assessment.confidence", "stylistic_assessment.confidence"),
+        priority: getFieldWithFallback(result, initialAnalysis, "stylistic_assessment.priority", "stylistic_assessment.priority"),
+        status: getFieldWithFallback(result, initialAnalysis, "stylistic_assessment.status", "stylistic_assessment.status"),
       },
       attribution: {
-        likelyMaker: result.provenance_and_attribution?.possible_maker || initialAnalysis.attribution.likelyMaker,
-        evidence: result.provenance_and_attribution?.rationale || initialAnalysis.attribution.evidence,
-        probability: result.provenance_and_attribution?.attribution_priority || initialAnalysis.attribution.probability,
-        priority: result.provenance_and_attribution?.priority || initialAnalysis.attribution.priority,
-        status: result.provenance_and_attribution?.status || initialAnalysis.attribution.status,
+        likelyMaker: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.possible_maker", "provenance_and_attribution.possible_maker"),
+        evidence: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.rationale", "provenance_and_attribution.rationale"),
+        probability: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.attribution_priority", "provenance_and_attribution.attribution_priority"), // Assuming attribution_priority maps to probability
+        priority: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.attribution_priority", "provenance_and_attribution.attribution_priority"), // Duplicated as per original, consider if this should be different
+        status: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.attribution_status", "provenance_and_attribution.attribution_status"),
       },
       provenance: {
-        infoInPhotos: result.provenance_and_attribution?.hints_of_origin || initialAnalysis.provenance.infoInPhotos,
-        historicIndicators: "",
-        recommendedFollowup: result.recommendations?.next_steps || initialAnalysis.provenance.recommendedFollowup,
-        priority: result.provenance_and_attribution?.priority || initialAnalysis.provenance.priority,
-        status: result.provenance_and_attribution?.status || initialAnalysis.provenance.status,
+        infoInPhotos: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.hints_of_origin", "provenance_and_attribution.hints_of_origin"),
+        historicIndicators: getFieldWithFallback(result, initialAnalysis, "provenance.historicIndicators", "provenance.historicIndicators", "N/A"),
+        recommendedFollowup: getFieldWithFallback(result, initialAnalysis, "recommendations.next_steps", "recommendations.next_steps"),
+        priority: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.provenance_priority", "provenance_and_attribution.provenance_priority"),
+        status: getFieldWithFallback(result, initialAnalysis, "provenance_and_attribution.provenance_status", "provenance_and_attribution.provenance_status"),
       },
       intake: {
-        photoCount: result.identification?.photos || initialAnalysis.intake.photoCount,
-        photoQuality: "",
-        lightingAngles: "",
-        overallImpression: result.identification?.impression || initialAnalysis.intake.overallImpression,
+        photoCount: getFieldWithFallback(result, initialAnalysis, "identification.photos", "identification.photos"),
+        photoQuality: getFieldWithFallback(result, initialAnalysis, "intake.photoQuality", "intake.photoQuality", "N/A"),
+        lightingAngles: getFieldWithFallback(result, initialAnalysis, "intake.lightingAngles", "intake.lightingAngles", "N/A"),
+        overallImpression: getFieldWithFallback(result, initialAnalysis, "identification.impression", "identification.impression"),
       },
       valueIndicators: {
-        factors: result.value_indicators?.factors || initialAnalysis.valueIndicators.factors,
-        redFlags: result.value_indicators?.concerns || initialAnalysis.valueIndicators.redFlags,
-        references: "",
-        followupQuestions: [],
-        priority: result.value_indicators?.priority || initialAnalysis.valueIndicators.priority,
-        status: result.value_indicators?.status || initialAnalysis.valueIndicators.status,
+        factors: getFieldWithFallback(result, initialAnalysis, "value_indicators.factors", "value_indicators.factors"),
+        redFlags: getFieldWithFallback(result, initialAnalysis, "value_indicators.concerns", "value_indicators.concerns"),
+        references: getFieldWithFallback(result, initialAnalysis, "valueIndicators.references", "valueIndicators.references", "N/A"),
+        followupQuestions: getFieldWithFallback(result, initialAnalysis, "value_indicators.followupQuestions", "value_indicators.followupQuestions", []),
+        priority: getFieldWithFallback(result, initialAnalysis, "value_indicators.priority", "value_indicators.priority"),
+        status: getFieldWithFallback(result, initialAnalysis, "value_indicators.status", "value_indicators.status"),
       },
-      summary: result.full_report?.description || initialAnalysis.summary,
-      fullReport: result.full_report || initialAnalysis.fullReport,
-      content: result.full_report?.description || ""
+      summary: getFieldWithFallback(result, initialAnalysis, "full_report.description", "full_report.description", "No summary provided."),
+      fullReport: getFieldWithFallback(result, initialAnalysis, "full_report", "full_report", { description: "Full report not available." }),
+      content: getFieldWithFallback(result, initialAnalysis, "full_report.description", "full_report.description", "No content available.")
     };
   } catch (error) {
-    console.error("Error refining analysis:", error);
+    // Ensure the error is an instance of Error and re-throw
+    const finalError = error instanceof Error ? error : new Error(String(error));
+    console.error(`Error in refineAnalysis: ${finalError.message}`);
     throw new Error(
       `Failed to refine the analysis: ${error instanceof Error ? error.message : 'Unknown error'}`
     );

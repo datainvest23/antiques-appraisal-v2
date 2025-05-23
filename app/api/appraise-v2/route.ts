@@ -4,7 +4,8 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
 // Initialize the Google Generative AI client with API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API || '');
+// IMPORTANT: Ensure GEMINI_API is set in your environment variables.
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API || ''); // Fallback to empty string if not set, though GenAI client will likely error.
 
 // Service type definitions
 type ServiceType = "basic" | "initial" | "full";
@@ -146,67 +147,106 @@ async function fetchImageAsBase64(url: string): Promise<{data: string, mimeType:
       console.error('Invalid URL format:', url);
     }
     
-    throw error;
+    // In case of an error, log the URL that caused the issue
+    console.error(`Error fetching image from URL: ${url}`, error);
+    // Propagate the error to be handled by the main try-catch block
+    throw new Error(`Failed to fetch image at ${url}. Reason: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 // Function to process the markdown response for better display
+// #############################################################################
+// # IMPORTANT RECOMMENDATION:
+// # Consider replacing this custom regex-based Markdown processing with a
+// # well-tested third-party library like 'marked', 'showdown', or similar.
+// # Such libraries are generally more robust, secure, and handle edge cases
+// # much better than custom regex solutions. This would lead to more
+// # reliable and maintainable code.
+// #############################################################################
 function processMarkdownResponse(content: string): string {
-  // Remove any standard markdown error prefix that might show up
-  const cleanContent = content.replace(/^```(\w+)?\n|```$/g, '');
-  
+  // Remove Markdown code block fences (e.g., ```json ... ``` or ``` ... ```)
+  // This is to clean up potential wrapping of the entire response in a code block.
+  const cleanContent = content.replace(/^```(\w+)?\n([\s\S]*?)\n```$/g, '$2').replace(/^```\n([\s\S]*?)\n```$/g, '$1');
+
   // Format markdown to HTML with proper styling
-  return cleanContent
-    // Handle main title
-    .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold text-slate-800 mb-6">$1</h1>')
+  let htmlContent = cleanContent;
+
+  // Handle main title (e.g., # Title)
+  // Matches a line starting with '#' followed by a space and captures the title text.
+  htmlContent = htmlContent.replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold text-slate-800 mb-6">$1</h1>');
     
-    // Format section headings
-    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-8 mb-4 text-slate-800 pb-2 border-b border-slate-200">$1</h2>')
-    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-6 mb-3 text-slate-700">$1</h3>')
-    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-4 mb-2 text-slate-700">$1</h4>')
+  // Format section headings (e.g., ## Section, ### Subsection)
+  // Matches lines starting with '##', '###', or '####' followed by a space.
+  htmlContent = htmlContent.replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-8 mb-4 text-slate-800 pb-2 border-b border-slate-200">$1</h2>');
+  htmlContent = htmlContent.replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-6 mb-3 text-slate-700">$1</h3>');
+  htmlContent = htmlContent.replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-4 mb-2 text-slate-700">$1</h4>');
     
-    // Handle bullet points and lists
-    .replace(/^\s*[\*\-]\s+(.*$)/gm, '<li class="ml-4 my-1">$1</li>')
-    .replace(/(<li.*<\/li>)\n(?![<\s]*li)/g, '<ul class="list-disc pl-5 my-3">$1</ul>')
-    
-    // Format tables - first, identify table sections
-    .replace(/\|\s*([\s\S]*?)\s*\|/g, function(match) {
-      // Process table rows
-      const processed = match
-        // Process table headers
-        .replace(/\|\s*:?-+:?\s*\|/g, '')
-        .replace(/\|(.+?)\|/g, '<tr><td class="border px-4 py-2">$1</td></tr>')
-        .replace(/<td class="border px-4 py-2">(.+?)<\/td>/g, function(match, content) {
-          return '<td class="border px-4 py-2">' + 
-            content.replace(/\|/g, '</td><td class="border px-4 py-2">') + '</td>';
-        });
+  // Handle unordered lists (e.g., * item or - item)
+  // Matches lines starting with optional whitespace, then '*' or '-', then a space.
+  // It then wraps these list items with <ul> tags.
+  // The lookahead `(?![<\s]*li)` ensures that consecutive list items are grouped into the same <ul>.
+  htmlContent = htmlContent.replace(/^\s*[\*\-]\s+(.*$)/gm, '<li class="ml-4 my-1">$1</li>');
+  htmlContent = htmlContent.replace(/(<li class="ml-4 my-1">.*?<\/li>)(?=\s*<li class="ml-4 my-1">|<\/ul>|$)/gs, '$1'); // Consolidate list items
+  htmlContent = htmlContent.replace(/(<li class="ml-4 my-1">.*?<\/li>)+/gs, (match) => `<ul class="list-disc pl-5 my-3">${match}</ul>`);
+  
+  // Handle ordered lists (e.g., 1. item)
+  // Matches lines starting with optional whitespace, digits, a period, then a space.
+  // Similar to unordered lists, it wraps these in <ol> tags.
+  htmlContent = htmlContent.replace(/^\s*(\d+)\.\s+(.*$)/gm, '<li class="ml-4 my-1" value="$1">$2</li>');
+  htmlContent = htmlContent.replace(/(<li class="ml-4 my-1" value="\d+">.*?<\/li>)(?=\s*<li class="ml-4 my-1" value="\d+">|<\/ol>|$)/gs, '$1'); // Consolidate list items
+  htmlContent = htmlContent.replace(/(<li class="ml-4 my-1" value="\d+">.*?<\/li>)+/gs, (match) => `<ol class="list-decimal pl-5 my-3">${match}</ol>`);
+
+  // Format tables (Markdown table syntax)
+  // This regex is complex. It attempts to find Markdown table structures.
+  // - It looks for a header row (e.g., | Header1 | Header2 |)
+  // - Then a separator row (e.g., |:---|:---:|)
+  // - Then multiple body rows (e.g., | Cell1 | Cell2 |)
+  // It's generally one of the most complex parts of Markdown to parse with regex.
+  htmlContent = htmlContent.replace(
+    /^\|(.+)\|\s*\n\|([\s\S]+?)\|\s*\n((?:\|.*\|\s*\n?)+)/gm,
+    (tableMatch, headerRow, separatorRow, bodyRows) => {
+      const headers = headerRow.split('|').slice(1, -1).map(h => `<th class="border px-4 py-2 text-left">${h.trim()}</th>`).join('');
       
-      // Wrap in table tags
-      return '<table class="min-w-full divide-y divide-gray-200 my-6">' + processed + '</table>';
-    })
+      const rows = bodyRows.trim().split('\n').map(row => {
+        const cells = row.split('|').slice(1, -1).map(c => `<td class="border px-4 py-2">${c.trim()}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+
+      return `<div class="overflow-x-auto my-6"><table class="min-w-full divide-y divide-gray-200 border border-slate-200 rounded-md shadow-sm"><thead><tr>${headers}</tr></thead><tbody class="divide-y divide-gray-200">${rows}</tbody></table></div>`;
+    }
+  );
     
-    // Bold and italics
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic text-slate-700">$1</em>')
+  // Bold text (e.g., **text**)
+  // Matches text surrounded by double asterisks.
+  htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+  
+  // Italic text (e.g., *text*)
+  // Matches text surrounded by single asterisks.
+  // This needs to be carefully ordered with bold, or use more specific regex to avoid conflicts.
+  htmlContent = htmlContent.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em class="italic text-slate-700">$1</em>');
     
-    // Handle ordered lists
-    .replace(/^\s*(\d+)\.\s+(.*$)/gm, '<li class="ml-4 my-1">$2</li>')
-    .replace(/(<li.*<\/li>)\n(?![<\s]*li)/g, '<ol class="list-decimal pl-5 my-3">$1</ol>')
+  // Format paragraphs
+  // Matches lines that don't start with HTML tags (h, ol, ul, table, div) or aren't empty.
+  // This is a broad match and should generally come after more specific block-level elements.
+  htmlContent = htmlContent.replace(/^(?!<(?:h[1-4]|ul|ol|li|table|thead|tbody|tr|th|td|div|\/h[1-4]|\/ul|\/ol|\/li|\/table|\/thead|\/tbody|\/tr|\/th|\/td|\/div)|^\s*$)(.+)$/gm, '<p class="my-3 text-slate-600">$1</p>');
     
-    // Format paragraphs
-    .replace(/^(?!<[holtu]|<\/[holtu]|$)(.+)$/gm, '<p class="my-3 text-slate-600">$1</p>')
+  // Remove <p> tags wrapping block elements that were incorrectly added
+  // This cleans up cases where the paragraph regex might have wrapped headings or tables.
+  htmlContent = htmlContent.replace(/<p class="my-3 text-slate-600">\s*(<(h[1-4]|ul|ol|table|div class="overflow-x-auto").*?>[\s\S]*?<\/(h[1-4]|ul|ol|table|div)>)\s*<\/p>/g, '$1');
     
-    // Fix any double-wrapped paragraphs
-    .replace(/<p class="my-3 text-slate-600">(<h[1-4].*?<\/h[1-4]>)<\/p>/g, '$1')
-    .replace(/<p class="my-3 text-slate-600">(<table.*?<\/table>)<\/p>/g, '$1')
-    .replace(/<p class="my-3 text-slate-600">(<[ou]l.*?<\/[ou]l>)<\/p>/g, '$1')
-    
-    // Fix spacing
-    .replace(/\n\n+/g, '\n\n');
+  // Clean up extra newlines to avoid excessive spacing
+  htmlContent = htmlContent.replace(/\n\s*\n/g, '\n');
+
+  return htmlContent;
 }
 
 export async function POST(request: NextRequest) {
+  // RECOMMENDATION: Implement input validation for the request body (e.g., using Zod or a similar library)
+  // to ensure 'imageUrls', 'additionalInfo', 'serviceType', etc., are present and correctly typed.
   try {
+    // Log when the request is received
+    console.log(`Received request for Gemini v2 appraisal: ${request.url}`);
+
     // Create a Supabase client for the route handler
     const cookieStore = await cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
@@ -349,80 +389,211 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(analysisResult);
     } catch (apiError) {
-      console.error('Error calling Gemini API:', apiError);
+      // Log the error and the raw response if available
+      console.error('Error calling Gemini API or processing its response:', apiError);
+      if (apiError instanceof Error && (apiError as any).response) {
+        console.error("Gemini API Error Response:", (apiError as any).response);
+      } else if (content) { // If content was fetched but processing failed
+        console.error("Raw Gemini response (on processing error):", content.substring(0, 1000) + (content.length > 1000 ? "..." : ""));
+      }
+
+      // Determine the status code and message based on the error
+      let errorMessage = 'Failed to get analysis from Gemini.';
+      let errorDetails = 'The AI service encountered an issue.';
+      let statusCode = 500;
+
+      if (apiError instanceof Error) {
+        errorDetails = apiError.message; // Use the actual error message for details
+        if (apiError.message.toLowerCase().includes('timeout')) {
+          statusCode = 504; // Gateway Timeout
+          errorMessage = 'Analysis request timed out.';
+        } else if (apiError.message.toLowerCase().includes('invalid api key')) {
+          statusCode = 500; // Internal Server Error (as key is server-side)
+          errorMessage = 'AI service configuration error.';
+          errorDetails = 'There is an issue with the server configuration for the AI service.'; // More user-friendly detail
+        } else if (apiError.message.toLowerCase().includes('bad request') || apiError.message.toLowerCase().includes('invalid argument')) {
+          statusCode = 400; // Bad Request
+          errorMessage = 'Invalid request to AI service.';
+          errorDetails = 'The data sent for analysis was not accepted by the AI service. This might be due to image format or prompt issues.';
+        }
+      }
+      
       return NextResponse.json(
-        { error: 'Failed to get analysis from Gemini' },
-        { status: 500 }
+        { error: errorMessage, details: errorDetails },
+        { status: statusCode }
       );
     }
-  } catch (error) {
-    console.error('Error in appraise-v2 analysis:', error);
+  } catch (error) { // Catch-all for other errors, like Supabase auth or request parsing
+    console.error('Unhandled error in appraise-v2 analysis POST handler:', error);
+    
+    let errorMessage = 'Failed to analyze with Gemini Appraisal.';
+    let errorDetails = 'An unexpected server error occurred.';
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+        errorDetails = error.message;
+        if (error.message.includes('Authentication required')) {
+            errorMessage = 'Authentication Failed.';
+            statusCode = 401;
+        } else if (error.message.includes('No images provided') || error.message.includes('Invalid image URL')) {
+            errorMessage = 'Invalid Input.';
+            statusCode = 400;
+        }
+    }
+
     return NextResponse.json(
-      { error: 'Failed to analyze with Gemini Appraisal' },
-      { status: 500 }
+      { error: errorMessage, details: errorDetails },
+      { status: statusCode }
     );
   }
 }
 
-// Helper functions to extract specific information from the markdown response
+// #############################################################################
+// # RECOMMENDATION FOR FUTURE PROMPTING (for more reliable data extraction):
+// # To make data extraction significantly more robust, the Gemini prompt
+// # should be modified to request structured information (like physical
+// # attributes, era, value factors) as a JSON object within a specific part
+// # of the markdown response. For example, ask Gemini to include a block like:
+// # ```json
+// # {
+// #   "materials": "Oil on canvas",
+// #   "era": "19th Century",
+// #   ...
+// # }
+// # ```
+// # This JSON block can then be parsed directly, avoiding fragile regex.
+// #############################################################################
+
+// Helper functions to extract specific information from the markdown response.
+// Each function attempts to match a pattern and returns a default value if not found.
+// Warnings are logged when patterns are not found to help identify changes in Gemini's output structure.
+
 function extractTitle(content: string): string {
-  const titleMatch = content.match(/# Valuation Report: (.*?)$/m);
-  return titleMatch ? titleMatch[1].trim() : "Antique Item";
+  // Matches the main title of the valuation report.
+  const titleMatch = content.match(/^# Valuation Report:\s*(.*?)$/im);
+  if (titleMatch && titleMatch[1]) {
+    return titleMatch[1].trim();
+  }
+  console.warn("extractTitle: Title pattern not found. Using default. Content snippet:", content.substring(0, 200));
+  return "Antique Item Analysis";
 }
 
 function extractCategory(content: string): string {
-  // Try to extract from the title or description
-  const titleMatch = content.match(/# Valuation Report: (.*?)$/m);
-  const descMatch = content.match(/Description:\s*([^.]+)/);
+  // Attempts to get category from "Description" or "Object Type" in the overview or features table.
+  // Regex looks for "Description:" or "Object Type:" followed by its value.
+  let match = content.match(/Description:\s*([^\r\n.]+)/i);
+  if (match && match[1]) return match[1].trim();
   
-  return titleMatch ? titleMatch[1].trim() : (descMatch ? descMatch[1].trim() : "Antique Item");
+  match = content.match(/Object Type\s*\|\s*([^\|\r\n]+)/i); // From table
+  if (match && match[1]) return match[1].trim();
+
+  // Fallback to title if specific category line not found
+  const title = extractTitle(content);
+  if (title !== "Antique Item Analysis") return title; // Use extracted title if it's not the default
+
+  console.warn("extractCategory: Category pattern not found. Using default. Content snippet:", content.substring(0, 300));
+  return "General Antique";
 }
 
 function extractSummary(content: string): string {
-  // Extract from the Overview section
-  const overviewMatch = content.match(/## 1\. Overview\s*\n\s*([\s\S]*?)(?=\n##|$)/);
-  const descMatch = content.match(/Description:\s*([^.]+)/);
+  // Extracts summary from "## 1. Overview" section or "Description:"
+  // This regex looks for the content under "## 1. Overview" until the next heading or end of string.
+  const overviewMatch = content.match(/##\s*1\.\s*Overview\s*([\s\S]*?)(?=\n##\s*\d\.|\n<h[1-2]>|$)/i);
+  if (overviewMatch && overviewMatch[1]) {
+    // Further refine to get a concise summary, e.g., the first paragraph or a few lines.
+    const firstParagraph = overviewMatch[1].match(/^\s*([^\r\n]+(?:\r?\n[^\r\n]+){0,2})/); // Gets first few lines
+    if (firstParagraph && firstParagraph[1]) return firstParagraph[1].trim().substring(0, 300) + (firstParagraph[1].length > 300 ? "..." : "");
+    return overviewMatch[1].trim().substring(0, 300) + (overviewMatch[1].length > 300 ? "..." : "");
+  }
   
-  return overviewMatch ? overviewMatch[1].trim().substring(0, 200) + "..." : 
-    (descMatch ? descMatch[1].trim() : "Antique item with historical significance.");
+  const descMatch = content.match(/Description:\s*([^\r\n.]+)/i);
+  if (descMatch && descMatch[1]) return descMatch[1].trim().substring(0, 250) + (descMatch[1].length > 250 ? "..." : "");
+
+  console.warn("extractSummary: Summary pattern not found. Using default. Content snippet:", content.substring(0, 400));
+  return "An antique item of potential historical and artistic interest.";
 }
 
 function extractMaterials(content: string): string {
-  const materialsMatch = content.match(/Materials\s*\|([^\|]+)/);
-  return materialsMatch ? materialsMatch[1].trim() : "Not specified";
+  // Looks for "Materials" in a table row or as a bolded label.
+  // `Materials\s*\|\s*([^\|\r\n]+)` for table format.
+  // `\*\*Materials:\*\*\s*([^\r\n]+)` for " **Materials:** value " format.
+  const tableMatch = content.match(/Materials\s*\|\s*([^\|\r\n]+)/i);
+  if (tableMatch && tableMatch[1]) return tableMatch[1].trim();
+  
+  const labelMatch = content.match(/\*\*Materials:\*\*\s*([^\r\n]+)/i);
+  if (labelMatch && labelMatch[1]) return labelMatch[1].trim();
+
+  console.warn("extractMaterials: Materials pattern not found. Using default. Searched snippet:", content.match(/materials/i) ? content.substring(content.search(/materials/i)-50, content.search(/materials/i)+150) : "N/A");
+  return "Not specified";
 }
 
 function extractSize(content: string): string {
-  const sizeMatch = content.match(/Size\s*\|([^\|]+)/);
-  return sizeMatch ? sizeMatch[1].trim() : "Not specified";
+  // Looks for "Size" in a table row or as a bolded label.
+  const tableMatch = content.match(/Size\s*\|\s*([^\|\r\n]+)/i);
+  if (tableMatch && tableMatch[1]) return tableMatch[1].trim();
+
+  const labelMatch = content.match(/\*\*Size:\*\*\s*([^\r\n]+)/i);
+  if (labelMatch && labelMatch[1]) return labelMatch[1].trim();
+  
+  console.warn("extractSize: Size pattern not found. Using default. Searched snippet:", content.match(/size/i) ? content.substring(content.search(/size/i)-50, content.search(/size/i)+150) : "N/A");
+  return "Not specified";
 }
 
 function extractCondition(content: string): string {
-  const conditionMatch = content.match(/Object Condition:\s*([^.\n]+)/);
-  return conditionMatch ? conditionMatch[1].trim() : "Condition unknown";
+  // Looks for "Object Condition:" or "Condition:" as a label.
+  // `(?:Object\s)?Condition:\s*([^\r\n.]+)` captures value after "Condition:" or "Object Condition:".
+  const conditionMatch = content.match(/(?:\*\*Object\sCondition:\*\*|\*\*Condition:\*\*|Object Condition:)\s*([^\r\n.]+)/i);
+  if (conditionMatch && conditionMatch[1]) return conditionMatch[1].trim();
+  
+  console.warn("extractCondition: Condition pattern not found. Using default. Searched snippet:", content.match(/condition/i) ? content.substring(content.search(/condition/i)-50, content.search(/condition/i)+150) : "N/A");
+  return "Not specified";
 }
 
 function extractNotableFeatures(content: string): string {
-  const featuresMatch = content.match(/Notable Features\s*\|([^\|]+)/);
-  return featuresMatch ? featuresMatch[1].trim() : "";
+  // Looks for "Notable Features" in a table or as a label.
+  const tableMatch = content.match(/Notable Features\s*\|\s*([^\|\r\n]+)/i);
+  if (tableMatch && tableMatch[1]) return tableMatch[1].trim();
+  
+  const labelMatch = content.match(/\*\*Notable Features:\*\*\s*([^\r\n]+)/i);
+  if (labelMatch && labelMatch[1]) return labelMatch[1].trim();
+
+  console.warn("extractNotableFeatures: Notable Features pattern not found. Defaulting to empty string. Searched snippet:", content.match(/notable features/i) ? content.substring(content.search(/notable features/i)-50, content.search(/notable features/i)+150) : "N/A");
+  return ""; // Default to empty string as it's often supplementary.
 }
 
 function extractStyle(content: string): string {
-  const styleMatch = content.match(/Style:\s*([^.\n]+)/);
-  return styleMatch ? styleMatch[1].trim() : "";
+  // Looks for "Style:" as a label.
+  const styleMatch = content.match(/(?:\*\*Style:\*\*|Style:)\s*([^\r\n.]+)/i);
+  if (styleMatch && styleMatch[1]) return styleMatch[1].trim();
+  
+  console.warn("extractStyle: Style pattern not found. Defaulting to empty string. Searched snippet:", content.match(/style/i) ? content.substring(content.search(/style/i)-50, content.search(/style/i)+150) : "N/A");
+  return ""; // Default to empty string as it might not always be present or easily identifiable.
 }
 
 function extractEra(content: string): string {
-  const eraMatch = content.match(/Era:\s*([^.\n]+)/);
-  return eraMatch ? eraMatch[1].trim() : "Unknown era";
+  // Looks for "Era:" as a label.
+  const eraMatch = content.match(/(?:\*\*Era:\*\*|Era:)\s*([^\r\n.]+)/i);
+  if (eraMatch && eraMatch[1]) return eraMatch[1].trim();
+  
+  console.warn("extractEra: Era pattern not found. Using default. Searched snippet:", content.match(/era/i) ? content.substring(content.search(/era/i)-50, content.search(/era/i)+150) : "N/A");
+  return "Unknown era";
 }
 
 function extractValueFactors(content: string): string {
-  const valFactorsMatch = content.match(/Influencing Factors:\s*([\s\S]*?)(?=\n\*|\n[A-Z]|$)/);
-  return valFactorsMatch ? valFactorsMatch[1].trim() : "Various factors would affect valuation";
+  // Looks for "Influencing Factors:" or "Value Drivers:" as a label.
+  // `(?:Influencing Factors:|Value Drivers:)\s*([\s\S]*?)(?=\n\s*\n|\n##|\n<h[1-2]>|$)` captures multi-line text until a blank line or next heading.
+  const factorsMatch = content.match(/(?:\*\*Influencing Factors:\*\*|\*\*Value Drivers:\*\*|Influencing Factors:|Value Drivers:)\s*([\s\S]*?)(?=\n\s*\n|\n##|\n<h[1-2]>|$)/i);
+  if (factorsMatch && factorsMatch[1]) return factorsMatch[1].trim().replace(/\n\* /g, '\n• '); // Replace markdown list with bullets
+  
+  console.warn("extractValueFactors: Value Factors pattern not found. Using default. Searched snippet:", content.match(/factor|driver/i) ? content.substring(content.search(/factor|driver/i)-50, content.search(/factor|driver/i)+150) : "N/A");
+  return "Market demand, condition, rarity, and provenance typically influence value.";
 }
 
 function extractConcerns(content: string): string {
-  const concernsMatch = content.match(/Major Concerns:\s*([\s\S]*?)(?=\n\*|\n[A-Z]|$)/);
-  return concernsMatch ? concernsMatch[1].trim() : "None identified in initial assessment";
+  // Looks for "Major Concerns:" or "Condition Issues:" as a label.
+  const concernsMatch = content.match(/(?:\*\*Major Concerns:\*\*|\*\*Condition Issues:\*\*|Major Concerns:|Condition Issues:)\s*([\s\S]*?)(?=\n\s*\n|\n##|\n<h[1-2]>|$)/i);
+  if (concernsMatch && concernsMatch[1]) return concernsMatch[1].trim().replace(/\n\* /g, '\n• ');
+  
+  console.warn("extractConcerns: Concerns pattern not found. Using default. Searched snippet:", content.match(/concern|issue/i) ? content.substring(content.search(/concern|issue/i)-50, content.search(/concern|issue/i)+150) : "N/A");
+  return "Further inspection is recommended to fully assess condition.";
 } 
