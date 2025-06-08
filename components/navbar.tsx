@@ -61,11 +61,6 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
         <DropdownMenuItem asChild>
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/referrals" className="flex items-center">
-            <Award className="mr-2 h-4 w-4" /> Refer & Earn
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           className="text-red-600 cursor-pointer" 
@@ -97,14 +92,6 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
             )}
           >
             My Valuations
-          </Link>
-          <Link
-            href="/buy-tokens"
-            className={`text-sm font-medium transition-colors hover:text-primary ${
-              pathname === "/buy-tokens" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            Buy Tokens
           </Link>
         </>
       )}
@@ -160,9 +147,6 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               My Valuations
             </Link>
           </Button>
-          <Link href="/buy-tokens" className="text-lg font-medium" onClick={onClose}>
-            Buy Tokens
-          </Link>
         </>
       )}
       <Link href="/resources" className="text-lg font-medium" onClick={onClose}>
@@ -193,16 +177,6 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               onClick={onClose}
             >
               <Link href="/profile">Profile</Link>
-            </Button>
-            <Button 
-              asChild 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={onClose}
-            >
-              <Link href="/referrals" className="flex items-center">
-                <Award className="mr-2 h-4 w-4" /> Refer & Earn
-              </Link>
             </Button>
           </div>
         </div>

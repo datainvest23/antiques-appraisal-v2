@@ -25,8 +25,6 @@ export async function middleware(req: NextRequest) {
   const isProtectedRoute = 
     path.startsWith('/appraise') || 
     path.startsWith('/my-valuations') || 
-    path.startsWith('/referrals') || 
-    path.startsWith('/buy-tokens') ||
     path.startsWith('/profile')
   
   const isAuthRoute = 
@@ -70,8 +68,6 @@ export const config = {
     // Protected routes
     '/appraise/:path*',
     '/my-valuations/:path*',
-    '/referrals/:path*',
-    '/buy-tokens/:path*',
     '/profile/:path*',
     
     // Auth routes

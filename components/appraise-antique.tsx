@@ -26,12 +26,10 @@ import { saveValuation } from "@/lib/supabase-client"
 import { useAuth } from "@/contexts/auth-context"
 
 export interface AppraiseAntiqueProps {
-  tokenBalance: number
-  _userId: string
-  _freeValuationsLeft: number
+  // Props removed as per instructions
 }
 
-export default function AppraiseAntique({ tokenBalance, _userId, _freeValuationsLeft }: AppraiseAntiqueProps) {
+export default function AppraiseAntique({}: AppraiseAntiqueProps) { // Props removed
   const router = useRouter()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("upload")
@@ -46,8 +44,8 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
   const [audioSummary, setAudioSummary] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<"token" | "direct">("token")
+  // showPaymentDialog state removed
+  // paymentMethod state removed
   const [isCreatingValuation, setIsCreatingValuation] = useState(false)
   const [valuationTitle, setValuationTitle] = useState("")
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
@@ -342,7 +340,7 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
   const handleCreateValuation = async () => {
     setIsCreatingValuation(true)
     setError(null)
-    setShowPaymentDialog(false)
+    // setShowPaymentDialog(false) removed
 
     try {
       // Generate a title if not provided
@@ -1038,70 +1036,7 @@ export default function AppraiseAntique({ tokenBalance, _userId, _freeValuations
         </CardContent>
       </Card>
 
-      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Payment Required</DialogTitle>
-            <DialogDescription>
-              You've used your free valuation for today. Choose how you'd like to proceed:
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            {tokenBalance > 0 && (
-              <div className="flex items-start space-x-3">
-                <input
-                  type="radio"
-                  id="use-token"
-                  name="payment-method"
-                  checked={paymentMethod === "token"}
-                  onChange={() => setPaymentMethod("token")}
-                  className="mt-1"
-                />
-                <div>
-                  <Label htmlFor="use-token" className="font-medium">
-                    Use 1 Token
-                  </Label>
-                  <p className="text-sm text-muted-foreground">You have {tokenBalance} tokens available</p>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-start space-x-3">
-              <input
-                type="radio"
-                id="direct-payment"
-                name="payment-method"
-                checked={paymentMethod === "direct"}
-                onChange={() => setPaymentMethod("direct")}
-                className="mt-1"
-              />
-              <div>
-                <Label htmlFor="direct-payment" className="font-medium">
-                  Pay $3 for this valuation
-                </Label>
-                <p className="text-sm text-muted-foreground">One-time payment for this valuation only</p>
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => handleCreateValuation()} disabled={isCreatingValuation}>
-              {isCreatingValuation ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Continue"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Payment Dialog removed */}
     </div>
   )
 }

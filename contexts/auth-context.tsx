@@ -14,7 +14,6 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>
   signOut: () => Promise<void>
-  getTokenBalance: () => Promise<number>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -74,25 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe()
     }
   }, [supabase])
-
-  const getTokenBalance = async (): Promise<number> => {
-    if (!user) return 0
-    
-    try {
-      const { data, error } = await supabase
-        .from('tokens')
-        .select('token_balance')
-        .eq('user_id', user.id)
-        .single()
-      
-      if (error) throw error
-      
-      return data.token_balance
-    } catch (error) {
-      console.error('Error fetching token balance:', error)
-      return 0
-    }
-  }
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -163,21 +143,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             last_name: lastName || null,
             profile_data: {}
           })
-        
-        // Initialize token balance with 5 free tokens
-        await supabase
-          .from('tokens')
-          .insert({
-            user_id: user.id,
-            token_balance: 5,
-            transaction_history: [
-              {
-                timestamp: new Date().toISOString(),
-                tokens: 5,
-                reason: 'initial_signup'
-              }
-            ]
-          })
       }
       
       router.push('/verification-sent')
@@ -218,8 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     signIn,
     signUp,
-    signOut,
-    getTokenBalance
+    signOut
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
