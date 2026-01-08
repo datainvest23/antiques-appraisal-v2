@@ -26,7 +26,7 @@ function ForgotPasswordForm({ dictionary, lang }: { dictionary: any, lang: strin
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/${lang}/auth/callback?next=/${lang}/reset-password`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/${lang}/reset-password`,
       })
 
       if (error) throw error
