@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
+import { LanguageProvider } from "@/contexts/language-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { Analytics } from '@vercel/analytics/react'
@@ -23,15 +24,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            <div className="flex min-h-screen flex-col">
-              <Navbar />
-              <div className="flex-1">{children}</div>
-              <Footer />
-            </div>
-          </ThemeProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+              <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <div className="flex-1">{children}</div>
+                <Footer />
+              </div>
+            </ThemeProvider>
+          </AuthProvider>
+        </LanguageProvider>
         <Analytics />
       </body>
     </html>

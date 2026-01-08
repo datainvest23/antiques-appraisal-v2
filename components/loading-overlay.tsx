@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
 interface LoadingOverlayProps {
   isLoading: boolean
@@ -9,7 +10,8 @@ interface LoadingOverlayProps {
 }
 
 export function LoadingOverlay({ isLoading, messages }: LoadingOverlayProps) {
-  const [currentMessage, setCurrentMessage] = useState(messages[0] || "Loading...")
+  const { t } = useLanguage()
+  const [currentMessage, setCurrentMessage] = useState(messages[0] || t("appraise.loading"))
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
@@ -17,19 +19,19 @@ export function LoadingOverlay({ isLoading, messages }: LoadingOverlayProps) {
 
     // Reset to first message when loading starts
     setCurrentIndex(0)
-    setCurrentMessage(messages[0] || "Loading...")
+    setCurrentMessage(messages[0] || t("appraise.loading"))
 
     // Setup rotation of messages
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
         const nextIndex = (prevIndex + 1) % messages.length
-        setCurrentMessage(messages[nextIndex])
+        setCurrentMessage(messages[nextIndex] || t("appraise.loading"))
         return nextIndex
       })
     }, 3000) // Change message every 3 seconds
 
     return () => clearInterval(interval)
-  }, [isLoading, messages])
+  }, [isLoading, messages, t])
 
   if (!isLoading) return null
 
@@ -41,7 +43,7 @@ export function LoadingOverlay({ isLoading, messages }: LoadingOverlayProps) {
           {currentMessage}
         </h3>
         <p className="text-sm text-muted-foreground">
-          This may take a minute, please wait...
+          {t("appraise.loadingOverlay")}
         </p>
         <div className="mt-6 flex justify-center space-x-2">
           {messages.map((_, index) => (
@@ -57,4 +59,3 @@ export function LoadingOverlay({ isLoading, messages }: LoadingOverlayProps) {
     </div>
   )
 }
-

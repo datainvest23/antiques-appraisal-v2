@@ -1,41 +1,23 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-// Define featured resources - now featuring all 3 resources
-const featuredResources = [
-  {
-    id: "unlocking-antique-values",
-    title: "Unlocking Antique Values: How AI Revolutionizes Appraisals",
-    description: "Discover how artificial intelligence is transforming the world of antique valuation with data-driven insights while complementing expert human judgment.",
-    image: "/1-Unlocking-Antique-Values.png",
-    readTime: "6 min read"
-  },
-  {
-    id: "navigating-valuation-standards",
-    title: "Navigating International Valuation Standards for Antique Collectors",
-    description: "Learn how international valuation standards ensure consistency and transparency in antique appraisals, and how collectors can effectively navigate these guidelines.",
-    image: "/2-Navigating-Valuation-Standards.png",
-    readTime: "5 min read"
-  },
-  {
-    id: "identifying-hidden-gems",
-    title: "Identifying Hidden Gems: Expert Tips for Spotting Valuable Antiques",
-    description: "Learn expert techniques for identifying valuable antiques with our comprehensive guide on key indicators, common pitfalls, and leveraging technology for accurate identification.",
-    image: "/3-Identifying-Hidden-Gems.png",
-    readTime: "7 min read"
-  }
-]
+import { useLanguage } from "@/contexts/language-context"
+import { resourcesByLanguage } from "@/lib/translations"
 
 export default function FeaturedResources() {
+  const { language, t } = useLanguage()
+  const featuredResources = resourcesByLanguage[language]
+
   return (
     <section className="w-full py-16 bg-muted/30">
       <div className="container mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight mb-4">Featured Resources</h2>
+          <h2 className="text-3xl font-bold tracking-tight mb-4">{t("featured.title")}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Explore our expert guides and insights on antique valuation and identification.
+            {t("featured.subtitle")}
           </p>
         </div>
         
@@ -55,7 +37,7 @@ export default function FeaturedResources() {
                 <div className="flex justify-end text-sm text-muted-foreground mb-2">
                   <div className="flex items-center">
                     <Clock className="mr-1 h-4 w-4" />
-                    <span>{resource.readTime}</span>
+                    <span>{t("resources.readTime", { minutes: resource.readTimeMinutes })}</span>
                   </div>
                 </div>
                 
@@ -72,7 +54,7 @@ export default function FeaturedResources() {
                   className="w-full block"
                   passHref
                 >
-                  <Button variant="default" className="w-full">Read More</Button>
+                  <Button variant="default" className="w-full">{t("featured.readMore")}</Button>
                 </Link>
               </div>
             </div>
@@ -81,7 +63,7 @@ export default function FeaturedResources() {
         
         <div className="text-center mt-10">
           <Link href="/resources" passHref>
-            <Button variant="outline" size="lg">View All Resources</Button>
+            <Button variant="outline" size="lg">{t("featured.viewAll")}</Button>
           </Link>
         </div>
       </div>

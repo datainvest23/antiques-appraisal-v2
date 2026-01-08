@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AuthError } from "@supabase/supabase-js"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/types/supabase"
+import { useLanguage } from "@/contexts/language-context"
 
 interface FormFieldProps {
   id: string
@@ -120,24 +121,26 @@ function LoginForm({
   onGoogleSignIn,
   onSubmit 
 }: AuthFormProps & { onSubmit: (e: React.FormEvent) => void }) {
+  const { t } = useLanguage()
+
   return (
     <form onSubmit={onSubmit}>
       <CardContent className="space-y-4 pt-4">
         <FormError error={error} />
         <FormField
           id="email"
-          label="Email"
+          label={t("login.email")}
           type="email"
-          placeholder="your@email.com"
+          placeholder={t("login.placeholderEmail")}
           value={email}
           onChange={setEmail}
           required
         />
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("login.password")}</Label>
             <Link href="/forgot-password" className="text-sm text-primary underline-offset-4 hover:underline">
-              Forgot password?
+              {t("login.forgotPassword")}
             </Link>
           </div>
           <Input
@@ -152,10 +155,10 @@ function LoginForm({
       <CardFooter className="flex flex-col space-y-4">
         <SubmitButton
           isLoading={isLoading}
-          loadingText="Signing in..."
-          text="Sign In"
+          loadingText={t("login.signingIn")}
+          text={t("login.signIn")}
         />
-        <FormDivider />
+        <FormDivider text={t("login.or")} />
         <Button
           type="button"
           variant="outline"
@@ -166,10 +169,10 @@ function LoginForm({
           {isGoogleSignInLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Connecting to Google...
+              {t("login.connectingGoogle")}
             </>
           ) : (
-            "Continue with Google"
+            t("login.continueGoogle")
           )}
         </Button>
       </CardFooter>
@@ -192,6 +195,8 @@ function RegisterForm({
   onGoogleSignIn,
   onSubmit 
 }: RegisterFormProps & { onSubmit: (e: React.FormEvent) => void }) {
+  const { t } = useLanguage()
+
   return (
     <form onSubmit={onSubmit}>
       <CardContent className="space-y-4 pt-4">
@@ -199,16 +204,16 @@ function RegisterForm({
         <div className="grid grid-cols-2 gap-4">
           <FormField
             id="firstName"
-            label="First Name"
-            placeholder="John"
+            label={t("login.firstName")}
+            placeholder={t("login.placeholderFirst")}
             value={firstName}
             onChange={setFirstName}
             required
           />
           <FormField
             id="lastName"
-            label="Last Name"
-            placeholder="Doe"
+            label={t("login.lastName")}
+            placeholder={t("login.placeholderLast")}
             value={lastName}
             onChange={setLastName}
             required
@@ -216,34 +221,34 @@ function RegisterForm({
         </div>
         <FormField
           id="email"
-          label="Email"
+          label={t("login.email")}
           type="email"
-          placeholder="your@email.com"
+          placeholder={t("login.placeholderEmail")}
           value={email}
           onChange={setEmail}
           required
         />
         <FormField
           id="password"
-          label="Password"
+          label={t("login.password")}
           type="password"
           value={password}
           onChange={setPassword}
           required
         />
         <div className="text-sm text-muted-foreground">
-          By registering, you agree to our Terms of Service and Privacy Policy.
+          {t("login.registerTerms")}
           <br />
-          <span className="font-medium text-primary">New users receive 5 free tokens!</span>
+          <span className="font-medium text-primary">{t("login.registerBonus")}</span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
         <SubmitButton
           isLoading={isLoading}
-          loadingText="Creating account..."
-          text="Create Account"
+          loadingText={t("login.creatingAccount")}
+          text={t("login.createAccount")}
         />
-        <FormDivider />
+        <FormDivider text={t("login.or")} />
         <Button
           type="button"
           variant="outline"
@@ -254,10 +259,10 @@ function RegisterForm({
           {isGoogleSignInLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Connecting to Google...
+              {t("login.connectingGoogle")}
             </>
           ) : (
-            "Continue with Google"
+            t("login.continueGoogle")
           )}
         </Button>
       </CardFooter>
@@ -266,6 +271,7 @@ function RegisterForm({
 }
 
 function LoginFormContainer() {
+  const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [firstName, setFirstName] = useState("")
@@ -294,7 +300,7 @@ function LoginFormContainer() {
       if (error instanceof AuthError) {
         setError(error.message)
       } else {
-        setError("An unexpected error occurred")
+        setError(t("login.errorUnexpected"))
       }
     }
   }
@@ -309,7 +315,7 @@ function LoginFormContainer() {
       if (error instanceof AuthError) {
         setError(error.message)
       } else {
-        setError("Failed to create account")
+        setError(t("login.errorCreate"))
       }
     }
   }
@@ -332,7 +338,7 @@ function LoginFormContainer() {
       if (error instanceof AuthError) {
         setError(error.message)
       } else {
-        setError("Failed to sign in with Google")
+        setError(t("login.errorGoogle"))
       }
       setIsGoogleSignInLoading(false)
     }
@@ -342,13 +348,13 @@ function LoginFormContainer() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Antiques Appraisal</CardTitle>
-          <CardDescription>Sign in or create an account to get started</CardDescription>
+          <CardTitle className="text-2xl font-bold">{t("login.title")}</CardTitle>
+          <CardDescription>{t("login.subtitle")}</CardDescription>
         </CardHeader>
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="register">Register</TabsTrigger>
+            <TabsTrigger value="login">{t("login.tabLogin")}</TabsTrigger>
+            <TabsTrigger value="register">{t("login.tabRegister")}</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
             <LoginForm
@@ -387,12 +393,14 @@ function LoginFormContainer() {
 }
 
 export default function Login() {
+  const { t } = useLanguage()
+
   return (
     <Suspense fallback={
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md p-6 text-center">
           <Loader2 className="mx-auto h-8 w-8 animate-spin mb-4" />
-          <p>Loading...</p>
+          <p>{t("login.loading")}</p>
         </Card>
       </div>
     }>
@@ -400,4 +408,3 @@ export default function Login() {
     </Suspense>
   )
 }
-
