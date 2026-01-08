@@ -8,7 +8,7 @@ import { Award, Copy, Share2, UserPlus, Check, Gift } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-export default function ReferralSystem() {
+export default function ReferralSystem({ dictionary }: { dictionary: any }) {
   const [copied, setCopied] = useState(false)
 
   // Mock data - in a real app, this would come from the database
@@ -31,8 +31,8 @@ export default function ReferralSystem() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join Antiques Appraisal",
-          text: "Get expert valuations for your antique items! Use my referral code for a free valuation.",
+          title: dictionary.link.joinTitle,
+          text: dictionary.link.joinText,
           url: referralLink,
         })
       } catch (err) {
@@ -49,14 +49,14 @@ export default function ReferralSystem() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Award className="mr-2 h-5 w-5 text-primary" />
-            Refer Friends & Earn Premium Valuations
+            {dictionary.title}
           </CardTitle>
           <CardDescription>
             <p className="text-muted-foreground">
-              Share your unique referral link and earn rewards when friends join.
+              {dictionary.description}
             </p>
             <p className="text-sm text-muted-foreground">
-              You&apos;ll receive a premium valuation credit for each friend who signs up and completes their first valuation.
+              {dictionary.subDescription}
             </p>
           </CardDescription>
         </CardHeader>
@@ -64,27 +64,27 @@ export default function ReferralSystem() {
           <div className="rounded-lg bg-muted p-4">
             <div className="flex items-center space-x-2 mb-2">
               <Gift className="h-5 w-5 text-primary" />
-              <h3 className="font-medium">Your Rewards</h3>
+              <h3 className="font-medium">{dictionary.yourRewards.title}</h3>
             </div>
             <ul className="space-y-1 text-sm">
               <li className="flex items-center">
                 <Check className="h-4 w-4 text-primary mr-2" />
-                <span>1 premium valuation for each friend who signs up</span>
+                <span>{dictionary.yourRewards.point1}</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 text-primary mr-2" />
-                <span>No limit on how many friends you can refer</span>
+                <span>{dictionary.yourRewards.point2}</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 text-primary mr-2" />
-                <span>Premium valuations include enhanced detail and provenance research</span>
+                <span>{dictionary.yourRewards.point3}</span>
               </li>
             </ul>
           </div>
 
           <div className="space-y-2">
             <label htmlFor="referral-link" className="text-sm font-medium">
-              Your Referral Link
+              {dictionary.link.label}
             </label>
             <div className="flex space-x-2">
               <Input id="referral-link" value={referralLink} readOnly className="font-mono text-sm" />
@@ -97,7 +97,7 @@ export default function ReferralSystem() {
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button onClick={shareReferral} className="w-full">
               <Share2 className="mr-2 h-4 w-4" />
-              Share Referral Link
+              {dictionary.link.share}
             </Button>
           </div>
         </CardContent>
@@ -107,19 +107,19 @@ export default function ReferralSystem() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <UserPlus className="mr-2 h-5 w-5 text-primary" />
-            Your Referrals
+            {dictionary.yourReferrals.title}
           </CardTitle>
-          <CardDescription>Track the status of your referrals and rewards</CardDescription>
+          <CardDescription>{dictionary.yourReferrals.description}</CardDescription>
         </CardHeader>
         <CardContent>
           {mockReferrals.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Reward</TableHead>
+                  <TableHead>{dictionary.yourReferrals.table.name}</TableHead>
+                  <TableHead>{dictionary.yourReferrals.table.date}</TableHead>
+                  <TableHead>{dictionary.yourReferrals.table.status}</TableHead>
+                  <TableHead>{dictionary.yourReferrals.table.reward}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -135,14 +135,14 @@ export default function ReferralSystem() {
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {referral.status}
+                        {referral.status === "Completed" ? dictionary.yourReferrals.table.completed : dictionary.yourReferrals.table.signedUp}
                       </span>
                     </TableCell>
                     <TableCell>
                       {referral.reward === "Pending" ? (
-                        <span className="text-muted-foreground">Pending</span>
+                        <span className="text-muted-foreground">{dictionary.yourReferrals.table.pending}</span>
                       ) : (
-                        <span className="text-primary font-medium">{referral.reward}</span>
+                        <span className="text-primary font-medium">{dictionary.yourReferrals.table.premiumValuation}</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -152,15 +152,14 @@ export default function ReferralSystem() {
           ) : (
             <div className="text-center py-6">
               <UserPlus className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
-              <p className="mt-2 text-muted-foreground">No referrals yet. Share your link to get started!</p>
+              <p className="mt-2 text-muted-foreground">{dictionary.yourReferrals.empty}</p>
             </div>
           )}
         </CardContent>
         <CardFooter>
           <Alert className="w-full">
             <AlertDescription>
-              Premium valuations will be automatically added to your account once your referred friend completes their
-              first valuation.
+              {dictionary.yourReferrals.footer}
             </AlertDescription>
           </Alert>
         </CardFooter>
@@ -168,4 +167,3 @@ export default function ReferralSystem() {
     </div>
   )
 }
-

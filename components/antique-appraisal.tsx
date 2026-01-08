@@ -20,13 +20,15 @@ interface AntiqueAppraisalProps {
   analysisResult?: any
   isAnalyzing?: boolean
   activeServiceType?: ServiceType
+  dictionary: any
 }
 
 export function AntiqueAppraisal({ 
   onSubmit, 
   analysisResult = null, 
   isAnalyzing = false,
-  activeServiceType
+  activeServiceType,
+  dictionary
 }: AntiqueAppraisalProps) {
   const [selectedService, setSelectedService] = useState<ServiceType>(activeServiceType || "initial")
   const [images, setImages] = useState<File[]>([])
@@ -56,7 +58,7 @@ export function AntiqueAppraisal({
       // Don't exceed 3 images total
       const remaining = 3 - images.length
       if (remaining <= 0) {
-        setError("You can upload a maximum of 3 images")
+        setError(dictionary.Appraise.upload.errorMaxImages)
         return
       }
 
@@ -124,7 +126,7 @@ export function AntiqueAppraisal({
 
   const handleAppraisal = async () => {
     if (images.length === 0) {
-      setError("Please select at least one image to upload.")
+      setError(dictionary.Appraise.upload.errorNoImage)
       return
     }
 
@@ -168,13 +170,13 @@ export function AntiqueAppraisal({
       
       // Add title
       doc.setFontSize(20);
-      doc.setTextColor(...secondaryColor);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       
       const title = activeServiceType === "basic" || selectedService === "basic"
-        ? "Antique Valuation Report"
+        ? dictionary.Appraise.report.basicTitle
         : activeServiceType === "initial" || selectedService === "initial"
-          ? "Initial Appraisal"
-          : "AI Appraisal Report";
+          ? dictionary.Appraise.report.initialTitle
+          : dictionary.Appraise.report.fullTitle;
           
       doc.text(title, 105, 20, { align: 'center' });
       
@@ -183,8 +185,8 @@ export function AntiqueAppraisal({
       const dateStr = today.toLocaleDateString();
       
       doc.setFontSize(10);
-      doc.setTextColor(...secondaryColor);
-      doc.text(`Date: ${dateStr}`, 20, 30);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text(`${dictionary.Appraise.report.date}: ${dateStr}`, 20, 30);
       
       // Add content from HTML
       let content = '';
@@ -194,7 +196,7 @@ export function AntiqueAppraisal({
         
         // Format the content
         doc.setFontSize(12);
-        doc.setTextColor(...secondaryColor);
+        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         const contentChunks = doc.splitTextToSize(content, 170);
         doc.text(contentChunks, 20, 40);
       }
@@ -205,8 +207,8 @@ export function AntiqueAppraisal({
         doc.addPage();
         
         doc.setFontSize(16);
-        doc.setTextColor(...primaryColor);
-        doc.text("Analyzed Images", 105, 20, { align: 'center' });
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.text(dictionary.Appraise.report.analyzedImages, 105, 20, { align: 'center' });
         
         // Position images in a grid
         const imagesPerRow = 2;
@@ -235,7 +237,7 @@ export function AntiqueAppraisal({
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text(`Antiques Appraisal - Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+        doc.text(`Antiques Appraisal - ${dictionary.Appraise.report.page} ${i}`, 105, 290, { align: 'center' });
       }
       
       // Save the PDF
@@ -261,16 +263,16 @@ export function AntiqueAppraisal({
     <Card className="h-full flex flex-col">
       <CardContent className="p-6 flex-1 flex flex-col overflow-hidden">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Antique Appraisal</h2>
+          <h2 className="text-2xl font-bold mb-2">{dictionary.Appraise.title}</h2>
           <p className="text-muted-foreground">
-            Upload photos of your antique item for an AI-powered appraisal
+            {dictionary.Appraise.subtitle}
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            <TabsTrigger value="upload">{dictionary.Appraise.tabs.upload}</TabsTrigger>
+            <TabsTrigger value="analysis">{dictionary.Appraise.tabs.analysis}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="pt-4 flex-1 overflow-auto">
@@ -279,7 +281,7 @@ export function AntiqueAppraisal({
               <div>
                 {imageUrls.length > 0 ? (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Uploaded Images</h3>
+                    <h3 className="text-lg font-medium">{dictionary.Appraise.upload.uploadedImages}</h3>
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {imageUrls.map((url, index) => (
                         <div key={index} className="relative rounded-lg border overflow-hidden group">
@@ -297,7 +299,7 @@ export function AntiqueAppraisal({
                             className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => removeImage(index)}
                           >
-                            Remove
+                            {dictionary.Appraise.upload.remove}
                           </Button>
                         </div>
                       ))}
@@ -313,10 +315,10 @@ export function AntiqueAppraisal({
                       {isUploading || isAnalyzing ? (
                         <>
                           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Processing...
+                          {dictionary.Appraise.upload.processing}
                         </>
                       ) : (
-                        "Upload and Analyze"
+                        dictionary.Appraise.upload.uploadAndAnalyze
                       )}
                     </Button>
                   </div>
@@ -324,17 +326,17 @@ export function AntiqueAppraisal({
                   <div className="flex flex-col h-full items-center justify-center py-12 border-2 border-primary border-dashed rounded-lg shadow-sm animate-pulse-light bg-primary/5">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Camera className="h-10 w-10 text-primary" />
-                      <h3 className="text-lg font-medium">Upload Antique Images</h3>
+                      <h3 className="text-lg font-medium">{dictionary.Appraise.upload.title}</h3>
                       <p className="text-sm text-muted-foreground text-center">
-                        Take a photo or upload images of your antique
+                        {dictionary.Appraise.upload.description}
                       </p>
-                      <p className="text-xs text-primary font-medium">Add up to 3 images</p>
+                      <p className="text-xs text-primary font-medium">{dictionary.Appraise.upload.maxImages}</p>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4">
                       <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
                         <label>
                           <Camera className="mr-2 h-4 w-4" />
-                          Take Picture
+                          {dictionary.Appraise.upload.takePicture}
                           <input
                             type="file"
                             accept="image/*"
@@ -347,7 +349,7 @@ export function AntiqueAppraisal({
                       <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
                         <label>
                           <Upload className="mr-2 h-4 w-4" />
-                          Browse Files
+                          {dictionary.Appraise.upload.browseFiles}
                           <input
                             type="file"
                             accept="image/*"
@@ -364,9 +366,9 @@ export function AntiqueAppraisal({
 
               {/* Right column: Select Service with Radio Group - COMPACT VERSION */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Appraisal Type</h3>
+                <h3 className="text-lg font-medium">{dictionary.Appraise.services.title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Choose the type of appraisal you would like
+                  {dictionary.Appraise.services.subtitle}
                 </p>
 
                 <RadioGroup 
@@ -377,83 +379,57 @@ export function AntiqueAppraisal({
                   <div className={`flex items-start space-x-2 border rounded-md p-2 transition-all ${selectedService === "basic" ? "border-primary bg-primary/5" : "hover:border-primary/50"}`}>
                     <RadioGroupItem value="basic" id="basic" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="basic" className="font-medium text-sm">Basic</Label>
+                      <Label htmlFor="basic" className="font-medium text-sm">{dictionary.Appraise.services.basic.title}</Label>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Quick identification of category and era
+                        {dictionary.Appraise.services.basic.description}
                       </p>
                       <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-0.5">
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Categorization
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Era
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Materials
-                        </span>
+                        {dictionary.Appraise.services.basic.features.map((feature: string, i: number) => (
+                          <span key={i} className="flex items-center text-xs">
+                            <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
+                            {feature}
+                          </span>
+                        ))}
                       </div>
-                      <p className="font-semibold text-xs">1 Token</p>
+                      <p className="font-semibold text-xs">{dictionary.Appraise.services.basic.price}</p>
                     </div>
                   </div>
 
                   <div className={`flex items-start space-x-2 border rounded-md p-2 transition-all ${selectedService === "initial" ? "border-primary bg-primary/5" : "hover:border-primary/50"}`}>
                     <RadioGroupItem value="initial" id="initial" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="initial" className="font-medium text-sm">Initial</Label>
+                      <Label htmlFor="initial" className="font-medium text-sm">{dictionary.Appraise.services.initial.title}</Label>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Detailed analysis with value estimation
+                        {dictionary.Appraise.services.initial.description}
                       </p>
                       <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-0.5">
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Basic+
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Style
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Condition
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Value range
-                        </span>
+                        {dictionary.Appraise.services.initial.features.map((feature: string, i: number) => (
+                          <span key={i} className="flex items-center text-xs">
+                            <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
+                            {feature}
+                          </span>
+                        ))}
                       </div>
-                      <p className="font-semibold text-xs">2 Tokens</p>
+                      <p className="font-semibold text-xs">{dictionary.Appraise.services.initial.price}</p>
                     </div>
                   </div>
 
                   <div className={`flex items-start space-x-2 border rounded-md p-2 transition-all ${selectedService === "full" ? "border-primary bg-primary/5" : "hover:border-primary/50"}`}>
                     <RadioGroupItem value="full" id="full" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="full" className="font-medium text-sm">Full</Label>
+                      <Label htmlFor="full" className="font-medium text-sm">{dictionary.Appraise.services.full.title}</Label>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Comprehensive appraisal with detailed report
+                        {dictionary.Appraise.services.full.description}
                       </p>
                       <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-0.5">
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Initial+
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          History
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Detailed value
-                        </span>
-                        <span className="flex items-center text-xs">
-                          <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          PDF report
-                        </span>
+                        {dictionary.Appraise.services.full.features.map((feature: string, i: number) => (
+                          <span key={i} className="flex items-center text-xs">
+                            <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
+                            {feature}
+                          </span>
+                        ))}
                       </div>
-                      <p className="font-semibold text-xs">3 Tokens</p>
+                      <p className="font-semibold text-xs">{dictionary.Appraise.services.full.price}</p>
                     </div>
                   </div>
                 </RadioGroup>
@@ -462,11 +438,11 @@ export function AntiqueAppraisal({
                 <div className="mt-2 border rounded-md p-2">
                   <details>
                     <summary className="cursor-pointer font-medium text-xs">
-                      Add Information About Your Item (Optional)
+                      {dictionary.Appraise.additionalInfo.title}
                     </summary>
                     <div className="mt-2">
                       <p className="text-xs text-muted-foreground mb-1">
-                        Provide additional context to improve accuracy
+                        {dictionary.Appraise.additionalInfo.description}
                       </p>
                       <div className="flex items-center space-x-3 mb-1">
                         <Button 
@@ -478,18 +454,18 @@ export function AntiqueAppraisal({
                           {isRecording ? (
                             <>
                               <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                              Recording...
+                              {dictionary.Appraise.additionalInfo.recording}
                             </>
                           ) : (
                             <>
                               <Mic className="mr-1 h-3 w-3" />
-                              Record Info
+                              {dictionary.Appraise.additionalInfo.record}
                             </>
                           )}
                         </Button>
                       </div>
                       <Textarea
-                        placeholder="Add details about age, origin, history, markings, or other information..."
+                        placeholder={dictionary.Appraise.additionalInfo.placeholder}
                         className="min-h-[60px] text-xs"
                         value={additionalInfo}
                         onChange={(e) => setAdditionalInfo(e.target.value)}
@@ -510,15 +486,15 @@ export function AntiqueAppraisal({
                     <Loader2 className="h-8 w-8 animate-spin text-primary absolute top-3 left-3" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium mb-2">Analyzing your antique...</h3>
+                <h3 className="text-lg font-medium mb-2">{dictionary.Appraise.analysis.analyzing}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Our AI is examining your images and details to provide an accurate assessment.
+                  {dictionary.Appraise.analysis.analyzingDesc}
                 </p>
                 <div className="max-w-md mx-auto space-y-1">
                   <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-primary/60 rounded-full animate-pulse w-3/4"></div>
                   </div>
-                  <p className="text-xs text-gray-400">This typically takes 30-60 seconds depending on complexity</p>
+                  <p className="text-xs text-gray-400">{dictionary.Appraise.analysis.timeEstimate}</p>
                 </div>
               </div>
             ) : analysisResult ? (
@@ -532,20 +508,20 @@ export function AntiqueAppraisal({
               
                 <h2 className="text-2xl font-bold mb-4 text-center text-primary">
                   {typeof analysisResult === 'string' && analysisResult.includes('Error:')
-                    ? "Error"
+                    ? dictionary.Appraise.analysis.error
                     : activeServiceType === "basic" || selectedService === "basic"
-                      ? "Antique Valuation Report"
+                      ? dictionary.Appraise.report.basicTitle
                       : activeServiceType === "initial" || selectedService === "initial"
-                        ? "Initial Appraisal"
-                        : "AI Appraisal Report"}
+                        ? dictionary.Appraise.report.initialTitle
+                        : dictionary.Appraise.report.fullTitle}
                 </h2>
                 
                 {/* Display analyzed images */}
                 {typeof analysisResult !== 'string' && analysisResult.images && analysisResult.images.length > 0 && (
                   <div className="mb-4">
-                    <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">Analyzed Images</h2>
+                    <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">{dictionary.Appraise.report.analyzedImages}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {analysisResult.images.map((imageUrl, index) => (
+                      {analysisResult.images.map((imageUrl: string, index: number) => (
                         <div key={index} className="overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white p-1">
                           <img 
                             src={imageUrl} 
@@ -573,7 +549,7 @@ export function AntiqueAppraisal({
                   dangerouslySetInnerHTML={{ __html: 
                     typeof analysisResult === 'string' 
                       ? analysisResult 
-                      : analysisResult.content || "Analysis completed successfully."
+                      : analysisResult.content || dictionary.Appraise.analysis.success
                   }}
                 >
                 </div>
@@ -588,12 +564,12 @@ export function AntiqueAppraisal({
                     {isGeneratingPdf ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Generating PDF...
+                        {dictionary.Appraise.analysis.generatingPdf}
                       </>
                     ) : (
                       <>
                         <Download className="h-4 w-4" />
-                        Download PDF Report
+                        {dictionary.Appraise.analysis.downloadPdf}
                       </>
                     )}
                   </Button>
@@ -602,13 +578,13 @@ export function AntiqueAppraisal({
             ) : (
               <div className="py-8 text-center">
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-medium mb-2">Analysis Results</h3>
+                  <h3 className="text-lg font-medium mb-2">{dictionary.Appraise.analysis.noResultsTitle}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Your analysis results will appear here after you submit images for appraisal.
+                    {dictionary.Appraise.analysis.noResultsDesc}
                   </p>
                   <div className="border-2 border-dashed border-slate-200 rounded-lg p-6">
-                    <p className="text-slate-400">No analysis data yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Upload images and click "Start Appraisal" to begin</p>
+                    <p className="text-slate-400">{dictionary.Appraise.analysis.noData}</p>
+                    <p className="text-xs text-slate-400 mt-1">{dictionary.Appraise.analysis.noDataDesc}</p>
                   </div>
                 </div>
               </div>
@@ -626,10 +602,10 @@ export function AntiqueAppraisal({
               {isUploading || isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  {dictionary.Appraise.upload.processing}
                 </>
               ) : (
-                "Start Appraisal"
+                dictionary.Appraise.upload.startAppraisal
               )}
             </Button>
           )}
@@ -644,4 +620,4 @@ export function AntiqueAppraisal({
       </CardContent>
     </Card>
   )
-} 
+}

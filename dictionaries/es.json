@@ -1,0 +1,403 @@
+{
+  "HeroSection": {
+    "badge": "Tasación de Antigüedades con IA",
+    "title_part1": "Descubra el",
+    "title_highlight": "Valor",
+    "title_part2": "de sus Antigüedades",
+    "description": "Suba imágenes de sus artículos antiguos y reciba tasaciones impulsadas por IA con contexto histórico y valor estimado.",
+    "getStarted": "Comenzar",
+    "learnMore": "Saber Más",
+    "freeValuation": "Una tasación gratuita diaria • No requiere tarjeta de crédito",
+    "playVideo": "Reproducir Video",
+    "mute": "Silenciar",
+    "unmute": "Activar Sonido"
+  },
+  "Navbar": {
+    "appraise": "Tasar una Antigüedad",
+    "myValuations": "Mis Tasaciones",
+    "buyTokens": "Comprar Fichas",
+    "resources": "Recursos",
+    "features": "Características",
+    "howItWorks": "Cómo Funciona",
+    "login": "Iniciar Sesión",
+    "referEarn": "Referir y Ganar",
+    "profile": "Perfil",
+    "logout": "Cerrar Sesión",
+    "admin": "Administrador"
+  },
+  "Footer": {
+    "copyright": "© 2025 Antiques Appraisal. Todos los derechos reservados.",
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "contact": "Contacto"
+  },
+  "FeaturesSection": {
+    "badge": "Características",
+    "title": "Todo lo que Necesita para Tasaciones de Antigüedades",
+    "description": "Nuestra plataforma combina tecnología de IA con comentarios de usuarios para proporcionar valoraciones precisas y detalladas de sus artículos antiguos.",
+    "features": {
+      "ImageUpload": {
+        "title": "Carga de Imágenes",
+        "description": "Suba imágenes de alta calidad de sus antigüedades para análisis de IA y tasación completa."
+      },
+      "AIAnalysis": {
+        "title": "Análisis de IA",
+        "description": "Reciba un análisis detallado que incluye descripción del artículo, contexto histórico y evaluación de la condición."
+      },
+      "VoiceFeedback": {
+        "title": "Comentarios de Voz",
+        "description": "Refine el análisis proporcionando comentarios de voz que se transcriben y procesan automáticamente."
+      },
+      "DailyFreeValuation": {
+        "title": "Tasación Diaria Gratuita",
+        "description": "Disfrute de una tasación completa gratuita cada día, con opciones para comprar más según sea necesario."
+      },
+      "TokenSystem": {
+        "title": "Sistema de Fichas",
+        "description": "Obtenga 5 fichas gratis al registrarse y compre más fichas para tasaciones premium adicionales."
+      },
+      "DetailedValuations": {
+        "title": "Tasaciones Detalladas",
+        "description": "Actualice a tasaciones detalladas para un análisis mejorado e información histórica adicional."
+      }
+    }
+  },
+  "HowItWorks": {
+    "badge": "Cómo Funciona",
+    "title": "Proceso Simple, Resultados Valiosos",
+    "description": "Nuestro flujo de trabajo optimizado hace que sea fácil obtener tasaciones profesionales para sus artículos antiguos.",
+    "steps": {
+      "UploadImages": {
+        "title": "Subir Imágenes",
+        "description": "Tome fotos claras de su artículo antiguo y súbalas a nuestra plataforma.",
+        "points": [
+          "Soporta múltiples formatos de imagen",
+          "Múltiples ángulos para un mejor análisis",
+          "Se recomiendan imágenes de alta resolución"
+        ]
+      },
+      "ReceiveAIAnalysis": {
+        "title": "Recibir Análisis de IA",
+        "description": "Nuestro asistente de IA analiza sus imágenes y proporciona una tasación detallada.",
+        "points": [
+          "Descripción del artículo e historia",
+          "Evaluación de la condición",
+          "Resumen de audio disponible"
+        ]
+      },
+      "CreateValuation": {
+        "title": "Crear Valoración",
+        "description": "Proporcione comentarios de voz para refinar el análisis y crear su valoración final.",
+        "points": [
+          "Una tasación gratuita diaria",
+          "Use fichas para tasaciones adicionales",
+          "Opción para tasaciones premium detalladas"
+        ]
+      }
+    },
+    "ctaTitle": "¿Listo para descubrir el valor de su antigüedad?",
+    "ctaDescription": "Comience su primera tasación hoy y desbloquee la historia y el valor de sus artículos únicos.",
+    "ctaButton": "Comience Su Tasación"
+  },
+  "FeaturedResources": {
+    "title": "Recursos Destacados",
+    "description": "Explore nuestras guías de expertos y conocimientos sobre valoración e identificación de antigüedades.",
+    "viewAll": "Ver Todos los Recursos",
+    "readMore": "Leer Más",
+    "resources": {
+        "unlocking-antique-values": {
+            "title": "Desbloqueando Valores Antiguos: Cómo la IA Revoluciona las Tasaciones",
+            "description": "Descubra cómo la inteligencia artificial está transformando el mundo de la valoración de antigüedades con conocimientos basados en datos mientras complementa el juicio experto humano."
+        },
+        "navigating-valuation-standards": {
+            "title": "Navegando los Estándares Internacionales de Valoración para Coleccionistas",
+            "description": "Aprenda cómo los estándares internacionales de valoración aseguran consistencia y transparencia en las tasaciones de antigüedades, y cómo los coleccionistas pueden navegar efectivamente estas pautas."
+        },
+        "identifying-hidden-gems": {
+            "title": "Identificando Joyas Ocultas: Consejos de Expertos para Detectar Antigüedades Valiosas",
+            "description": "Aprenda técnicas de expertos para identificar antigüedades valiosas con nuestra guía completa sobre indicadores clave, errores comunes y cómo aprovechar la tecnología para una identificación precisa."
+        }
+    }
+  },
+  "Auth": {
+    "title": "Antiques Appraisal",
+    "subtitle": "Inicia sesión o crea una cuenta para comenzar",
+    "tabs": {
+      "login": "Iniciar sesión",
+      "register": "Registrarse"
+    },
+    "login": {
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submitButton": "Iniciar sesión",
+      "loadingButton": "Iniciando sesión...",
+      "googleButton": "Continuar con Google",
+      "googleLoading": "Conectando con Google...",
+      "divider": "o"
+    },
+    "register": {
+      "firstNameLabel": "Nombre",
+      "firstNamePlaceholder": "Juan",
+      "lastNameLabel": "Apellido",
+      "lastNamePlaceholder": "Pérez",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "terms": "Al registrarte, aceptas nuestros Términos de Servicio y Política de Privacidad.",
+      "newUsersBonus": "¡Los nuevos usuarios reciben 5 tokens gratis!",
+      "submitButton": "Crear cuenta",
+      "loadingButton": "Creando cuenta...",
+      "googleButton": "Continuar con Google",
+      "googleLoading": "Conectando con Google...",
+      "divider": "o"
+    },
+    "errors": {
+      "unexpected": "Ocurrió un error inesperado",
+      "createAccountFailed": "Error al crear la cuenta",
+      "googleSignInFailed": "Error al iniciar sesión con Google"
+    },
+    "loading": "Cargando...",
+    "backToLogin": "Volver al inicio de sesión",
+    "forgotPasswordTitle": "Recuperar contraseña",
+    "forgotPasswordDesc": "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña",
+    "resetSent": "Las instrucciones para restablecer la contraseña se han enviado a tu correo electrónico. Por favor revisa tu bandeja de entrada.",
+    "checkSpam": "¿No recibiste un correo electrónico? Revisa tu carpeta de spam o",
+    "tryAgain": "inténtalo de nuevo",
+    "sendReset": "Enviar instrucciones",
+    "sendingReset": "Enviando instrucciones..."
+  },
+  "Appraise": {
+    "title": "Tasación de Antigüedades",
+    "subtitle": "Sube fotos de tu artículo antiguo para una tasación impulsada por IA",
+    "tabs": {
+        "upload": "Subir",
+        "analysis": "Análisis"
+    },
+    "upload": {
+        "title": "Subir Imágenes de Antigüedades",
+        "description": "Toma una foto o sube imágenes de tu antigüedad",
+        "maxImages": "Añade hasta 3 imágenes",
+        "takePicture": "Tomar Foto",
+        "browseFiles": "Buscar Archivos",
+        "uploadedImages": "Imágenes Subidas",
+        "remove": "Eliminar",
+        "processing": "Procesando...",
+        "uploadAndAnalyze": "Subir y Analizar",
+        "startAppraisal": "Iniciar Tasación",
+        "errorNoImage": "Por favor selecciona al menos una imagen para subir.",
+        "errorMaxImages": "Puedes subir un máximo de 3 imágenes"
+    },
+    "services": {
+        "title": "Tipo de Tasación",
+        "subtitle": "Elige el tipo de tasación que te gustaría",
+        "basic": {
+            "title": "Básica",
+            "description": "Identificación rápida de categoría y época",
+            "price": "1 Token",
+            "features": ["Categorización", "Época", "Materiales"]
+        },
+        "initial": {
+            "title": "Inicial",
+            "description": "Análisis detallado con estimación de valor",
+            "price": "2 Tokens",
+            "features": ["Básica+", "Estilo", "Condición", "Rango de valor"]
+        },
+        "full": {
+            "title": "Completa",
+            "description": "Tasación completa con informe detallado",
+            "price": "3 Tokens",
+            "features": ["Inicial+", "Historia", "Valor detallado", "Informe PDF"]
+        }
+    },
+    "additionalInfo": {
+        "title": "Añadir Información Sobre Tu Artículo (Opcional)",
+        "description": "Proporciona contexto adicional para mejorar la precisión",
+        "placeholder": "Añade detalles sobre edad, origen, historia, marcas u otra información...",
+        "record": "Grabar Info",
+        "recording": "Grabando..."
+    },
+    "analysis": {
+        "analyzing": "Analizando tu antigüedad...",
+        "analyzingDesc": "Nuestra IA está examinando tus imágenes y detalles para proporcionar una evaluación precisa.",
+        "timeEstimate": "Esto suele tardar 30-60 segundos dependiendo de la complejidad",
+        "error": "Error",
+        "success": "Análisis completado con éxito.",
+        "downloadPdf": "Descargar Informe PDF",
+        "generatingPdf": "Generando PDF...",
+        "noResultsTitle": "Resultados del Análisis",
+        "noResultsDesc": "Los resultados de tu análisis aparecerán aquí después de enviar las imágenes para la tasación.",
+        "noData": "Aún no hay datos de análisis",
+        "noDataDesc": "Sube imágenes y haz clic en \"Iniciar Tasación\" para comenzar"
+    },
+    "report": {
+        "basicTitle": "Informe de Valoración de Antigüedades",
+        "initialTitle": "Tasación Inicial",
+        "fullTitle": "Informe de Tasación IA",
+        "date": "Fecha",
+        "analyzedImages": "Imágenes Analizadas",
+        "page": "Página"
+    },
+    "loadingOverlay": {
+        "analyzing": "Analizando tu antigüedad...",
+        "identifying": "Identificando características clave...",
+        "determining": "Determinando categoría y época...",
+        "finalizing": "Finalizando categorización básica...",
+        "examining": "Examinando detalles y marcas...",
+        "researching": "Investigando artículos similares...",
+        "estimating": "Estimando valor aproximado...",
+        "preparing": "Preparando evaluación inicial...",
+        "analyzingDetail": "Analizando tu antigüedad en detalle...",
+        "craftsmanship": "Examinando artesanía y materiales...",
+        "historicalContext": "Investigando contexto histórico...",
+        "auctionRecords": "Comparando con registros de subastas...",
+        "condition": "Evaluando condición y rareza...",
+        "marketValue": "Determinando valor de mercado...",
+        "generatingReport": "Generando informe completo..."
+    }
+  },
+  "BuyTokens": {
+    "title": "Comprar Fichas",
+    "description": "Compra fichas para crear tasaciones adicionales",
+    "errorFetch": "Error al obtener el saldo de fichas",
+    "plans": {
+      "small": {
+        "title": "5 Fichas",
+        "description": "Perfecto para uso ocasional",
+        "price": "$5"
+      },
+      "large": {
+        "title": "10 Fichas",
+        "description": "Mejor valor - Ahorra 10%",
+        "price": "$9"
+      }
+    },
+    "usage": {
+      "title": "Uso de Fichas",
+      "point1": "• 1 ficha = 1 tasación estándar",
+      "point2": "• Las tasaciones detalladas cuestan $3 cada una",
+      "point3": "• Recuerda: Tienes 1 tasación gratuita diaria"
+    },
+    "buttons": {
+      "process": "Procesando...",
+      "proceed": "Proceder al Pago",
+      "cancel": "Cancelar"
+    },
+    "successMessage": "¡Has comprado {count} fichas con éxito!"
+  },
+  "MyValuations": {
+    "title": "Mis Tasaciones",
+    "newValuation": "Nueva Tasación",
+    "noValuations": {
+      "title": "Aún No Hay Tasaciones",
+      "description": "Sube imágenes de tus antigüedades para comenzar con tu primera tasación.",
+      "button": "Crea Tu Primera Tasación"
+    },
+    "card": {
+      "detailed": "Detallado",
+      "viewDetails": "Ver Detalles"
+    },
+    "userStatus": {
+      "freeValuations": "Tasaciones Gratuitas Hoy:",
+      "tokenBalance": "Saldo de Fichas:",
+      "buyTokens": "Comprar Fichas",
+      "tooltip": "Obtienes una tasación gratuita por día. Las tasaciones adicionales requieren fichas."
+    },
+    "referral": {
+      "title": "Referir a un Amigo",
+      "description": "Comparte tu enlace de referencia y gana tasaciones premium",
+      "button": "Comenzar a Referir"
+    }
+  },
+  "Resources": {
+    "pageTitle": "Recursos de Tasación de Antigüedades: Guías de Expertos e Información de Valoración",
+    "pageSubtitle": "Guías de expertos, información de mercado y contenido educativo para ayudarlo a comprender, identificar y valorar sus tesoros antiguos."
+  },
+  "ValuationDetails": {
+    "loading": "Cargando detalles de la tasación...",
+    "notFound": {
+      "title": "Tasación no encontrada",
+      "description": "Esta tasación no existe o no tienes permiso para verla."
+    },
+    "error": {
+      "title": "Error",
+      "description": "No se pudo cargar esta tasación. Por favor inténtalo de nuevo."
+    },
+    "backButton": "Volver a Mis Tasaciones",
+    "appraisedOn": "Tasado el",
+    "detailedAnalysis": "Análisis Detallado",
+    "valuationSummary": "Resumen de Tasación",
+    "estimatedValue": "Valor Estimado",
+    "valuationType": "Tipo de Tasación",
+    "detailed": "Análisis Detallado",
+    "standard": "Análisis Estándar",
+    "audioSummary": "Resumen de Audio",
+    "requestRefinement": "Solicitar Refinamiento de Experto",
+    "printReport": "Imprimir Informe",
+    "summary": "Resumen",
+    "analysisReport": "Informe de Análisis",
+    "itemGallery": "Galería de Artículos",
+    "keyDetails": "Detalles Clave",
+    "category": "Categoría",
+    "material": "Material",
+    "condition": "Condición",
+    "valueFactors": "Factores de Valor",
+    "notSpecified": "No especificado"
+  },
+  "Referrals": {
+    "title": "Recomienda Amigos y Gana Tasaciones Premium",
+    "description": "Comparte tu enlace de referencia único y gana recompensas cuando tus amigos se unan.",
+    "subDescription": "Recibirás un crédito de tasación premium por cada amigo que se registre y complete su primera tasación.",
+    "yourRewards": {
+      "title": "Tus Recompensas",
+      "point1": "1 tasación premium por cada amigo que se registre",
+      "point2": "Sin límite en cuántos amigos puedes recomendar",
+      "point3": "Las tasaciones premium incluyen detalles mejorados e investigación de procedencia"
+    },
+    "link": {
+      "label": "Tu Enlace de Referencia",
+      "share": "Compartir Enlace de Referencia",
+      "joinTitle": "Únete a Antiques Appraisal",
+      "joinText": "¡Obtén tasaciones expertas para tus artículos antiguos! Usa mi código de referencia para una tasación gratuita."
+    },
+    "yourReferrals": {
+      "title": "Tus Referencias",
+      "description": "Rastrea el estado de tus referencias y recompensas",
+      "table": {
+        "name": "Nombre",
+        "date": "Fecha",
+        "status": "Estado",
+        "reward": "Recompensa",
+        "completed": "Completado",
+        "signedUp": "Registrado",
+        "pending": "Pendiente",
+        "premiumValuation": "Tasación Premium"
+      },
+      "empty": "Aún no hay referencias. ¡Comparte tu enlace para comenzar!",
+      "footer": "Las tasaciones premium se agregarán automáticamente a tu cuenta una vez que tu amigo referido complete su primera tasación."
+    }
+  },
+  "ResetPassword": {
+    "title": "Restablecer tu Contraseña",
+    "description": "Ingresa una nueva contraseña para tu cuenta",
+    "successMessage": "Tu contraseña ha sido restablecida con éxito. Serás redirigido a la página de inicio de sesión en breve.",
+    "goToLogin": "Ir a la página de inicio de sesión",
+    "notInResetMode": "Esta página solo es accesible desde un enlace de restablecimiento de contraseña enviado por correo electrónico. Por favor revisa tu correo o solicita un nuevo restablecimiento.",
+    "newPassword": "Nueva Contraseña",
+    "confirmNewPassword": "Confirmar Nueva Contraseña",
+    "resetButton": "Restablecer Contraseña",
+    "updating": "Actualizando contraseña...",
+    "errors": {
+      "mismatch": "Las contraseñas no coinciden",
+      "length": "La contraseña debe tener al menos 6 caracteres"
+    }
+  },
+  "VerificationSent": {
+    "title": "Correo de Verificación Enviado",
+    "description": "Te hemos enviado un correo con un enlace para verificar tu cuenta.",
+    "instructions": "Por favor revisa tu bandeja de entrada y haz clic en el enlace de verificación para completar tu registro.",
+    "spamCheck": "Si no lo ves, por favor revisa tu carpeta de spam.",
+    "returnToLogin": "Volver al Inicio de Sesión"
+  }
+}

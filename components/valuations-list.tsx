@@ -15,18 +15,19 @@ interface Valuation {
 
 interface ValuationsListProps {
   valuations: Valuation[]
+  dictionary: any
 }
 
-export default function ValuationsList({ valuations }: ValuationsListProps) {
+export default function ValuationsList({ valuations, dictionary }: ValuationsListProps) {
   if (valuations.length === 0) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-2">No Valuations Yet</h2>
+        <h2 className="text-2xl font-bold mb-2">{dictionary.noValuations.title}</h2>
         <p className="text-muted-foreground mb-6">
-          Upload images of your antiques to get started with your first valuation.
+          {dictionary.noValuations.description}
         </p>
         <Link href="/appraise">
-          <Button>Create Your First Valuation</Button>
+          <Button>{dictionary.noValuations.button}</Button>
         </Link>
       </div>
     )
@@ -35,9 +36,9 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">My Valuations</h2>
+        <h2 className="text-2xl font-bold">{dictionary.title}</h2>
         <Link href="/appraise">
-          <Button>New Valuation</Button>
+          <Button>{dictionary.newValuation}</Button>
         </Link>
       </div>
 
@@ -51,7 +52,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
                   {valuation.is_detailed && (
                     <Badge variant="secondary" className="flex items-center">
                       <Award className="h-3 w-3 mr-1" />
-                      Detailed
+                      {dictionary.card.detailed}
                     </Badge>
                   )}
                 </div>
@@ -64,7 +65,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
               </CardContent>
               <CardFooter className="pt-2">
                 <Button variant="ghost" size="sm" className="ml-auto">
-                  View Details
+                  {dictionary.card.viewDetails}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </CardFooter>
@@ -75,4 +76,3 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
     </div>
   )
 }
-
