@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { useLanguage } from "@/contexts/language-context"
 
 interface Resource {
   id: string
@@ -9,7 +10,7 @@ interface Resource {
   description: string
   image: string
   date: string
-  readTime: string
+  readTimeMinutes: number
 }
 
 interface ResourcesGridProps {
@@ -17,6 +18,8 @@ interface ResourcesGridProps {
 }
 
 export default function ResourcesGrid({ resources }: ResourcesGridProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {resources.map((resource) => (
@@ -35,7 +38,7 @@ export default function ResourcesGrid({ resources }: ResourcesGridProps) {
           </div>
           <div className="p-6">
             <div className="flex justify-end text-sm text-muted-foreground mb-2">
-              <span>{resource.readTime}</span>
+              <span>{t("resources.readTime", { minutes: resource.readTimeMinutes })}</span>
             </div>
             <h2 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
               {resource.title}

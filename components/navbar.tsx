@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Menu, Award, User, LogOut, Loader2 } from "lucide-react"
+import LanguageSelector from "@/components/language-selector"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/types/supabase"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { useLanguage } from "@/contexts/language-context"
 
 interface UserData {
   email: string
@@ -41,12 +43,14 @@ interface UserMenuProps {
 }
 
 function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuProps) {
+  const { t } = useLanguage()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className={cn("rounded-full", className)}>
           <User className="h-5 w-5" />
-          <span className="sr-only">User menu</span>
+          <span className="sr-only">{t("nav.userMenu")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -54,16 +58,16 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
           <div className="flex flex-col space-y-1 leading-none">
             <p className="font-medium">{userFullName || user.email}</p>
             {!userFullName && <p className="text-xs text-muted-foreground">{user.email}</p>}
-            {isAdmin && <p className="text-xs text-muted-foreground">Administrator</p>}
+            {isAdmin && <p className="text-xs text-muted-foreground">{t("nav.administrator")}</p>}
           </div>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile">Profile</Link>
+          <Link href="/profile">{t("nav.profile")}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/referrals" className="flex items-center">
-            <Award className="mr-2 h-4 w-4" /> Refer & Earn
+            <Award className="mr-2 h-4 w-4" /> {t("nav.referEarn")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -71,7 +75,7 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
           className="text-red-600 cursor-pointer" 
           onClick={() => signOut()}
         >
-          <LogOut className="mr-2 h-4 w-4" /> Log out
+          <LogOut className="mr-2 h-4 w-4" /> {t("nav.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -79,6 +83,8 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
 }
 
 function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: NavigationProps & { signOut: () => void }) {
+  const { t } = useLanguage()
+
   return (
     <nav className="hidden md:flex items-center gap-6">
       {user && (
@@ -87,7 +93,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
             href="/appraise"
             className="px-6 py-2 font-medium text-black bg-yellow-400 hover:bg-yellow-500 rounded-md shadow-md transition-all hover:shadow-lg transform hover:-translate-y-0.5"
           >
-            Appraise an Antique
+            {t("nav.appraise")}
           </Link>
           <Link
             href="/my-valuations"
@@ -96,7 +102,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
               "px-4"
             )}
           >
-            My Valuations
+            {t("nav.myValuations")}
           </Link>
           <Link
             href="/buy-tokens"
@@ -104,7 +110,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
               pathname === "/buy-tokens" ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            Buy Tokens
+            {t("nav.buyTokens")}
           </Link>
         </>
       )}
@@ -114,26 +120,28 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
           pathname?.startsWith("/resources") ? "text-primary" : "text-muted-foreground"
         }`}
       >
-        Resources
+        {t("nav.resources")}
       </Link>
       <Link
         href="/#features"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Features
+        {t("nav.features")}
       </Link>
       <Link
         href="/#how-it-works"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        How It Works
+        {t("nav.howItWorks")}
       </Link>
       
+      <LanguageSelector />
+
       {user ? (
         <UserMenu user={user} userFullName={userFullName} isAdmin={isAdmin} signOut={signOut} />
       ) : (
         <Button asChild size="sm">
-          <Link href="/login">Login</Link>
+          <Link href="/login">{t("nav.login")}</Link>
         </Button>
       )}
     </nav>
@@ -141,6 +149,8 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
 }
 
 function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationProps) {
+  const { t } = useLanguage()
+
   return (
     <nav className="flex flex-col p-6 space-y-4">
       {user && (
@@ -152,28 +162,32 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
             onClick={onClose}
           >
             <Link href="/appraise">
-              Appraise an Antique
+              {t("nav.appraise")}
             </Link>
           </Button>
           <Button asChild variant="outline" className="w-full justify-center">
             <Link href="/my-valuations" onClick={onClose}>
-              My Valuations
+              {t("nav.myValuations")}
             </Link>
           </Button>
           <Link href="/buy-tokens" className="text-lg font-medium" onClick={onClose}>
-            Buy Tokens
+            {t("nav.buyTokens")}
           </Link>
         </>
       )}
       <Link href="/resources" className="text-lg font-medium" onClick={onClose}>
-        Resources
+        {t("nav.resources")}
       </Link>
       <Link href="/#features" className="text-lg font-medium" onClick={onClose}>
-        Features
+        {t("nav.features")}
       </Link>
       <Link href="/#how-it-works" className="text-lg font-medium" onClick={onClose}>
-        How It Works
+        {t("nav.howItWorks")}
       </Link>
+
+      <div className="pt-2">
+        <LanguageSelector align="start" className="w-full justify-start" />
+      </div>
       
       {user && (
         <div className="border-t pt-4 mt-4">
@@ -182,7 +196,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
             <div>
               <p className="font-medium">{userFullName || user.email}</p>
               {!userFullName && <p className="text-xs text-muted-foreground">{user.email}</p>}
-              {isAdmin && <p className="text-xs text-muted-foreground">Administrator</p>}
+              {isAdmin && <p className="text-xs text-muted-foreground">{t("nav.administrator")}</p>}
             </div>
           </div>
           <div className="space-y-3">
@@ -192,7 +206,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               className="w-full justify-start"
               onClick={onClose}
             >
-              <Link href="/profile">Profile</Link>
+              <Link href="/profile">{t("nav.profile")}</Link>
             </Button>
             <Button 
               asChild 
@@ -201,7 +215,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               onClick={onClose}
             >
               <Link href="/referrals" className="flex items-center">
-                <Award className="mr-2 h-4 w-4" /> Refer & Earn
+                <Award className="mr-2 h-4 w-4" /> {t("nav.referEarn")}
               </Link>
             </Button>
           </div>
@@ -209,7 +223,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
       )}
       {!user && (
         <Button asChild className="w-full" onClick={onClose}>
-          <Link href="/login">Login</Link>
+          <Link href="/login">{t("nav.login")}</Link>
         </Button>
       )}
     </nav>
@@ -217,6 +231,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
 }
 
 function NavbarContent() {
+  const { t } = useLanguage()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [userFullName, setUserFullName] = useState<string | null>(null)
   const pathname = usePathname()
@@ -275,7 +290,7 @@ function NavbarContent() {
         <div className="md:hidden">
           <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
+            <span className="sr-only">{t("nav.toggleMenu")}</span>
           </Button>
 
           {isMenuOpen && (

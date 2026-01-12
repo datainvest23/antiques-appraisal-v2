@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/components/ui/use-toast"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
+import { useLanguage } from "@/contexts/language-context"
 
 // Service types
 type ServiceType = "basic" | "initial" | "full"
@@ -38,6 +39,7 @@ export function AntiqueAppraisal({
   const [activeTab, setActiveTab] = useState("upload")
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const { toast } = useToast()
+  const { language, t } = useLanguage()
 
   // Switch to analysis tab automatically when results are available
   useEffect(() => {
@@ -56,7 +58,7 @@ export function AntiqueAppraisal({
       // Don't exceed 3 images total
       const remaining = 3 - images.length
       if (remaining <= 0) {
-        setError("You can upload a maximum of 3 images")
+        setError(t("appraise.maxImagesError"))
         return
       }
 
@@ -91,8 +93,8 @@ export function AntiqueAppraisal({
     if (isRecording) {
       setIsRecording(false)
       toast({
-        title: "Recording stopped",
-        description: "Your audio has been processed.",
+        title: t("appraise.recordingStopped"),
+        description: t("appraise.recordingStoppedDesc"),
       })
       return
     }
@@ -103,20 +105,20 @@ export function AntiqueAppraisal({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       
       toast({
-        title: "Recording started",
-        description: "Speak clearly and click the button again to stop recording.",
+        title: t("appraise.recordingStarted"),
+        description: t("appraise.recordingStartedDesc"),
       })
       
       // In a real implementation, you would set up a MediaRecorder here
       // For now, we'll just simulate recording
     } catch (error) {
       console.error('Error accessing microphone:', error)
-      setError('Unable to access microphone. Please check permissions and try again.')
+      setError(t("appraise.microphoneUnavailable"))
       setIsRecording(false)
       
       toast({
-        title: "Microphone error",
-        description: "Please check microphone permissions and try again.",
+        title: t("appraise.microphoneError"),
+        description: t("appraise.microphoneErrorDesc"),
         variant: "destructive"
       })
     }
@@ -124,7 +126,7 @@ export function AntiqueAppraisal({
 
   const handleAppraisal = async () => {
     if (images.length === 0) {
-      setError("Please select at least one image to upload.")
+      setError(t("appraise.selectImagesError"))
       return
     }
 
@@ -138,7 +140,7 @@ export function AntiqueAppraisal({
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError("Failed to process appraisal request.")
+        setError(t("appraise.processError"))
       }
     } finally {
       setIsUploading(false)
@@ -171,20 +173,20 @@ export function AntiqueAppraisal({
       doc.setTextColor(...secondaryColor);
       
       const title = activeServiceType === "basic" || selectedService === "basic"
-        ? "Antique Valuation Report"
+        ? t("appraise.reportTitleBasic")
         : activeServiceType === "initial" || selectedService === "initial"
-          ? "Initial Appraisal"
-          : "AI Appraisal Report";
+          ? t("appraise.reportTitleInitial")
+          : t("appraise.reportTitleFull");
           
       doc.text(title, 105, 20, { align: 'center' });
       
       // Add date
       const today = new Date();
-      const dateStr = today.toLocaleDateString();
+      const dateStr = new Intl.DateTimeFormat(language).format(today);
       
       doc.setFontSize(10);
       doc.setTextColor(...secondaryColor);
-      doc.text(`Date: ${dateStr}`, 20, 30);
+      doc.text(t("appraise.dateLabel", { date: dateStr }), 20, 30);
       
       // Add content from HTML
       let content = '';
@@ -206,7 +208,7 @@ export function AntiqueAppraisal({
         
         doc.setFontSize(16);
         doc.setTextColor(...primaryColor);
-        doc.text("Analyzed Images", 105, 20, { align: 'center' });
+        doc.text(t("appraise.analyzedImages"), 105, 20, { align: 'center' });
         
         // Position images in a grid
         const imagesPerRow = 2;
@@ -235,21 +237,21 @@ export function AntiqueAppraisal({
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text(`Antiques Appraisal - Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+        doc.text(t("appraise.pdfFooter", { page: i, total: pageCount }), 105, 290, { align: 'center' });
       }
       
       // Save the PDF
       doc.save(`antique-appraisal-${dateStr}.pdf`);
       
       toast({
-        title: "PDF Downloaded",
-        description: "Your appraisal report has been saved as a PDF.",
+        title: t("appraise.pdfDownloaded"),
+        description: t("appraise.pdfDownloadedDesc"),
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast({
-        title: "Download Failed",
-        description: "Failed to generate the PDF report. Please try again.",
+        title: t("appraise.pdfFailed"),
+        description: t("appraise.pdfFailedDesc"),
         variant: "destructive"
       });
     } finally {
@@ -261,16 +263,16 @@ export function AntiqueAppraisal({
     <Card className="h-full flex flex-col">
       <CardContent className="p-6 flex-1 flex flex-col overflow-hidden">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Antique Appraisal</h2>
+          <h2 className="text-2xl font-bold mb-2">{t("appraise.title")}</h2>
           <p className="text-muted-foreground">
-            Upload photos of your antique item for an AI-powered appraisal
+            {t("appraise.subtitle")}
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            <TabsTrigger value="upload">{t("appraise.tabUpload")}</TabsTrigger>
+            <TabsTrigger value="analysis">{t("appraise.tabAnalysis")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="pt-4 flex-1 overflow-auto">
@@ -279,13 +281,13 @@ export function AntiqueAppraisal({
               <div>
                 {imageUrls.length > 0 ? (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Uploaded Images</h3>
+                    <h3 className="text-lg font-medium">{t("appraise.uploadedImages")}</h3>
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {imageUrls.map((url, index) => (
                         <div key={index} className="relative rounded-lg border overflow-hidden group">
                           <Image
                             src={url}
-                            alt={`Uploaded image ${index + 1}`}
+                            alt={t("appraise.uploadedImageAlt", { index: index + 1 })}
                             width={100}
                             height={100}
                             className="object-cover rounded-lg"
@@ -297,7 +299,7 @@ export function AntiqueAppraisal({
                             className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => removeImage(index)}
                           >
-                            Remove
+                            {t("appraise.remove")}
                           </Button>
                         </div>
                       ))}
@@ -313,10 +315,10 @@ export function AntiqueAppraisal({
                       {isUploading || isAnalyzing ? (
                         <>
                           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Processing...
+                          {t("appraise.processing")}
                         </>
                       ) : (
-                        "Upload and Analyze"
+                        t("appraise.uploadAnalyze")
                       )}
                     </Button>
                   </div>
@@ -324,17 +326,17 @@ export function AntiqueAppraisal({
                   <div className="flex flex-col h-full items-center justify-center py-12 border-2 border-primary border-dashed rounded-lg shadow-sm animate-pulse-light bg-primary/5">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Camera className="h-10 w-10 text-primary" />
-                      <h3 className="text-lg font-medium">Upload Antique Images</h3>
+                      <h3 className="text-lg font-medium">{t("appraise.uploadImages")}</h3>
                       <p className="text-sm text-muted-foreground text-center">
-                        Take a photo or upload images of your antique
+                        {t("appraise.uploadPrompt")}
                       </p>
-                      <p className="text-xs text-primary font-medium">Add up to 3 images</p>
+                      <p className="text-xs text-primary font-medium">{t("appraise.uploadLimit")}</p>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4">
                       <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
                         <label>
                           <Camera className="mr-2 h-4 w-4" />
-                          Take Picture
+                          {t("appraise.takePicture")}
                           <input
                             type="file"
                             accept="image/*"
@@ -347,7 +349,7 @@ export function AntiqueAppraisal({
                       <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
                         <label>
                           <Upload className="mr-2 h-4 w-4" />
-                          Browse Files
+                          {t("appraise.browseFiles")}
                           <input
                             type="file"
                             accept="image/*"
@@ -364,9 +366,9 @@ export function AntiqueAppraisal({
 
               {/* Right column: Select Service with Radio Group - COMPACT VERSION */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Appraisal Type</h3>
+                <h3 className="text-lg font-medium">{t("appraise.appraisalType")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Choose the type of appraisal you would like
+                  {t("appraise.appraisalTypeHint")}
                 </p>
 
                 <RadioGroup 
@@ -377,83 +379,83 @@ export function AntiqueAppraisal({
                   <div className={`flex items-start space-x-2 border rounded-md p-2 transition-all ${selectedService === "basic" ? "border-primary bg-primary/5" : "hover:border-primary/50"}`}>
                     <RadioGroupItem value="basic" id="basic" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="basic" className="font-medium text-sm">Basic</Label>
+                      <Label htmlFor="basic" className="font-medium text-sm">{t("appraise.basic")}</Label>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Quick identification of category and era
+                        {t("appraise.basicDescription")}
                       </p>
                       <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-0.5">
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Categorization
+                          {t("appraise.categorization")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Era
+                          {t("appraise.era")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Materials
+                          {t("appraise.materials")}
                         </span>
                       </div>
-                      <p className="font-semibold text-xs">1 Token</p>
+                      <p className="font-semibold text-xs">{t("appraise.oneToken")}</p>
                     </div>
                   </div>
 
                   <div className={`flex items-start space-x-2 border rounded-md p-2 transition-all ${selectedService === "initial" ? "border-primary bg-primary/5" : "hover:border-primary/50"}`}>
                     <RadioGroupItem value="initial" id="initial" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="initial" className="font-medium text-sm">Initial</Label>
+                      <Label htmlFor="initial" className="font-medium text-sm">{t("appraise.initial")}</Label>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Detailed analysis with value estimation
+                        {t("appraise.initialDescription")}
                       </p>
                       <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-0.5">
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Basic+
+                          {t("appraise.basicPlus")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Style
+                          {t("appraise.style")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Condition
+                          {t("appraise.condition")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Value range
+                          {t("appraise.valueRange")}
                         </span>
                       </div>
-                      <p className="font-semibold text-xs">2 Tokens</p>
+                      <p className="font-semibold text-xs">{t("appraise.twoTokens")}</p>
                     </div>
                   </div>
 
                   <div className={`flex items-start space-x-2 border rounded-md p-2 transition-all ${selectedService === "full" ? "border-primary bg-primary/5" : "hover:border-primary/50"}`}>
                     <RadioGroupItem value="full" id="full" className="mt-1" />
                     <div className="flex-1">
-                      <Label htmlFor="full" className="font-medium text-sm">Full</Label>
+                      <Label htmlFor="full" className="font-medium text-sm">{t("appraise.full")}</Label>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Comprehensive appraisal with detailed report
+                        {t("appraise.fullDescription")}
                       </p>
                       <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-0.5">
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Initial+
+                          {t("appraise.initialPlus")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          History
+                          {t("appraise.history")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          Detailed value
+                          {t("appraise.detailedValue")}
                         </span>
                         <span className="flex items-center text-xs">
                           <CheckCircle className="h-3 w-3 mr-0.5 text-primary" />
-                          PDF report
+                          {t("appraise.pdfReport")}
                         </span>
                       </div>
-                      <p className="font-semibold text-xs">3 Tokens</p>
+                      <p className="font-semibold text-xs">{t("appraise.threeTokens")}</p>
                     </div>
                   </div>
                 </RadioGroup>
@@ -462,11 +464,11 @@ export function AntiqueAppraisal({
                 <div className="mt-2 border rounded-md p-2">
                   <details>
                     <summary className="cursor-pointer font-medium text-xs">
-                      Add Information About Your Item (Optional)
+                      {t("appraise.additionalInfo")}
                     </summary>
                     <div className="mt-2">
                       <p className="text-xs text-muted-foreground mb-1">
-                        Provide additional context to improve accuracy
+                        {t("appraise.additionalInfoHint")}
                       </p>
                       <div className="flex items-center space-x-3 mb-1">
                         <Button 
@@ -478,18 +480,18 @@ export function AntiqueAppraisal({
                           {isRecording ? (
                             <>
                               <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                              Recording...
+                              {t("appraise.recording")}
                             </>
                           ) : (
                             <>
                               <Mic className="mr-1 h-3 w-3" />
-                              Record Info
+                              {t("appraise.recordInfo")}
                             </>
                           )}
                         </Button>
                       </div>
                       <Textarea
-                        placeholder="Add details about age, origin, history, markings, or other information..."
+                        placeholder={t("appraise.detailsPlaceholder")}
                         className="min-h-[60px] text-xs"
                         value={additionalInfo}
                         onChange={(e) => setAdditionalInfo(e.target.value)}
@@ -510,15 +512,15 @@ export function AntiqueAppraisal({
                     <Loader2 className="h-8 w-8 animate-spin text-primary absolute top-3 left-3" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium mb-2">Analyzing your antique...</h3>
+                <h3 className="text-lg font-medium mb-2">{t("appraise.analyzingTitle")}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Our AI is examining your images and details to provide an accurate assessment.
+                  {t("appraise.analyzingDescription")}
                 </p>
                 <div className="max-w-md mx-auto space-y-1">
                   <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-primary/60 rounded-full animate-pulse w-3/4"></div>
                   </div>
-                  <p className="text-xs text-gray-400">This typically takes 30-60 seconds depending on complexity</p>
+                  <p className="text-xs text-gray-400">{t("appraise.analyzingTime")}</p>
                 </div>
               </div>
             ) : analysisResult ? (
@@ -531,25 +533,25 @@ export function AntiqueAppraisal({
                 )}
               
                 <h2 className="text-2xl font-bold mb-4 text-center text-primary">
-                  {typeof analysisResult === 'string' && analysisResult.includes('Error:')
-                    ? "Error"
+                  {typeof analysisResult === 'object' && analysisResult?.error
+                    ? t("appraise.analysisError")
                     : activeServiceType === "basic" || selectedService === "basic"
-                      ? "Antique Valuation Report"
+                      ? t("appraise.reportTitleBasic")
                       : activeServiceType === "initial" || selectedService === "initial"
-                        ? "Initial Appraisal"
-                        : "AI Appraisal Report"}
+                        ? t("appraise.reportTitleInitial")
+                        : t("appraise.reportTitleFull")}
                 </h2>
                 
                 {/* Display analyzed images */}
                 {typeof analysisResult !== 'string' && analysisResult.images && analysisResult.images.length > 0 && (
                   <div className="mb-4">
-                    <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">Analyzed Images</h2>
+                    <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">{t("appraise.analyzedImages")}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {analysisResult.images.map((imageUrl, index) => (
                         <div key={index} className="overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white p-1">
                           <img 
                             src={imageUrl} 
-                            alt={`Analyzed image ${index + 1}`} 
+                            alt={t("appraise.analyzedImageAlt", { index: index + 1 })} 
                             className="w-full h-40 object-contain"
                           />
                         </div>
@@ -573,7 +575,7 @@ export function AntiqueAppraisal({
                   dangerouslySetInnerHTML={{ __html: 
                     typeof analysisResult === 'string' 
                       ? analysisResult 
-                      : analysisResult.content || "Analysis completed successfully."
+                      : analysisResult.content || t("appraise.analysisComplete")
                   }}
                 >
                 </div>
@@ -588,12 +590,12 @@ export function AntiqueAppraisal({
                     {isGeneratingPdf ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Generating PDF...
+                        {t("appraise.generatingPdf")}
                       </>
                     ) : (
                       <>
                         <Download className="h-4 w-4" />
-                        Download PDF Report
+                        {t("appraise.downloadPdf")}
                       </>
                     )}
                   </Button>
@@ -602,13 +604,13 @@ export function AntiqueAppraisal({
             ) : (
               <div className="py-8 text-center">
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-medium mb-2">Analysis Results</h3>
+                  <h3 className="text-lg font-medium mb-2">{t("appraise.analysisResults")}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Your analysis results will appear here after you submit images for appraisal.
+                    {t("appraise.analysisResultsHint")}
                   </p>
                   <div className="border-2 border-dashed border-slate-200 rounded-lg p-6">
-                    <p className="text-slate-400">No analysis data yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Upload images and click "Start Appraisal" to begin</p>
+                    <p className="text-slate-400">{t("appraise.noAnalysis")}</p>
+                    <p className="text-xs text-slate-400 mt-1">{t("appraise.noAnalysisHint")}</p>
                   </div>
                 </div>
               </div>
@@ -626,10 +628,10 @@ export function AntiqueAppraisal({
               {isUploading || isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  {t("appraise.processing")}
                 </>
               ) : (
-                "Start Appraisal"
+                t("appraise.startAppraisal")
               )}
             </Button>
           )}

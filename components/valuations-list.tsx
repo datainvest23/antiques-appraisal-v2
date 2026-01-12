@@ -1,9 +1,13 @@
+"use client"
+
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { enUS, es, de, fr } from "date-fns/locale"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Award, ChevronRight } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
 interface Valuation {
   id: string
@@ -18,15 +22,18 @@ interface ValuationsListProps {
 }
 
 export default function ValuationsList({ valuations }: ValuationsListProps) {
+  const { language, t } = useLanguage()
+  const localeMap = { en: enUS, es, de, fr }
+
   if (valuations.length === 0) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-2">No Valuations Yet</h2>
+        <h2 className="text-2xl font-bold mb-2">{t("myValuations.noneTitle")}</h2>
         <p className="text-muted-foreground mb-6">
-          Upload images of your antiques to get started with your first valuation.
+          {t("myValuations.noneDescription")}
         </p>
         <Link href="/appraise">
-          <Button>Create Your First Valuation</Button>
+          <Button>{t("myValuations.createFirst")}</Button>
         </Link>
       </div>
     )
@@ -35,9 +42,9 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">My Valuations</h2>
+        <h2 className="text-2xl font-bold">{t("myValuations.title")}</h2>
         <Link href="/appraise">
-          <Button>New Valuation</Button>
+          <Button>{t("myValuations.new")}</Button>
         </Link>
       </div>
 
@@ -51,12 +58,12 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
                   {valuation.is_detailed && (
                     <Badge variant="secondary" className="flex items-center">
                       <Award className="h-3 w-3 mr-1" />
-                      Detailed
+                      {t("myValuations.detailed")}
                     </Badge>
                   )}
                 </div>
                 <CardDescription>
-                  {formatDistanceToNow(new Date(valuation.created_at), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(valuation.created_at), { addSuffix: true, locale: localeMap[language] })}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -64,7 +71,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
               </CardContent>
               <CardFooter className="pt-2">
                 <Button variant="ghost" size="sm" className="ml-auto">
-                  View Details
+                  {t("myValuations.viewDetails")}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </CardFooter>
@@ -75,4 +82,3 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
     </div>
   )
 }
-

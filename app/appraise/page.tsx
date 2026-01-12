@@ -5,6 +5,7 @@ import { AntiqueAppraisal } from "@/components/antique-appraisal"
 import { LoadingOverlay } from "@/components/loading-overlay"
 import { useToast } from "@/components/ui/use-toast"
 import { AuthCheck } from "@/components/auth-check"
+import { useLanguage } from "@/contexts/language-context"
 
 // Define the service types
 type ServiceType = "basic" | "initial" | "full"
@@ -14,6 +15,7 @@ export default function AppraisePage() {
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [serviceType, setServiceType] = useState<ServiceType>("basic")
   const { toast } = useToast()
+  const { t } = useLanguage()
 
   const handleSubmit = async (images: File[], selectedService: ServiceType, additionalInfo: string = "") => {
     // This function is only used for basic and initial appraisals
@@ -63,14 +65,14 @@ export default function AppraisePage() {
           imageUrls.push(data.url)
           
           toast({
-            title: "Image uploaded",
-            description: `Uploaded ${imageUrls.length} of ${images.length} images`,
+            title: t("appraise.uploaded"),
+            description: t("appraise.uploadProgress", { current: imageUrls.length, total: images.length }),
           })
         } catch (uploadError) {
           console.error('Error uploading individual image:', uploadError)
           toast({
-            title: "Upload error",
-            description: uploadError instanceof Error ? uploadError.message : 'Unknown upload error',
+            title: t("appraise.uploadError"),
+            description: uploadError instanceof Error ? uploadError.message : t("appraise.unknownUploadError"),
             variant: "destructive"
           })
           throw uploadError
@@ -115,8 +117,8 @@ export default function AppraisePage() {
       } catch (analysisError) {
         console.error('Error analyzing images:', analysisError)
         toast({
-          title: "Analysis error",
-          description: analysisError instanceof Error ? analysisError.message : 'Unknown analysis error',
+          title: t("appraise.analysisErrorTitle"),
+          description: analysisError instanceof Error ? analysisError.message : t("appraise.unknownAnalysisError"),
           variant: "destructive"
         })
         throw analysisError
@@ -125,7 +127,7 @@ export default function AppraisePage() {
       console.error("Error in appraisal process:", error);
       
       // Try to extract more detailed error information
-      let errorDetails = "Unknown error";
+      let errorDetails = t("appraise.unknownError");
       if (error instanceof Error) {
         errorDetails = error.message;
         console.log("Error message:", error.message);
@@ -135,11 +137,9 @@ export default function AppraisePage() {
       setAnalysisResult({ 
         error: true, 
         content: `<div class="space-y-4">
-                    <p class="text-red-500 font-bold">Error: ${errorDetails}</p>
-                    <p>Please try again or contact support if the issue persists.</p>
-                    <p class="text-xs text-gray-500">Technical details: The API endpoint for the selected service 
-                    (${selectedService}) returned an error. This may be due to issues with image processing 
-                    or server availability.</p>
+                    <p class="text-red-500 font-bold">${t("appraise.errorTitle")}: ${errorDetails}</p>
+                    <p>${t("appraise.errorTryAgain")}</p>
+                    <p class="text-xs text-gray-500">${t("appraise.errorDetails", { service: selectedService })}</p>
                   </div>` 
       });
     } finally {
@@ -152,31 +152,31 @@ export default function AppraisePage() {
     switch (serviceType) {
       case "basic":
         return [
-          "Analyzing your antique...",
-          "Identifying key features...",
-          "Determining category and era...",
-          "Finalizing basic categorization...",
+          t("appraise.loading.basic.1"),
+          t("appraise.loading.basic.2"),
+          t("appraise.loading.basic.3"),
+          t("appraise.loading.basic.4"),
         ]
       case "initial":
         return [
-          "Analyzing your antique...",
-          "Examining details and markings...",
-          "Researching similar items...",
-          "Estimating approximate value...",
-          "Preparing initial evaluation...",
+          t("appraise.loading.initial.1"),
+          t("appraise.loading.initial.2"),
+          t("appraise.loading.initial.3"),
+          t("appraise.loading.initial.4"),
+          t("appraise.loading.initial.5"),
         ]
       case "full":
         return [
-          "Analyzing your antique in detail...",
-          "Examining craftsmanship and materials...",
-          "Researching historical context...",
-          "Comparing with auction records...",
-          "Assessing condition and rarity...",
-          "Determining market value...",
-          "Generating comprehensive report...",
+          t("appraise.loading.full.1"),
+          t("appraise.loading.full.2"),
+          t("appraise.loading.full.3"),
+          t("appraise.loading.full.4"),
+          t("appraise.loading.full.5"),
+          t("appraise.loading.full.6"),
+          t("appraise.loading.full.7"),
         ]
       default:
-        return ["Analyzing your antique..."]
+        return [t("appraise.loading.basic.1")]
     }
   }
 
