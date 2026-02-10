@@ -1,0 +1,403 @@
+{
+  "HeroSection": {
+    "badge": "Estimation d'Antiquités par IA",
+    "title_part1": "Découvrez la",
+    "title_highlight": "Valeur",
+    "title_part2": "de vos Antiquités",
+    "description": "Téléchargez des images de vos objets anciens et recevez des estimations alimentées par l'IA avec un contexte historique et une valeur estimée.",
+    "getStarted": "Commencer",
+    "learnMore": "En savoir plus",
+    "freeValuation": "Une estimation gratuite par jour • Pas de carte de crédit requise",
+    "playVideo": "Lire la vidéo",
+    "mute": "Muet",
+    "unmute": "Activer le son"
+  },
+  "Navbar": {
+    "appraise": "Estimer une Antiquité",
+    "myValuations": "Mes Estimations",
+    "buyTokens": "Acheter des Jetons",
+    "resources": "Ressources",
+    "features": "Fonctionnalités",
+    "howItWorks": "Comment ça marche",
+    "login": "Connexion",
+    "referEarn": "Parrainer et Gagner",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "admin": "Administrateur"
+  },
+  "Footer": {
+    "copyright": "© 2025 Antiques Appraisal. Tous droits réservés.",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "contact": "Contact"
+  },
+  "FeaturesSection": {
+    "badge": "Fonctionnalités",
+    "title": "Tout ce dont vous avez besoin pour l'estimation d'antiquités",
+    "description": "Notre plateforme combine la technologie de l'IA avec les commentaires des utilisateurs pour fournir des évaluations précises et détaillées de vos objets anciens.",
+    "features": {
+      "ImageUpload": {
+        "title": "Téléchargement d'images",
+        "description": "Téléchargez des images de haute qualité de vos antiquités pour une analyse par IA et une estimation complète."
+      },
+      "AIAnalysis": {
+        "title": "Analyse par IA",
+        "description": "Recevez une analyse détaillée comprenant la description de l'objet, le contexte historique et l'évaluation de l'état."
+      },
+      "VoiceFeedback": {
+        "title": "Commentaires vocaux",
+        "description": "Affinez l'analyse en fournissant des commentaires vocaux qui sont transcrits et traités automatiquement."
+      },
+      "DailyFreeValuation": {
+        "title": "Estimation quotidienne gratuite",
+        "description": "Profitez d'une estimation complète gratuite chaque jour, avec des options pour en acheter plus si nécessaire."
+      },
+      "TokenSystem": {
+        "title": "Système de jetons",
+        "description": "Obtenez 5 jetons gratuits lors de l'inscription et achetez plus de jetons pour des estimations premium supplémentaires."
+      },
+      "DetailedValuations": {
+        "title": "Estimations détaillées",
+        "description": "Passez à des estimations détaillées pour une analyse améliorée et des informations historiques supplémentaires."
+      }
+    }
+  },
+  "HowItWorks": {
+    "badge": "Comment ça marche",
+    "title": "Processus simple, résultats précieux",
+    "description": "Notre flux de travail rationalisé facilite l'obtention d'estimations professionnelles pour vos objets anciens.",
+    "steps": {
+      "UploadImages": {
+        "title": "Télécharger des images",
+        "description": "Prenez des photos claires de votre objet ancien et téléchargez-les sur notre plateforme.",
+        "points": [
+          "Prend en charge plusieurs formats d'image",
+          "Plusieurs angles pour une meilleure analyse",
+          "Images haute résolution recommandées"
+        ]
+      },
+      "ReceiveAIAnalysis": {
+        "title": "Recevoir l'analyse par IA",
+        "description": "Notre assistant IA analyse vos images et fournit une estimation détaillée.",
+        "points": [
+          "Description de l'objet et historique",
+          "Évaluation de l'état",
+          "Résumé audio disponible"
+        ]
+      },
+      "CreateValuation": {
+        "title": "Créer une évaluation",
+        "description": "Fournissez des commentaires vocaux pour affiner l'analyse et créer votre évaluation finale.",
+        "points": [
+          "Une estimation gratuite par jour",
+          "Utilisez des jetons pour des estimations supplémentaires",
+          "Option pour des estimations premium détaillées"
+        ]
+      }
+    },
+    "ctaTitle": "Prêt à découvrir la valeur de votre antiquité ?",
+    "ctaDescription": "Commencez votre première estimation aujourd'hui et débloquez l'histoire et la valeur de vos objets uniques.",
+    "ctaButton": "Commencez votre estimation"
+  },
+  "FeaturedResources": {
+    "title": "Ressources en vedette",
+    "description": "Explorez nos guides d'experts et nos informations sur l'estimation et l'identification d'antiquités.",
+    "viewAll": "Voir toutes les ressources",
+    "readMore": "Lire la suite",
+    "resources": {
+        "unlocking-antique-values": {
+            "title": "Débloquer la valeur des antiquités : comment l'IA révolutionne les estimations",
+            "description": "Découvrez comment l'intelligence artificielle transforme le monde de l'estimation d'antiquités avec des informations basées sur des données tout en complétant le jugement expert humain."
+        },
+        "navigating-valuation-standards": {
+            "title": "Naviguer dans les normes internationales d'évaluation pour les collectionneurs",
+            "description": "Apprenez comment les normes internationales d'évaluation garantissent la cohérence et la transparence dans les estimations d'antiquités, et comment les collectionneurs peuvent naviguer efficacement dans ces directives."
+        },
+        "identifying-hidden-gems": {
+            "title": "Identifier les joyaux cachés : conseils d'experts pour repérer les antiquités précieuses",
+            "description": "Apprenez des techniques d'experts pour identifier des antiquités précieuses avec notre guide complet sur les indicateurs clés, les pièges courants et l'utilisation de la technologie pour une identification précise."
+        }
+    }
+  },
+  "Auth": {
+    "title": "Antiques Appraisal",
+    "subtitle": "Connectez-vous ou créez un compte pour commencer",
+    "tabs": {
+      "login": "Connexion",
+      "register": "S'inscrire"
+    },
+    "login": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "loadingButton": "Connexion en cours...",
+      "googleButton": "Continuer avec Google",
+      "googleLoading": "Connexion à Google...",
+      "divider": "ou"
+    },
+    "register": {
+      "firstNameLabel": "Prénom",
+      "firstNamePlaceholder": "Jean",
+      "lastNameLabel": "Nom",
+      "lastNamePlaceholder": "Dupont",
+      "emailLabel": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "passwordLabel": "Mot de passe",
+      "terms": "En vous inscrivant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.",
+      "newUsersBonus": "Les nouveaux utilisateurs reçoivent 5 jetons gratuits !",
+      "submitButton": "Créer un compte",
+      "loadingButton": "Création du compte...",
+      "googleButton": "Continuer avec Google",
+      "googleLoading": "Connexion à Google...",
+      "divider": "ou"
+    },
+    "errors": {
+      "unexpected": "Une erreur inattendue s'est produite",
+      "createAccountFailed": "Échec de la création du compte",
+      "googleSignInFailed": "Échec de la connexion avec Google"
+    },
+    "loading": "Chargement...",
+    "backToLogin": "Retour à la connexion",
+    "forgotPasswordTitle": "Mot de passe oublié",
+    "forgotPasswordDesc": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe",
+    "resetSent": "Les instructions de réinitialisation du mot de passe ont été envoyées à votre adresse email. Veuillez vérifier votre boîte de réception.",
+    "checkSpam": "Vous n'avez pas reçu d'email ? Vérifiez votre dossier spam ou",
+    "tryAgain": "essayez à nouveau",
+    "sendReset": "Envoyer les instructions",
+    "sendingReset": "Envoi des instructions..."
+  },
+  "Appraise": {
+    "title": "Estimation d'Antiquités",
+    "subtitle": "Téléchargez des photos de votre objet ancien pour une estimation par IA",
+    "tabs": {
+        "upload": "Télécharger",
+        "analysis": "Analyse"
+    },
+    "upload": {
+        "title": "Télécharger des Images d'Antiquités",
+        "description": "Prenez une photo ou téléchargez des images de votre antiquité",
+        "maxImages": "Ajoutez jusqu'à 3 images",
+        "takePicture": "Prendre Photo",
+        "browseFiles": "Parcourir Fichiers",
+        "uploadedImages": "Images Téléchargées",
+        "remove": "Supprimer",
+        "processing": "Traitement...",
+        "uploadAndAnalyze": "Télécharger et Analyser",
+        "startAppraisal": "Commencer l'Estimation",
+        "errorNoImage": "Veuillez sélectionner au moins une image à télécharger.",
+        "errorMaxImages": "Vous pouvez télécharger un maximum de 3 images"
+    },
+    "services": {
+        "title": "Type d'Estimation",
+        "subtitle": "Choisissez le type d'estimation que vous souhaitez",
+        "basic": {
+            "title": "Basique",
+            "description": "Identification rapide de la catégorie et de l'époque",
+            "price": "1 Jeton",
+            "features": ["Catégorisation", "Époque", "Matériaux"]
+        },
+        "initial": {
+            "title": "Initiale",
+            "description": "Analyse détaillée avec estimation de la valeur",
+            "price": "2 Jetons",
+            "features": ["Basique+", "Style", "État", "Fourchette de valeur"]
+        },
+        "full": {
+            "title": "Complète",
+            "description": "Estimation complète avec rapport détaillé",
+            "price": "3 Jetons",
+            "features": ["Initiale+", "Histoire", "Valeur détaillée", "Rapport PDF"]
+        }
+    },
+    "additionalInfo": {
+        "title": "Ajouter des Informations sur Votre Objet (Optionnel)",
+        "description": "Fournissez un contexte supplémentaire pour améliorer la précision",
+        "placeholder": "Ajoutez des détails sur l'âge, l'origine, l'histoire, les marques ou d'autres informations...",
+        "record": "Enregistrer Info",
+        "recording": "Enregistrement..."
+    },
+    "analysis": {
+        "analyzing": "Analyse de votre antiquité...",
+        "analyzingDesc": "Notre IA examine vos images et les détails pour fournir une évaluation précise.",
+        "timeEstimate": "Cela prend généralement 30-60 secondes selon la complexité",
+        "error": "Erreur",
+        "success": "Analyse terminée avec succès.",
+        "downloadPdf": "Télécharger le Rapport PDF",
+        "generatingPdf": "Génération du PDF...",
+        "noResultsTitle": "Résultats de l'Analyse",
+        "noResultsDesc": "Les résultats de votre analyse apparaîtront ici après avoir soumis les images pour l'estimation.",
+        "noData": "Pas encore de données d'analyse",
+        "noDataDesc": "Téléchargez des images et cliquez sur \"Commencer l'Estimation\" pour débuter"
+    },
+    "report": {
+        "basicTitle": "Rapport d'Estimation d'Antiquités",
+        "initialTitle": "Estimation Initiale",
+        "fullTitle": "Rapport d'Estimation IA",
+        "date": "Date",
+        "analyzedImages": "Images Analysées",
+        "page": "Page"
+    },
+    "loadingOverlay": {
+        "analyzing": "Analyse de votre antiquité...",
+        "identifying": "Identification des caractéristiques clés...",
+        "determining": "Détermination de la catégorie et de l'époque...",
+        "finalizing": "Finalisation de la catégorisation de base...",
+        "examining": "Examen des détails et des marques...",
+        "researching": "Recherche d'objets similaires...",
+        "estimating": "Estimation de la valeur approximative...",
+        "preparing": "Préparation de l'évaluation initiale...",
+        "analyzingDetail": "Analyse détaillée de votre antiquité...",
+        "craftsmanship": "Examen de l'artisanat et des matériaux...",
+        "historicalContext": "Recherche du contexte historique...",
+        "auctionRecords": "Comparaison avec les archives de ventes aux enchères...",
+        "condition": "Évaluation de l'état et de la rareté...",
+        "marketValue": "Détermination de la valeur marchande...",
+        "generatingReport": "Génération du rapport complet..."
+    }
+  },
+  "BuyTokens": {
+    "title": "Acheter des Jetons",
+    "description": "Achetez des jetons pour créer des estimations supplémentaires",
+    "errorFetch": "Échec de la récupération du solde de jetons",
+    "plans": {
+      "small": {
+        "title": "5 Jetons",
+        "description": "Parfait pour une utilisation occasionnelle",
+        "price": "$5"
+      },
+      "large": {
+        "title": "10 Jetons",
+        "description": "Meilleure valeur - Économisez 10 %",
+        "price": "$9"
+      }
+    },
+    "usage": {
+      "title": "Utilisation des Jetons",
+      "point1": "• 1 jeton = 1 estimation standard",
+      "point2": "• Les estimations détaillées coûtent 3 $ chacune",
+      "point3": "• N'oubliez pas : Vous bénéficiez d'une estimation gratuite par jour"
+    },
+    "buttons": {
+      "process": "Traitement...",
+      "proceed": "Passer au paiement",
+      "cancel": "Annuler"
+    },
+    "successMessage": "{count} jetons achetés avec succès !"
+  },
+  "MyValuations": {
+    "title": "Mes Estimations",
+    "newValuation": "Nouvelle Estimation",
+    "noValuations": {
+      "title": "Pas Encore d'Estimations",
+      "description": "Téléchargez des images de vos antiquités pour commencer votre première estimation.",
+      "button": "Créer Votre Première Estimation"
+    },
+    "card": {
+      "detailed": "Détaillé",
+      "viewDetails": "Voir Détails"
+    },
+    "userStatus": {
+      "freeValuations": "Estimations Gratuites Aujourd'hui :",
+      "tokenBalance": "Solde de Jetons :",
+      "buyTokens": "Acheter des Jetons",
+      "tooltip": "Vous bénéficiez d'une estimation gratuite par jour. Les estimations supplémentaires nécessitent des jetons."
+    },
+    "referral": {
+      "title": "Parrainer un Ami",
+      "description": "Partagez votre lien de parrainage et gagnez des estimations premium",
+      "button": "Commencer le Parrainage"
+    }
+  },
+  "Resources": {
+    "pageTitle": "Ressources d'Estimation d'Antiquités : Guides d'Experts & Informations sur la Valorisation",
+    "pageSubtitle": "Guides d'experts, informations sur le marché et contenu éducatif pour vous aider à comprendre, identifier et évaluer vos trésors anciens."
+  },
+  "ValuationDetails": {
+    "loading": "Chargement des détails de l'estimation...",
+    "notFound": {
+      "title": "Estimation non trouvée",
+      "description": "Cette estimation n'existe pas ou vous n'avez pas la permission de la voir."
+    },
+    "error": {
+      "title": "Erreur",
+      "description": "Impossible de charger cette estimation. Veuillez réessayer."
+    },
+    "backButton": "Retour à Mes Estimations",
+    "appraisedOn": "Estimé le",
+    "detailedAnalysis": "Analyse Détaillée",
+    "valuationSummary": "Résumé de l'Estimation",
+    "estimatedValue": "Valeur Estimée",
+    "valuationType": "Type d'Estimation",
+    "detailed": "Analyse Détaillée",
+    "standard": "Analyse Standard",
+    "audioSummary": "Résumé Audio",
+    "requestRefinement": "Demander un Affinement par un Expert",
+    "printReport": "Imprimer le Rapport",
+    "summary": "Résumé",
+    "analysisReport": "Rapport d'Analyse",
+    "itemGallery": "Galerie d'Articles",
+    "keyDetails": "Détails Clés",
+    "category": "Catégorie",
+    "material": "Matériau",
+    "condition": "État",
+    "valueFactors": "Facteurs de Valeur",
+    "notSpecified": "Non spécifié"
+  },
+  "Referrals": {
+    "title": "Parrainez des Amis & Gagnez des Estimations Premium",
+    "description": "Partagez votre lien de parrainage unique et gagnez des récompenses lorsque des amis s'inscrivent.",
+    "subDescription": "Vous recevrez un crédit d'estimation premium pour chaque ami qui s'inscrit et complète sa première estimation.",
+    "yourRewards": {
+      "title": "Vos Récompenses",
+      "point1": "1 estimation premium pour chaque ami qui s'inscrit",
+      "point2": "Aucune limite sur le nombre d'amis que vous pouvez parrainer",
+      "point3": "Les estimations premium incluent des détails améliorés et une recherche de provenance"
+    },
+    "link": {
+      "label": "Votre Lien de Parrainage",
+      "share": "Partager le Lien de Parrainage",
+      "joinTitle": "Rejoignez Antiques Appraisal",
+      "joinText": "Obtenez des estimations d'experts pour vos objets anciens ! Utilisez mon code de parrainage pour une estimation gratuite."
+    },
+    "yourReferrals": {
+      "title": "Vos Parrainages",
+      "description": "Suivez le statut de vos parrainages et récompenses",
+      "table": {
+        "name": "Nom",
+        "date": "Date",
+        "status": "Statut",
+        "reward": "Récompense",
+        "completed": "Terminé",
+        "signedUp": "Inscrit",
+        "pending": "En attente",
+        "premiumValuation": "Estimation Premium"
+      },
+      "empty": "Pas encore de parrainages. Partagez votre lien pour commencer !",
+      "footer": "Les estimations premium seront automatiquement ajoutées à votre compte une fois que votre ami parrainé aura terminé sa première estimation."
+    }
+  },
+  "ResetPassword": {
+    "title": "Réinitialiser Votre Mot de Passe",
+    "description": "Entrez un nouveau mot de passe pour votre compte",
+    "successMessage": "Votre mot de passe a été réinitialisé avec succès. Vous serez redirigé vers la page de connexion sous peu.",
+    "goToLogin": "Aller à la page de connexion",
+    "notInResetMode": "Cette page n'est accessible qu'à partir d'un lien de réinitialisation de mot de passe envoyé par email. Veuillez vérifier votre email ou demander une nouvelle réinitialisation.",
+    "newPassword": "Nouveau Mot de Passe",
+    "confirmNewPassword": "Confirmer le Nouveau Mot de Passe",
+    "resetButton": "Réinitialiser le Mot de Passe",
+    "updating": "Mise à jour du mot de passe...",
+    "errors": {
+      "mismatch": "Les mots de passe ne correspondent pas",
+      "length": "Le mot de passe doit contenir au moins 6 caractères"
+    }
+  },
+  "VerificationSent": {
+    "title": "Email de Vérification Envoyé",
+    "description": "Nous vous avons envoyé un email avec un lien pour vérifier votre compte.",
+    "instructions": "Veuillez vérifier votre boîte de réception et cliquer sur le lien de vérification pour terminer votre inscription.",
+    "spamCheck": "Si vous ne le voyez pas, veuillez vérifier votre dossier spam.",
+    "returnToLogin": "Retour à la Connexion"
+  }
+}

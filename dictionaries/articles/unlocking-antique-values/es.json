@@ -1,0 +1,25 @@
+{
+  "title": "Desbloqueando Valores de Antigüedades: Cómo la IA está Revolucionando las Tasaciones",
+  "description": "Descubra cómo la inteligencia artificial está transformando la industria de la tasación de antigüedades. Conozca los beneficios de la valoración impulsada por IA, desde el análisis instantáneo hasta la integración de datos de mercado, y cómo complementa la experiencia tradicional.",
+  "readTime": "Lectura de 5 min",
+  "backToResources": "Volver a Recursos",
+  "share": "Compartir",
+  "content": [
+    { "type": "p", "text": "El mundo de las antigüedades ha dependido tradicionalmente del ojo subjetivo de los expertos. Si bien la experiencia humana sigue siendo invaluable, la Inteligencia Artificial (IA) está marcando el comienzo de una nueva era de accesibilidad y precisión. Este artículo explora cómo la IA está revolucionando el proceso de tasación y lo que significa para los coleccionistas." },
+    { "type": "h2", "text": "El Desafío de la Tasación Tradicional" },
+    { "type": "p", "text": "Históricamente, obtener una tasación significaba encontrar un experto local, transportar su artículo (o pagar una visita a domicilio) y esperar un informe. Este proceso podía ser lento, costoso y limitado por el conocimiento específico del tasador individual." },
+    { "type": "h2", "text": "Cómo Funcionan las Tasaciones con IA" },
+    { "type": "p", "text": "Las plataformas impulsadas por IA como AntiquesApp.pro utilizan sofisticados algoritmos de visión por computadora y aprendizaje automático para analizar imágenes de su artículo. Al comparar características visuales con una vasta base de datos de antigüedades conocidas, el sistema puede identificar fabricantes, períodos y estilos con una velocidad notable." },
+    { "type": "h2", "text": "Beneficios de la IA en la Valoración" },
+    { "type": "ul", "items": [
+      "<strong>Velocidad:</strong> se generan informes detallados en segundos, no en días.",
+      "<strong>Accesibilidad:</strong> el análisis de nivel experto está disponible para cualquier persona con un teléfono inteligente.",
+      "<strong>Basado en Datos:</strong> las valoraciones se basan en datos de ventas recientes y tendencias del mercado, lo que reduce la subjetividad.",
+      "<strong>Rentable:</strong> significativamente más barato que las tasaciones tradicionales en persona."
+    ]},
+    { "type": "h2", "text": "La Asociación Humano-IA" },
+    { "type": "p", "text": "La IA no está reemplazando a los tasadores humanos; los está empoderando. La IA maneja el trabajo pesado del análisis de datos y la identificación inicial, lo que permite a los expertos humanos concentrarse en verificar matices como la condición, la procedencia y la autenticidad que requieren un contacto físico." },
+    { "type": "quote", "text": "Abrace el futuro del coleccionismo combinando la velocidad de la IA con la sabiduría de la experiencia tradicional." }
+  ],
+  "tryAppraisal": "Pruebe Nuestra Tasación con IA"
+}

@@ -3,39 +3,39 @@ import Image from "next/image"
 import { Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-// Define featured resources - now featuring all 3 resources
-const featuredResources = [
-  {
-    id: "unlocking-antique-values",
-    title: "Unlocking Antique Values: How AI Revolutionizes Appraisals",
-    description: "Discover how artificial intelligence is transforming the world of antique valuation with data-driven insights while complementing expert human judgment.",
-    image: "/1-Unlocking-Antique-Values.png",
-    readTime: "6 min read"
-  },
-  {
-    id: "navigating-valuation-standards",
-    title: "Navigating International Valuation Standards for Antique Collectors",
-    description: "Learn how international valuation standards ensure consistency and transparency in antique appraisals, and how collectors can effectively navigate these guidelines.",
-    image: "/2-Navigating-Valuation-Standards.png",
-    readTime: "5 min read"
-  },
-  {
-    id: "identifying-hidden-gems",
-    title: "Identifying Hidden Gems: Expert Tips for Spotting Valuable Antiques",
-    description: "Learn expert techniques for identifying valuable antiques with our comprehensive guide on key indicators, common pitfalls, and leveraging technology for accurate identification.",
-    image: "/3-Identifying-Hidden-Gems.png",
-    readTime: "7 min read"
-  }
-]
+export default function FeaturedResources({ dictionary }: { dictionary: any }) {
+  // Define featured resources - now featuring all 3 resources
+  const featuredResources = [
+    {
+      id: "unlocking-antique-values",
+      title: dictionary.resources["unlocking-antique-values"].title,
+      description: dictionary.resources["unlocking-antique-values"].description,
+      image: "/1-Unlocking-Antique-Values.png",
+      readTime: "6 min read"
+    },
+    {
+      id: "navigating-valuation-standards",
+      title: dictionary.resources["navigating-valuation-standards"].title,
+      description: dictionary.resources["navigating-valuation-standards"].description,
+      image: "/2-Navigating-Valuation-Standards.png",
+      readTime: "5 min read"
+    },
+    {
+      id: "identifying-hidden-gems",
+      title: dictionary.resources["identifying-hidden-gems"].title,
+      description: dictionary.resources["identifying-hidden-gems"].description,
+      image: "/3-Identifying-Hidden-Gems.png",
+      readTime: "7 min read"
+    }
+  ]
 
-export default function FeaturedResources() {
   return (
     <section className="w-full py-16 bg-muted/30">
       <div className="container mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight mb-4">Featured Resources</h2>
+          <h2 className="text-3xl font-bold tracking-tight mb-4">{dictionary.title}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Explore our expert guides and insights on antique valuation and identification.
+            {dictionary.description}
           </p>
         </div>
         
@@ -72,7 +72,7 @@ export default function FeaturedResources() {
                   className="w-full block"
                   passHref
                 >
-                  <Button variant="default" className="w-full">Read More</Button>
+                  <Button variant="default" className="w-full">{dictionary.readMore}</Button>
                 </Link>
               </div>
             </div>
@@ -81,7 +81,7 @@ export default function FeaturedResources() {
         
         <div className="text-center mt-10">
           <Link href="/resources" passHref>
-            <Button variant="outline" size="lg">View All Resources</Button>
+            <Button variant="outline" size="lg">{dictionary.viewAll}</Button>
           </Link>
         </div>
       </div>

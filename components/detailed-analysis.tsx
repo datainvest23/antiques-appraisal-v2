@@ -1,15 +1,16 @@
 import React from "react";
 import type { AntiqueAnalysisResult } from "@/lib/openai";
 import { Button } from "@/components/ui/button";
-import { Printer, Download } from "lucide-react";
+import { Printer } from "lucide-react";
 import Image from "next/image";
 
 interface DetailedAnalysisProps {
   analysis: AntiqueAnalysisResult | null;
   imageUrls?: string[];
+  dictionary?: any;
 }
 
-export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedAnalysisProps) {
+export default function DetailedAnalysis({ analysis, imageUrls = [], dictionary }: DetailedAnalysisProps) {
   // Safety check - if analysis is null/undefined, return a placeholder
   if (!analysis) {
     return (
@@ -18,6 +19,20 @@ export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedA
       </div>
     );
   }
+
+  // Use dictionary for fallback if provided, otherwise default English strings
+  const strings = dictionary || {
+    printReport: "Print Report",
+    summary: "Summary",
+    analysisReport: "Analysis Report",
+    itemGallery: "Item Gallery",
+    keyDetails: "Key Details",
+    category: "Category",
+    material: "Material",
+    condition: "Condition",
+    valueFactors: "Value Factors",
+    notSpecified: "Not specified"
+  };
 
   // Function to handle printing
   const handlePrint = () => {
@@ -43,7 +58,7 @@ export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedA
             variant="outline"
           >
             <Printer size={16} />
-            <span>Print Report</span>
+            <span>{strings.printReport}</span>
           </Button>
         </div>
       </div>
@@ -60,7 +75,7 @@ export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedA
             {/* Summary section */}
             <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
               <div className="p-4 border-b border-slate-200">
-                <h2 className="font-medium text-slate-900">Summary</h2>
+                <h2 className="font-medium text-slate-900">{strings.summary}</h2>
               </div>
               <div className="p-6">
                 <p className="text-slate-700">{analysis.summary}</p>
@@ -70,7 +85,7 @@ export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedA
             {/* Full report section */}
             <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
               <div className="p-4 border-b border-slate-200">
-                <h2 className="font-medium text-slate-900">Analysis Report</h2>
+                <h2 className="font-medium text-slate-900">{strings.analysisReport}</h2>
               </div>
               <div className="p-6 prose prose-slate">
                 <div dangerouslySetInnerHTML={{ __html: typeof analysis.fullReport === 'string' 
@@ -86,7 +101,7 @@ export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedA
             {imageUrls && imageUrls.length > 0 && (
               <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                 <div className="p-4 border-b border-slate-200">
-                  <h2 className="font-medium text-slate-900">Item Gallery</h2>
+                  <h2 className="font-medium text-slate-900">{strings.itemGallery}</h2>
               </div>
               <div className="grid grid-cols-2 gap-2 p-4">
                 {imageUrls.slice(0, 4).map((url, index) => (
@@ -106,27 +121,27 @@ export default function DetailedAnalysis({ analysis, imageUrls = [] }: DetailedA
           {/* Key details card */}
           <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
             <div className="p-4 border-b border-slate-200">
-              <h2 className="font-medium text-slate-900">Key Details</h2>
+              <h2 className="font-medium text-slate-900">{strings.keyDetails}</h2>
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Category</h3>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">{strings.category}</h3>
                   <p className="mt-1 text-slate-900">{analysis.preliminaryCategory || "Antique Item"}</p>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Material</h3>
-                <p className="mt-1 text-slate-900">{analysis.physicalAttributes?.materials || "Not specified"}</p>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">{strings.material}</h3>
+                <p className="mt-1 text-slate-900">{analysis.physicalAttributes?.materials || strings.notSpecified}</p>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Condition</h3>
-                <p className="mt-1 text-slate-900">{analysis.physicalAttributes?.condition || "Not specified"}</p>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">{strings.condition}</h3>
+                <p className="mt-1 text-slate-900">{analysis.physicalAttributes?.condition || strings.notSpecified}</p>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Value Factors</h3>
-                <p className="mt-1 text-slate-900">{analysis.valueIndicators?.factors || "Not specified"}</p>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">{strings.valueFactors}</h3>
+                <p className="mt-1 text-slate-900">{analysis.valueIndicators?.factors || strings.notSpecified}</p>
               </div>
             </div>
           </div>

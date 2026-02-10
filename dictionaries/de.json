@@ -1,0 +1,403 @@
+{
+  "HeroSection": {
+    "badge": "KI-gestützte Antiquitätenbewertung",
+    "title_part1": "Entdecken Sie den",
+    "title_highlight": "Wert",
+    "title_part2": "Ihrer Antiquitäten",
+    "description": "Laden Sie Bilder Ihrer antiken Gegenstände hoch und erhalten Sie KI-gestützte Schätzungen mit historischem Kontext und geschätztem Wert.",
+    "getStarted": "Loslegen",
+    "learnMore": "Mehr erfahren",
+    "freeValuation": "Eine kostenlose Bewertung täglich • Keine Kreditkarte erforderlich",
+    "playVideo": "Video abspielen",
+    "mute": "Stumm",
+    "unmute": "Ton an"
+  },
+  "Navbar": {
+    "appraise": "Antiquität schätzen",
+    "myValuations": "Meine Schätzungen",
+    "buyTokens": "Tokens kaufen",
+    "resources": "Ressourcen",
+    "features": "Funktionen",
+    "howItWorks": "Wie es funktioniert",
+    "login": "Anmelden",
+    "referEarn": "Empfehlen & Verdienen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "admin": "Administrator"
+  },
+  "Footer": {
+    "copyright": "© 2025 Antiques Appraisal. Alle Rechte vorbehalten.",
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "contact": "Kontakt"
+  },
+  "FeaturesSection": {
+    "badge": "Funktionen",
+    "title": "Alles, was Sie für Antiquitätenschätzungen benötigen",
+    "description": "Unsere Plattform kombiniert KI-Technologie mit Benutzerfeedback, um genaue und detaillierte Bewertungen für Ihre antiken Gegenstände bereitzustellen.",
+    "features": {
+      "ImageUpload": {
+        "title": "Bilder-Upload",
+        "description": "Laden Sie hochwertige Bilder Ihrer Antiquitäten für die KI-Analyse und umfassende Schätzung hoch."
+      },
+      "AIAnalysis": {
+        "title": "KI-Analyse",
+        "description": "Erhalten Sie eine detaillierte Analyse einschließlich Artikelbeschreibung, historischem Kontext und Zustandsbewertung."
+      },
+      "VoiceFeedback": {
+        "title": "Sprach-Feedback",
+        "description": "Verfeinern Sie die Analyse, indem Sie Sprach-Feedback geben, das automatisch transkribiert und verarbeitet wird."
+      },
+      "DailyFreeValuation": {
+        "title": "Tägliche kostenlose Bewertung",
+        "description": "Genießen Sie jeden Tag eine kostenlose umfassende Bewertung, mit Optionen, bei Bedarf mehr zu kaufen."
+      },
+      "TokenSystem": {
+        "title": "Token-System",
+        "description": "Erhalten Sie 5 kostenlose Tokens bei der Anmeldung und kaufen Sie mehr Tokens für zusätzliche Premium-Bewertungen."
+      },
+      "DetailedValuations": {
+        "title": "Detaillierte Bewertungen",
+        "description": "Upgraden Sie auf detaillierte Bewertungen für eine verbesserte Analyse und zusätzliche historische Informationen."
+      }
+    }
+  },
+  "HowItWorks": {
+    "badge": "Wie es funktioniert",
+    "title": "Einfacher Prozess, wertvolle Ergebnisse",
+    "description": "Unser optimierter Workflow macht es einfach, professionelle Schätzungen für Ihre antiken Gegenstände zu erhalten.",
+    "steps": {
+      "UploadImages": {
+        "title": "Bilder hochladen",
+        "description": "Machen Sie klare Fotos Ihres antiken Gegenstands und laden Sie sie auf unsere Plattform hoch.",
+        "points": [
+          "Unterstützt mehrere Bildformate",
+          "Mehrere Winkel für eine bessere Analyse",
+          "Hochauflösende Bilder empfohlen"
+        ]
+      },
+      "ReceiveAIAnalysis": {
+        "title": "KI-Analyse erhalten",
+        "description": "Unser KI-Assistent analysiert Ihre Bilder und liefert eine detaillierte Schätzung.",
+        "points": [
+          "Artikelbeschreibung und Geschichte",
+          "Zustandsbewertung",
+          "Audio-Zusammenfassung verfügbar"
+        ]
+      },
+      "CreateValuation": {
+        "title": "Bewertung erstellen",
+        "description": "Geben Sie Sprach-Feedback, um die Analyse zu verfeinern und Ihre endgültige Bewertung zu erstellen.",
+        "points": [
+          "Eine kostenlose Bewertung täglich",
+          "Tokens für zusätzliche Bewertungen verwenden",
+          "Option für detaillierte Premium-Bewertungen"
+        ]
+      }
+    },
+    "ctaTitle": "Bereit, den Wert Ihrer Antiquität zu entdecken?",
+    "ctaDescription": "Starten Sie Ihre erste Schätzung noch heute und erschließen Sie die Geschichte und den Wert Ihrer einzigartigen Gegenstände.",
+    "ctaButton": "Starten Sie Ihre Schätzung"
+  },
+  "FeaturedResources": {
+    "title": "Vorgestellte Ressourcen",
+    "description": "Entdecken Sie unsere Expertenleitfäden und Einblicke in die Bewertung und Identifizierung von Antiquitäten.",
+    "viewAll": "Alle Ressourcen anzeigen",
+    "readMore": "Mehr lesen",
+    "resources": {
+        "unlocking-antique-values": {
+            "title": "Werte von Antiquitäten erschließen: Wie KI Schätzungen revolutioniert",
+            "description": "Entdecken Sie, wie künstliche Intelligenz die Welt der Antiquitätenbewertung mit datengestützten Erkenntnissen verändert und gleichzeitig das menschliche Expertenurteil ergänzt."
+        },
+        "navigating-valuation-standards": {
+            "title": "Navigation durch internationale Bewertungsstandards für Antiquitätensammler",
+            "description": "Erfahren Sie, wie internationale Bewertungsstandards Konsistenz und Transparenz bei Antiquitätenschätzungen gewährleisten und wie Sammler diese Richtlinien effektiv nutzen können."
+        },
+        "identifying-hidden-gems": {
+            "title": "Verborgene Schätze identifizieren: Expertentipps zum Erkennen wertvoller Antiquitäten",
+            "description": "Lernen Sie Expertentechniken zur Identifizierung wertvoller Antiquitäten mit unserem umfassenden Leitfaden zu Schlüsselindikatoren, häufigen Fallstricken und der Nutzung von Technologie für eine genaue Identifizierung."
+        }
+    }
+  },
+  "Auth": {
+    "title": "Antiques Appraisal",
+    "subtitle": "Melden Sie sich an oder erstellen Sie ein Konto, um zu beginnen",
+    "tabs": {
+      "login": "Anmelden",
+      "register": "Registrieren"
+    },
+    "login": {
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "ihre@email.com",
+      "passwordLabel": "Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "submitButton": "Anmelden",
+      "loadingButton": "Anmelden...",
+      "googleButton": "Weiter mit Google",
+      "googleLoading": "Verbindung zu Google wird hergestellt...",
+      "divider": "oder"
+    },
+    "register": {
+      "firstNameLabel": "Vorname",
+      "firstNamePlaceholder": "Max",
+      "lastNameLabel": "Nachname",
+      "lastNamePlaceholder": "Mustermann",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "ihre@email.com",
+      "passwordLabel": "Passwort",
+      "terms": "Durch Ihre Registrierung stimmen Sie unseren Nutzungsbedingungen und Datenschutzrichtlinien zu.",
+      "newUsersBonus": "Neue Benutzer erhalten 5 kostenlose Tokens!",
+      "submitButton": "Konto erstellen",
+      "loadingButton": "Konto wird erstellt...",
+      "googleButton": "Weiter mit Google",
+      "googleLoading": "Verbindung zu Google wird hergestellt...",
+      "divider": "oder"
+    },
+    "errors": {
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten",
+      "createAccountFailed": "Kontoerstellung fehlgeschlagen",
+      "googleSignInFailed": "Anmeldung mit Google fehlgeschlagen"
+    },
+    "loading": "Laden...",
+    "backToLogin": "Zurück zur Anmeldung",
+    "forgotPasswordTitle": "Passwort vergessen",
+    "forgotPasswordDesc": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts",
+    "resetSent": "Anweisungen zum Zurücksetzen des Passworts wurden an Ihre E-Mail-Adresse gesendet. Bitte überprüfen Sie Ihren Posteingang.",
+    "checkSpam": "Keine E-Mail erhalten? Überprüfen Sie Ihren Spam-Ordner oder",
+    "tryAgain": "versuchen Sie es erneut",
+    "sendReset": "Anweisungen senden",
+    "sendingReset": "Sende Anweisungen..."
+  },
+  "Appraise": {
+    "title": "Antiquitätenbewertung",
+    "subtitle": "Laden Sie Fotos Ihres antiken Gegenstands für eine KI-gestützte Bewertung hoch",
+    "tabs": {
+        "upload": "Hochladen",
+        "analysis": "Analyse"
+    },
+    "upload": {
+        "title": "Bilder von Antiquitäten hochladen",
+        "description": "Machen Sie ein Foto oder laden Sie Bilder Ihrer Antiquität hoch",
+        "maxImages": "Fügen Sie bis zu 3 Bilder hinzu",
+        "takePicture": "Foto machen",
+        "browseFiles": "Dateien durchsuchen",
+        "uploadedImages": "Hochgeladene Bilder",
+        "remove": "Entfernen",
+        "processing": "Wird verarbeitet...",
+        "uploadAndAnalyze": "Hochladen und Analysieren",
+        "startAppraisal": "Bewertung starten",
+        "errorNoImage": "Bitte wählen Sie mindestens ein Bild zum Hochladen aus.",
+        "errorMaxImages": "Sie können maximal 3 Bilder hochladen"
+    },
+    "services": {
+        "title": "Bewertungsart",
+        "subtitle": "Wählen Sie die Art der Bewertung, die Sie möchten",
+        "basic": {
+            "title": "Basis",
+            "description": "Schnelle Identifizierung von Kategorie und Ära",
+            "price": "1 Token",
+            "features": ["Kategorisierung", "Ära", "Materialien"]
+        },
+        "initial": {
+            "title": "Initial",
+            "description": "Detaillierte Analyse mit Wertschätzung",
+            "price": "2 Tokens",
+            "features": ["Basis+", "Stil", "Zustand", "Wertbereich"]
+        },
+        "full": {
+            "title": "Vollständig",
+            "description": "Umfassende Bewertung mit detailliertem Bericht",
+            "price": "3 Tokens",
+            "features": ["Initial+", "Geschichte", "Detaillierter Wert", "PDF-Bericht"]
+        }
+    },
+    "additionalInfo": {
+        "title": "Informationen zu Ihrem Artikel hinzufügen (Optional)",
+        "description": "Geben Sie zusätzlichen Kontext an, um die Genauigkeit zu verbessern",
+        "placeholder": "Fügen Sie Details zu Alter, Herkunft, Geschichte, Markierungen oder anderen Informationen hinzu...",
+        "record": "Info aufnehmen",
+        "recording": "Aufnahme..."
+    },
+    "analysis": {
+        "analyzing": "Analysiere Ihre Antiquität...",
+        "analyzingDesc": "Unsere KI prüft Ihre Bilder und Details, um eine genaue Bewertung zu erstellen.",
+        "timeEstimate": "Dies dauert in der Regel 30-60 Sekunden, je nach Komplexität",
+        "error": "Fehler",
+        "success": "Analyse erfolgreich abgeschlossen.",
+        "downloadPdf": "PDF-Bericht herunterladen",
+        "generatingPdf": "Erstelle PDF...",
+        "noResultsTitle": "Analyseergebnisse",
+        "noResultsDesc": "Ihre Analyseergebnisse erscheinen hier, nachdem Sie Bilder zur Bewertung eingereicht haben.",
+        "noData": "Noch keine Analysedaten",
+        "noDataDesc": "Laden Sie Bilder hoch und klicken Sie auf \"Bewertung starten\", um zu beginnen"
+    },
+    "report": {
+        "basicTitle": "Antiquitätenbewertungsbericht",
+        "initialTitle": "Initiale Bewertung",
+        "fullTitle": "KI-Bewertungsbericht",
+        "date": "Datum",
+        "analyzedImages": "Analysierte Bilder",
+        "page": "Seite"
+    },
+    "loadingOverlay": {
+        "analyzing": "Analysiere Ihre Antiquität...",
+        "identifying": "Identifiziere Hauptmerkmale...",
+        "determining": "Bestimme Kategorie und Ära...",
+        "finalizing": "Schließe Basiskategorisierung ab...",
+        "examining": "Untersuche Details und Markierungen...",
+        "researching": "Recherchiere ähnliche Artikel...",
+        "estimating": "Schätze ungefähren Wert...",
+        "preparing": "Bereite initiale Bewertung vor...",
+        "analyzingDetail": "Analysiere Ihre Antiquität im Detail...",
+        "craftsmanship": "Untersuche Handwerkskunst und Materialien...",
+        "historicalContext": "Recherchiere historischen Kontext...",
+        "auctionRecords": "Vergleiche mit Auktionsaufzeichnungen...",
+        "condition": "Bewerte Zustand und Seltenheit...",
+        "marketValue": "Bestimme Marktwert...",
+        "generatingReport": "Erstelle umfassenden Bericht..."
+    }
+  },
+  "BuyTokens": {
+    "title": "Tokens Kaufen",
+    "description": "Kaufen Sie Tokens, um zusätzliche Bewertungen zu erstellen",
+    "errorFetch": "Token-Guthaben konnte nicht abgerufen werden",
+    "plans": {
+      "small": {
+        "title": "5 Tokens",
+        "description": "Perfekt für gelegentliche Nutzung",
+        "price": "$5"
+      },
+      "large": {
+        "title": "10 Tokens",
+        "description": "Bester Wert - Sparen Sie 10%",
+        "price": "$9"
+      }
+    },
+    "usage": {
+      "title": "Token-Nutzung",
+      "point1": "• 1 Token = 1 Standardbewertung",
+      "point2": "• Detaillierte Bewertungen kosten jeweils $3",
+      "point3": "• Denken Sie daran: Sie erhalten täglich 1 kostenlose Bewertung"
+    },
+    "buttons": {
+      "process": "Wird verarbeitet...",
+      "proceed": "Zur Kasse gehen",
+      "cancel": "Abbrechen"
+    },
+    "successMessage": "Erfolgreich {count} Tokens gekauft!"
+  },
+  "MyValuations": {
+    "title": "Meine Schätzungen",
+    "newValuation": "Neue Schätzung",
+    "noValuations": {
+      "title": "Noch Keine Schätzungen",
+      "description": "Laden Sie Bilder Ihrer Antiquitäten hoch, um mit Ihrer ersten Schätzung zu beginnen.",
+      "button": "Erste Schätzung erstellen"
+    },
+    "card": {
+      "detailed": "Detailliert",
+      "viewDetails": "Details ansehen"
+    },
+    "userStatus": {
+      "freeValuations": "Kostenlose Schätzungen heute:",
+      "tokenBalance": "Token-Guthaben:",
+      "buyTokens": "Tokens kaufen",
+      "tooltip": "Sie erhalten eine kostenlose Schätzung pro Tag. Zusätzliche Schätzungen erfordern Tokens."
+    },
+    "referral": {
+      "title": "Freund empfehlen",
+      "description": "Teilen Sie Ihren Empfehlungslink und verdienen Sie Premium-Schätzungen",
+      "button": "Empfehlen starten"
+    }
+  },
+  "Resources": {
+    "pageTitle": "Ressourcen zur Antiquitätenbewertung: Expertenleitfäden & Bewertungseinblicke",
+    "pageSubtitle": "Expertenleitfäden, Markteinblicke und Bildungsinhalte, die Ihnen helfen, Ihre antiken Schätze zu verstehen, zu identifizieren und zu bewerten."
+  },
+  "ValuationDetails": {
+    "loading": "Lade Bewertungsdetails...",
+    "notFound": {
+      "title": "Bewertung nicht gefunden",
+      "description": "Diese Bewertung existiert nicht oder Sie haben keine Berechtigung, sie anzusehen."
+    },
+    "error": {
+      "title": "Fehler",
+      "description": "Diese Bewertung konnte nicht geladen werden. Bitte versuchen Sie es erneut."
+    },
+    "backButton": "Zurück zu Meine Bewertungen",
+    "appraisedOn": "Bewertet am",
+    "detailedAnalysis": "Detaillierte Analyse",
+    "valuationSummary": "Bewertungszusammenfassung",
+    "estimatedValue": "Geschätzter Wert",
+    "valuationType": "Bewertungsart",
+    "detailed": "Detaillierte Analyse",
+    "standard": "Standardanalyse",
+    "audioSummary": "Audio-Zusammenfassung",
+    "requestRefinement": "Expertenverfeinerung anfordern",
+    "printReport": "Bericht drucken",
+    "summary": "Zusammenfassung",
+    "analysisReport": "Analysebericht",
+    "itemGallery": "Artikelgalerie",
+    "keyDetails": "Wichtige Details",
+    "category": "Kategorie",
+    "material": "Material",
+    "condition": "Zustand",
+    "valueFactors": "Wertfaktoren",
+    "notSpecified": "Nicht angegeben"
+  },
+  "Referrals": {
+    "title": "Freunde werben & Premium-Bewertungen verdienen",
+    "description": "Teilen Sie Ihren einzigartigen Empfehlungslink und verdienen Sie Belohnungen, wenn Freunde beitreten.",
+    "subDescription": "Sie erhalten ein Guthaben für eine Premium-Bewertung für jeden Freund, der sich anmeldet und seine erste Bewertung abschließt.",
+    "yourRewards": {
+      "title": "Ihre Belohnungen",
+      "point1": "1 Premium-Bewertung für jeden Freund, der sich anmeldet",
+      "point2": "Keine Begrenzung, wie viele Freunde Sie werben können",
+      "point3": "Premium-Bewertungen beinhalten verbesserte Details und Provenienzforschung"
+    },
+    "link": {
+      "label": "Ihr Empfehlungslink",
+      "share": "Empfehlungslink teilen",
+      "joinTitle": "Treten Sie Antiques Appraisal bei",
+      "joinText": "Erhalten Sie Expertenbewertungen für Ihre antiken Gegenstände! Verwenden Sie meinen Empfehlungscode für eine kostenlose Bewertung."
+    },
+    "yourReferrals": {
+      "title": "Ihre Empfehlungen",
+      "description": "Verfolgen Sie den Status Ihrer Empfehlungen und Belohnungen",
+      "table": {
+        "name": "Name",
+        "date": "Datum",
+        "status": "Status",
+        "reward": "Belohnung",
+        "completed": "Abgeschlossen",
+        "signedUp": "Angemeldet",
+        "pending": "Ausstehend",
+        "premiumValuation": "Premium-Bewertung"
+      },
+      "empty": "Noch keine Empfehlungen. Teilen Sie Ihren Link, um zu beginnen!",
+      "footer": "Premium-Bewertungen werden Ihrem Konto automatisch gutgeschrieben, sobald Ihr geworbener Freund seine erste Bewertung abschließt."
+    }
+  },
+  "ResetPassword": {
+    "title": "Passwort zurücksetzen",
+    "description": "Geben Sie ein neues Passwort für Ihr Konto ein",
+    "successMessage": "Ihr Passwort wurde erfolgreich zurückgesetzt. Sie werden in Kürze zur Anmeldeseite weitergeleitet.",
+    "goToLogin": "Zur Anmeldeseite",
+    "notInResetMode": "Diese Seite ist nur über einen Link zum Zurücksetzen des Passworts per E-Mail zugänglich. Bitte überprüfen Sie Ihre E-Mails oder fordern Sie ein neues Passwort an.",
+    "newPassword": "Neues Passwort",
+    "confirmNewPassword": "Neues Passwort bestätigen",
+    "resetButton": "Passwort zurücksetzen",
+    "updating": "Passwort wird aktualisiert...",
+    "errors": {
+      "mismatch": "Passwörter stimmen nicht überein",
+      "length": "Das Passwort muss mindestens 6 Zeichen lang sein"
+    }
+  },
+  "VerificationSent": {
+    "title": "Bestätigungs-E-Mail gesendet",
+    "description": "Wir haben Ihnen eine E-Mail mit einem Link zur Bestätigung Ihres Kontos gesendet.",
+    "instructions": "Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink, um Ihre Registrierung abzuschließen.",
+    "spamCheck": "Wenn Sie sie nicht sehen, überprüfen Sie bitte Ihren Spam-Ordner.",
+    "returnToLogin": "Zurück zur Anmeldung"
+  }
+}

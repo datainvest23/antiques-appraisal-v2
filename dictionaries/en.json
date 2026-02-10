@@ -1,0 +1,403 @@
+{
+  "HeroSection": {
+    "badge": "AI-Powered Antique Valuation",
+    "title_part1": "Discover the",
+    "title_highlight": "Value",
+    "title_part2": "of Your Antiques",
+    "description": "Upload images of your antique items and receive AI-powered appraisals with historical context and estimated value.",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "freeValuation": "One free valuation daily • No credit card required",
+    "playVideo": "Play Video",
+    "mute": "Mute",
+    "unmute": "Unmute"
+  },
+  "Navbar": {
+    "appraise": "Appraise an Antique",
+    "myValuations": "My Valuations",
+    "buyTokens": "Buy Tokens",
+    "resources": "Resources",
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "login": "Login",
+    "referEarn": "Refer & Earn",
+    "profile": "Profile",
+    "logout": "Log out",
+    "admin": "Administrator"
+  },
+  "Footer": {
+    "copyright": "© 2025 Antiques Appraisal. All rights reserved.",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "contact": "Contact"
+  },
+  "FeaturesSection": {
+    "badge": "Features",
+    "title": "Everything You Need for Antique Appraisals",
+    "description": "Our platform combines AI technology with user feedback to provide accurate and detailed valuations for your antique items.",
+    "features": {
+      "ImageUpload": {
+        "title": "Image Upload",
+        "description": "Upload high-quality images of your antiques for AI analysis and comprehensive appraisal."
+      },
+      "AIAnalysis": {
+        "title": "AI Analysis",
+        "description": "Receive detailed analysis including item description, historical context, and condition assessment."
+      },
+      "VoiceFeedback": {
+        "title": "Voice Feedback",
+        "description": "Refine the analysis by providing voice feedback that's transcribed and processed automatically."
+      },
+      "DailyFreeValuation": {
+        "title": "Daily Free Valuation",
+        "description": "Enjoy one free comprehensive valuation every day, with options to purchase more as needed."
+      },
+      "TokenSystem": {
+        "title": "Token System",
+        "description": "Get 5 free tokens upon sign-up and purchase more tokens for additional premium valuations."
+      },
+      "DetailedValuations": {
+        "title": "Detailed Valuations",
+        "description": "Upgrade to detailed valuations for enhanced analysis and additional historical information."
+      }
+    }
+  },
+  "HowItWorks": {
+    "badge": "How It Works",
+    "title": "Simple Process, Valuable Results",
+    "description": "Our streamlined workflow makes it easy to get professional appraisals for your antique items.",
+    "steps": {
+      "UploadImages": {
+        "title": "Upload Images",
+        "description": "Take clear photos of your antique item and upload them to our platform.",
+        "points": [
+          "Supports multiple image formats",
+          "Multiple angles for better analysis",
+          "High-resolution images recommended"
+        ]
+      },
+      "ReceiveAIAnalysis": {
+        "title": "Receive AI Analysis",
+        "description": "Our AI assistant analyzes your images and provides a detailed appraisal.",
+        "points": [
+          "Item description and history",
+          "Condition assessment",
+          "Audio summary available"
+        ]
+      },
+      "CreateValuation": {
+        "title": "Create Valuation",
+        "description": "Provide voice feedback to refine the analysis and create your final valuation.",
+        "points": [
+          "One free valuation daily",
+          "Use tokens for additional valuations",
+          "Option for detailed premium valuations"
+        ]
+      }
+    },
+    "ctaTitle": "Ready to discover your antique's value?",
+    "ctaDescription": "Start your first appraisal today and unlock the history and value of your unique items.",
+    "ctaButton": "Start Your Appraisal"
+  },
+  "FeaturedResources": {
+    "title": "Featured Resources",
+    "description": "Explore our expert guides and insights on antique valuation and identification.",
+    "viewAll": "View All Resources",
+    "readMore": "Read More",
+    "resources": {
+        "unlocking-antique-values": {
+            "title": "Unlocking Antique Values: How AI Revolutionizes Appraisals",
+            "description": "Discover how artificial intelligence is transforming the world of antique valuation with data-driven insights while complementing expert human judgment."
+        },
+        "navigating-valuation-standards": {
+            "title": "Navigating International Valuation Standards for Antique Collectors",
+            "description": "Learn how international valuation standards ensure consistency and transparency in antique appraisals, and how collectors can effectively navigate these guidelines."
+        },
+        "identifying-hidden-gems": {
+            "title": "Identifying Hidden Gems: Expert Tips for Spotting Valuable Antiques",
+            "description": "Learn expert techniques for identifying valuable antiques with our comprehensive guide on key indicators, common pitfalls, and leveraging technology for accurate identification."
+        }
+    }
+  },
+  "Auth": {
+    "title": "Antiques Appraisal",
+    "subtitle": "Sign in or create an account to get started",
+    "tabs": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "login": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Sign In",
+      "loadingButton": "Signing in...",
+      "googleButton": "Continue with Google",
+      "googleLoading": "Connecting to Google...",
+      "divider": "or"
+    },
+    "register": {
+      "firstNameLabel": "First Name",
+      "firstNamePlaceholder": "John",
+      "lastNameLabel": "Last Name",
+      "lastNamePlaceholder": "Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "terms": "By registering, you agree to our Terms of Service and Privacy Policy.",
+      "newUsersBonus": "New users receive 5 free tokens!",
+      "submitButton": "Create Account",
+      "loadingButton": "Creating account...",
+      "googleButton": "Continue with Google",
+      "googleLoading": "Connecting to Google...",
+      "divider": "or"
+    },
+    "errors": {
+      "unexpected": "An unexpected error occurred",
+      "createAccountFailed": "Failed to create account",
+      "googleSignInFailed": "Failed to sign in with Google"
+    },
+    "loading": "Loading...",
+    "backToLogin": "Back to login",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDesc": "Enter your email address and we'll send you a link to reset your password",
+    "resetSent": "Password reset instructions have been sent to your email address. Please check your inbox.",
+    "checkSpam": "Didn't receive an email? Check your spam folder or",
+    "tryAgain": "try again",
+    "sendReset": "Send Reset Instructions",
+    "sendingReset": "Sending reset instructions..."
+  },
+  "Appraise": {
+    "title": "Antique Appraisal",
+    "subtitle": "Upload photos of your antique item for an AI-powered appraisal",
+    "tabs": {
+        "upload": "Upload",
+        "analysis": "Analysis"
+    },
+    "upload": {
+        "title": "Upload Antique Images",
+        "description": "Take a photo or upload images of your antique",
+        "maxImages": "Add up to 3 images",
+        "takePicture": "Take Picture",
+        "browseFiles": "Browse Files",
+        "uploadedImages": "Uploaded Images",
+        "remove": "Remove",
+        "processing": "Processing...",
+        "uploadAndAnalyze": "Upload and Analyze",
+        "startAppraisal": "Start Appraisal",
+        "errorNoImage": "Please select at least one image to upload.",
+        "errorMaxImages": "You can upload a maximum of 3 images"
+    },
+    "services": {
+        "title": "Appraisal Type",
+        "subtitle": "Choose the type of appraisal you would like",
+        "basic": {
+            "title": "Basic",
+            "description": "Quick identification of category and era",
+            "price": "1 Token",
+            "features": ["Categorization", "Era", "Materials"]
+        },
+        "initial": {
+            "title": "Initial",
+            "description": "Detailed analysis with value estimation",
+            "price": "2 Tokens",
+            "features": ["Basic+", "Style", "Condition", "Value range"]
+        },
+        "full": {
+            "title": "Full",
+            "description": "Comprehensive appraisal with detailed report",
+            "price": "3 Tokens",
+            "features": ["Initial+", "History", "Detailed value", "PDF report"]
+        }
+    },
+    "additionalInfo": {
+        "title": "Add Information About Your Item (Optional)",
+        "description": "Provide additional context to improve accuracy",
+        "placeholder": "Add details about age, origin, history, markings, or other information...",
+        "record": "Record Info",
+        "recording": "Recording..."
+    },
+    "analysis": {
+        "analyzing": "Analyzing your antique...",
+        "analyzingDesc": "Our AI is examining your images and details to provide an accurate assessment.",
+        "timeEstimate": "This typically takes 30-60 seconds depending on complexity",
+        "error": "Error",
+        "success": "Analysis completed successfully.",
+        "downloadPdf": "Download PDF Report",
+        "generatingPdf": "Generating PDF...",
+        "noResultsTitle": "Analysis Results",
+        "noResultsDesc": "Your analysis results will appear here after you submit images for appraisal.",
+        "noData": "No analysis data yet",
+        "noDataDesc": "Upload images and click \"Start Appraisal\" to begin"
+    },
+    "report": {
+        "basicTitle": "Antique Valuation Report",
+        "initialTitle": "Initial Appraisal",
+        "fullTitle": "AI Appraisal Report",
+        "date": "Date",
+        "analyzedImages": "Analyzed Images",
+        "page": "Page"
+    },
+    "loadingOverlay": {
+        "analyzing": "Analyzing your antique...",
+        "identifying": "Identifying key features...",
+        "determining": "Determining category and era...",
+        "finalizing": "Finalizing basic categorization...",
+        "examining": "Examining details and markings...",
+        "researching": "Researching similar items...",
+        "estimating": "Estimating approximate value...",
+        "preparing": "Preparing initial evaluation...",
+        "analyzingDetail": "Analyzing your antique in detail...",
+        "craftsmanship": "Examining craftsmanship and materials...",
+        "historicalContext": "Researching historical context...",
+        "auctionRecords": "Comparing with auction records...",
+        "condition": "Assessing condition and rarity...",
+        "marketValue": "Determining market value...",
+        "generatingReport": "Generating comprehensive report..."
+    }
+  },
+  "BuyTokens": {
+    "title": "Buy Tokens",
+    "description": "Purchase tokens to create additional valuations",
+    "errorFetch": "Failed to fetch token balance",
+    "plans": {
+      "small": {
+        "title": "5 Tokens",
+        "description": "Perfect for occasional use",
+        "price": "$5"
+      },
+      "large": {
+        "title": "10 Tokens",
+        "description": "Best value - Save 10%",
+        "price": "$9"
+      }
+    },
+    "usage": {
+      "title": "Token Usage",
+      "point1": "• 1 token = 1 standard valuation",
+      "point2": "• Detailed valuations cost $3 each",
+      "point3": "• Remember: You get 1 free valuation daily"
+    },
+    "buttons": {
+      "process": "Processing...",
+      "proceed": "Proceed to Payment",
+      "cancel": "Cancel"
+    },
+    "successMessage": "Successfully purchased {count} tokens!"
+  },
+  "MyValuations": {
+    "title": "My Valuations",
+    "newValuation": "New Valuation",
+    "noValuations": {
+      "title": "No Valuations Yet",
+      "description": "Upload images of your antiques to get started with your first valuation.",
+      "button": "Create Your First Valuation"
+    },
+    "card": {
+      "detailed": "Detailed",
+      "viewDetails": "View Details"
+    },
+    "userStatus": {
+      "freeValuations": "Free Valuations Today:",
+      "tokenBalance": "Token Balance:",
+      "buyTokens": "Buy Tokens",
+      "tooltip": "You get one free valuation per day. Additional valuations require tokens."
+    },
+    "referral": {
+      "title": "Refer a Friend",
+      "description": "Share your referral link and earn premium valuations",
+      "button": "Start Referring"
+    }
+  },
+  "Resources": {
+    "pageTitle": "Antique Appraisal Resources: Expert Guides & Valuation Insights",
+    "pageSubtitle": "Expert guides, market insights, and educational content to help you understand, identify, and value your antique treasures."
+  },
+  "ValuationDetails": {
+    "loading": "Loading valuation details...",
+    "notFound": {
+      "title": "Valuation not found",
+      "description": "This valuation doesn't exist or you don't have permission to view it."
+    },
+    "error": {
+      "title": "Error",
+      "description": "Failed to load this valuation. Please try again."
+    },
+    "backButton": "Back to My Valuations",
+    "appraisedOn": "Appraised on",
+    "detailedAnalysis": "Detailed Analysis",
+    "valuationSummary": "Valuation Summary",
+    "estimatedValue": "Estimated Value",
+    "valuationType": "Valuation Type",
+    "detailed": "Detailed Analysis",
+    "standard": "Standard Analysis",
+    "audioSummary": "Audio Summary",
+    "requestRefinement": "Request Expert Refinement",
+    "printReport": "Print Report",
+    "summary": "Summary",
+    "analysisReport": "Analysis Report",
+    "itemGallery": "Item Gallery",
+    "keyDetails": "Key Details",
+    "category": "Category",
+    "material": "Material",
+    "condition": "Condition",
+    "valueFactors": "Value Factors",
+    "notSpecified": "Not specified"
+  },
+  "Referrals": {
+    "title": "Refer Friends & Earn Premium Valuations",
+    "description": "Share your unique referral link and earn rewards when friends join.",
+    "subDescription": "You'll receive a premium valuation credit for each friend who signs up and completes their first valuation.",
+    "yourRewards": {
+      "title": "Your Rewards",
+      "point1": "1 premium valuation for each friend who signs up",
+      "point2": "No limit on how many friends you can refer",
+      "point3": "Premium valuations include enhanced detail and provenance research"
+    },
+    "link": {
+      "label": "Your Referral Link",
+      "share": "Share Referral Link",
+      "joinTitle": "Join Antiques Appraisal",
+      "joinText": "Get expert valuations for your antique items! Use my referral code for a free valuation."
+    },
+    "yourReferrals": {
+      "title": "Your Referrals",
+      "description": "Track the status of your referrals and rewards",
+      "table": {
+        "name": "Name",
+        "date": "Date",
+        "status": "Status",
+        "reward": "Reward",
+        "completed": "Completed",
+        "signedUp": "Signed Up",
+        "pending": "Pending",
+        "premiumValuation": "Premium Valuation"
+      },
+      "empty": "No referrals yet. Share your link to get started!",
+      "footer": "Premium valuations will be automatically added to your account once your referred friend completes their first valuation."
+    }
+  },
+  "ResetPassword": {
+    "title": "Reset Your Password",
+    "description": "Enter a new password for your account",
+    "successMessage": "Your password has been successfully reset. You will be redirected to the login page shortly.",
+    "goToLogin": "Go to login page",
+    "notInResetMode": "This page is only accessible from a password reset email link. Please check your email or request a new password reset.",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "resetButton": "Reset Password",
+    "updating": "Updating password...",
+    "errors": {
+      "mismatch": "Passwords do not match",
+      "length": "Password must be at least 6 characters"
+    }
+  },
+  "VerificationSent": {
+    "title": "Verification Email Sent",
+    "description": "We've sent you an email with a link to verify your account.",
+    "instructions": "Please check your inbox and click on the verification link to complete your registration.",
+    "spamCheck": "If you don't see it, please check your spam folder.",
+    "returnToLogin": "Return to Login"
+  }
+}

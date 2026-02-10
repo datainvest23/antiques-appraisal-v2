@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useRef } from "react"
 
-export default function HeroSection() {
+export default function HeroSection({ dictionary }: { dictionary: any }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,24 +46,24 @@ export default function HeroSection() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                AI-Powered Antique Valuation
+                {dictionary.badge}
               </div>
               <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-6xl">
-                Discover the <span className="text-primary">Value</span> of Your Antiques
+                {dictionary.title_part1} <span className="text-primary">{dictionary.title_highlight}</span> {dictionary.title_part2}
               </h1>
               <p className="text-xl text-muted-foreground md:text-2xl/relaxed max-w-[90%]">
-                Upload images of your antique items and receive AI-powered appraisals with historical context and estimated value.
+                {dictionary.description}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Link href="/appraise">
                 <Button size="lg" className="px-8 rounded-full text-lg h-12 shadow-lg hover:shadow-xl transition-all">
-                  Get Started
+                  {dictionary.getStarted}
                 </Button>
               </Link>
               <Link href="#features">
                 <Button size="lg" variant="outline" className="px-8 rounded-full text-lg h-12 backdrop-blur-sm bg-background/50">
-                  Learn More
+                  {dictionary.learnMore}
                 </Button>
               </Link>
             </div>
@@ -71,7 +71,7 @@ export default function HeroSection() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-primary" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span>One free valuation daily • No credit card required</span>
+              <span>{dictionary.freeValuation}</span>
             </div>
           </div>
           <div className="flex items-center justify-center lg:justify-end relative">
@@ -99,7 +99,7 @@ export default function HeroSection() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
-                    Play Video
+                    {dictionary.playVideo}
                   </button>
                 </div>
               )}
@@ -109,7 +109,7 @@ export default function HeroSection() {
                 <button 
                   onClick={toggleMute}
                   className="absolute bottom-4 right-4 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all"
-                  aria-label={isMuted ? "Unmute" : "Mute"}
+                  aria-label={isMuted ? dictionary.unmute : dictionary.mute}
                 >
                   {isMuted ? (
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -132,4 +132,3 @@ export default function HeroSection() {
     </section>
   )
 }
-

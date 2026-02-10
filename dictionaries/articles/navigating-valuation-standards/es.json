@@ -1,0 +1,24 @@
+{
+  "title": "Navegando por los Estándares de Valoración: Una Guía para Coleccionistas",
+  "description": "Comprenda las complejidades de los estándares de valoración de antigüedades. Esta guía desglosa las pautas USPAP, la importancia de los tasadores acreditados y cómo garantizar que su colección se valore con precisión.",
+  "readTime": "Lectura de 6 min",
+  "backToResources": "Volver a Recursos",
+  "share": "Compartir",
+  "content": [
+    { "type": "p", "text": "Para los coleccionistas serios, comprender los estándares de valoración es crucial. Ya sea para seguros, reventa o planificación patrimonial, tener una tasación precisa y reconocida puede marcar la diferencia. Esta guía explora los estándares clave en la industria, incluido USPAP, y por qué son importantes para su colección." },
+    { "type": "h2", "text": "¿Qué es USPAP?" },
+    { "type": "p", "text": "Los Estándares Uniformes de Práctica Profesional de Tasación (USPAP) son el estándar ético y de desempeño generalmente aceptado para la profesión de tasación en los Estados Unidos. Adherirse a USPAP garantiza que las tasaciones sean independientes, consistentes y objetivas." },
+    { "type": "h2", "text": "Por qué Importan los Estándares" },
+    { "type": "ul", "items": [
+      "<strong>Consistencia:</strong> Los estándares proporcionan un lenguaje y una metodología comunes para los tasadores.",
+      "<strong>Confianza:</strong> Generan confianza pública en la profesión de tasación.",
+      "<strong>Validez Legal:</strong> A menudo se requieren tasaciones que cumplan con USPAP para fines legales y fiscales, como donaciones al IRS o liquidaciones de herencias."
+    ]},
+    { "type": "h2", "text": "Eligiendo al Tasador Adecuado" },
+    { "type": "p", "text": "Al buscar una tasación, busque profesionales acreditados por organizaciones reconocidas como la Asociación de Tasadores de América (AAA), la Sociedad Internacional de Tasadores (ISA) o la Sociedad Americana de Tasadores (ASA). Estos miembros están obligados a seguir las pautas de USPAP." },
+    { "type": "h2", "text": "El Papel de la Tecnología" },
+    { "type": "p", "text": "Si bien la experiencia humana es irremplazable para artículos de alto valor, la tecnología como AntiquesApp.pro proporciona un punto de partida estandarizado y basado en datos. Al analizar miles de registros de mercado, ofrece una línea de base objetiva que complementa la opinión profesional." },
+    { "type": "quote", "text": "Asegúrese de que el valor de su colección sea reconocido confiando en tasaciones estandarizadas y profesionales respaldadas por datos de mercado modernos." }
+  ],
+  "tryAppraisal": "Pruebe Nuestra Tasación con IA"
+}

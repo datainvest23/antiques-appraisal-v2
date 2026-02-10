@@ -1,6 +1,39 @@
 import { Camera, MessageSquare, VolumeX, Coins, Clock, Award } from "lucide-react"
 
-export default function FeaturesSection() {
+export default function FeaturesSection({ dictionary }: { dictionary: any }) {
+  const features = [
+    {
+      icon: Camera,
+      title: dictionary.features.ImageUpload.title,
+      description: dictionary.features.ImageUpload.description
+    },
+    {
+      icon: MessageSquare,
+      title: dictionary.features.AIAnalysis.title,
+      description: dictionary.features.AIAnalysis.description
+    },
+    {
+      icon: VolumeX,
+      title: dictionary.features.VoiceFeedback.title,
+      description: dictionary.features.VoiceFeedback.description
+    },
+    {
+      icon: Clock,
+      title: dictionary.features.DailyFreeValuation.title,
+      description: dictionary.features.DailyFreeValuation.description
+    },
+    {
+      icon: Coins,
+      title: dictionary.features.TokenSystem.title,
+      description: dictionary.features.TokenSystem.description
+    },
+    {
+      icon: Award,
+      title: dictionary.features.DetailedValuations.title,
+      description: dictionary.features.DetailedValuations.description
+    }
+  ];
+
   return (
     <section className="w-full py-16 md:py-24 lg:py-32 bg-background relative overflow-hidden" id="features">
       {/* Decorative elements */}
@@ -13,14 +46,13 @@ export default function FeaturesSection() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2 max-w-3xl">
             <div className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              Features
+              {dictionary.badge}
             </div>
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight lg:text-5xl">
-              Everything You Need for Antique Appraisals
+              {dictionary.title}
             </h2>
             <p className="mx-auto max-w-[800px] text-muted-foreground md:text-xl/relaxed mt-4">
-              Our platform combines AI technology with user feedback to provide accurate and detailed valuations for
-              your antique items.
+              {dictionary.description}
             </p>
           </div>
         </div>
@@ -47,37 +79,3 @@ export default function FeaturesSection() {
     </section>
   )
 }
-
-const features = [
-  {
-    icon: Camera,
-    title: "Image Upload",
-    description: "Upload high-quality images of your antiques for AI analysis and comprehensive appraisal."
-  },
-  {
-    icon: MessageSquare,
-    title: "AI Analysis",
-    description: "Receive detailed analysis including item description, historical context, and condition assessment."
-  },
-  {
-    icon: VolumeX,
-    title: "Voice Feedback",
-    description: "Refine the analysis by providing voice feedback that's transcribed and processed automatically."
-  },
-  {
-    icon: Clock,
-    title: "Daily Free Valuation",
-    description: "Enjoy one free comprehensive valuation every day, with options to purchase more as needed."
-  },
-  {
-    icon: Coins,
-    title: "Token System",
-    description: "Get 5 free tokens upon sign-up and purchase more tokens for additional premium valuations."
-  },
-  {
-    icon: Award,
-    title: "Detailed Valuations",
-    description: "Upgrade to detailed valuations for enhanced analysis and additional historical information."
-  }
-];
-

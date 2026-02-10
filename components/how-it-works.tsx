@@ -1,6 +1,24 @@
 import { Check } from "lucide-react"
 
-export default function HowItWorks() {
+export default function HowItWorks({ dictionary }: { dictionary: any }) {
+  const steps = [
+    {
+      title: dictionary.steps.UploadImages.title,
+      description: dictionary.steps.UploadImages.description,
+      points: dictionary.steps.UploadImages.points
+    },
+    {
+      title: dictionary.steps.ReceiveAIAnalysis.title,
+      description: dictionary.steps.ReceiveAIAnalysis.description,
+      points: dictionary.steps.ReceiveAIAnalysis.points
+    },
+    {
+      title: dictionary.steps.CreateValuation.title,
+      description: dictionary.steps.CreateValuation.description,
+      points: dictionary.steps.CreateValuation.points
+    }
+  ];
+
   return (
     <section className="w-full py-20 md:py-28 lg:py-32 bg-muted relative" id="how-it-works">
       {/* Decorative curved shape divider */}
@@ -14,13 +32,13 @@ export default function HowItWorks() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="space-y-3 max-w-3xl">
             <div className="inline-block rounded-full bg-primary/20 dark:bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              How It Works
+              {dictionary.badge}
             </div>
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight lg:text-5xl">
-              Simple Process, Valuable Results
+              {dictionary.title}
             </h2>
             <p className="mx-auto max-w-[800px] text-muted-foreground md:text-xl/relaxed mt-3">
-              Our streamlined workflow makes it easy to get professional appraisals for your antique items.
+              {dictionary.description}
             </p>
           </div>
         </div>
@@ -46,7 +64,7 @@ export default function HowItWorks() {
                   {step.description}
                 </p>
                 <ul className="space-y-3 mt-4 w-full">
-                  {step.points.map((point, i) => (
+                  {step.points.map((point: string, i: number) => (
                     <li key={i} className="flex items-start">
                       <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mr-3 mt-0.5">
                         <Check className="h-3.5 w-3.5 text-primary" />
@@ -64,13 +82,13 @@ export default function HowItWorks() {
         <div className="mt-20 bg-background rounded-2xl border border-border/60 p-8 shadow-lg max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
-              <h3 className="text-2xl font-bold">Ready to discover your antique's value?</h3>
+              <h3 className="text-2xl font-bold">{dictionary.ctaTitle}</h3>
               <p className="text-muted-foreground max-w-md">
-                Start your first appraisal today and unlock the history and value of your unique items.
+                {dictionary.ctaDescription}
               </p>
             </div>
             <a href="/appraise" className="inline-flex h-12 items-center justify-center rounded-full border bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1">
-              Start Your Appraisal
+              {dictionary.ctaButton}
             </a>
           </div>
         </div>
@@ -85,34 +103,3 @@ export default function HowItWorks() {
     </section>
   )
 }
-
-const steps = [
-  {
-    title: "Upload Images",
-    description: "Take clear photos of your antique item and upload them to our platform.",
-    points: [
-      "Supports multiple image formats",
-      "Multiple angles for better analysis",
-      "High-resolution images recommended"
-    ]
-  },
-  {
-    title: "Receive AI Analysis",
-    description: "Our AI assistant analyzes your images and provides a detailed appraisal.",
-    points: [
-      "Item description and history",
-      "Condition assessment",
-      "Audio summary available"
-    ]
-  },
-  {
-    title: "Create Valuation",
-    description: "Provide voice feedback to refine the analysis and create your final valuation.",
-    points: [
-      "One free valuation daily",
-      "Use tokens for additional valuations",
-      "Option for detailed premium valuations"
-    ]
-  }
-];
-

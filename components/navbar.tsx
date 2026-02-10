@@ -18,6 +18,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/types/supabase"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { LanguageSelector } from "./language-selector"
+import type { Locale } from "@/i18n-config"
 
 interface UserData {
   email: string
@@ -30,6 +32,8 @@ interface NavigationProps {
   isAdmin: boolean
   pathname?: string
   onClose?: () => void
+  dictionary: any
+  lang: string
 }
 
 interface UserMenuProps {
@@ -38,9 +42,11 @@ interface UserMenuProps {
   isAdmin: boolean
   signOut: () => void
   className?: string
+  dictionary: any
+  lang: string
 }
 
-function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuProps) {
+function UserMenu({ user, userFullName, isAdmin, signOut, className, dictionary, lang }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,16 +60,16 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
           <div className="flex flex-col space-y-1 leading-none">
             <p className="font-medium">{userFullName || user.email}</p>
             {!userFullName && <p className="text-xs text-muted-foreground">{user.email}</p>}
-            {isAdmin && <p className="text-xs text-muted-foreground">Administrator</p>}
+            {isAdmin && <p className="text-xs text-muted-foreground">{dictionary.admin}</p>}
           </div>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile">Profile</Link>
+          <Link href={`/${lang}/profile`}>{dictionary.profile}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/referrals" className="flex items-center">
-            <Award className="mr-2 h-4 w-4" /> Refer & Earn
+          <Link href={`/${lang}/referrals`} className="flex items-center">
+            <Award className="mr-2 h-4 w-4" /> {dictionary.referEarn}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -71,76 +77,76 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
           className="text-red-600 cursor-pointer" 
           onClick={() => signOut()}
         >
-          <LogOut className="mr-2 h-4 w-4" /> Log out
+          <LogOut className="mr-2 h-4 w-4" /> {dictionary.logout}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: NavigationProps & { signOut: () => void }) {
+function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut, dictionary, lang }: NavigationProps & { signOut: () => void }) {
   return (
     <nav className="hidden md:flex items-center gap-6">
       {user && (
         <>
           <Link
-            href="/appraise"
+            href={`/${lang}/appraise`}
             className="px-6 py-2 font-medium text-black bg-yellow-400 hover:bg-yellow-500 rounded-md shadow-md transition-all hover:shadow-lg transform hover:-translate-y-0.5"
           >
-            Appraise an Antique
+            {dictionary.appraise}
           </Link>
           <Link
-            href="/my-valuations"
+            href={`/${lang}/my-valuations`}
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
               "px-4"
             )}
           >
-            My Valuations
+            {dictionary.myValuations}
           </Link>
           <Link
-            href="/buy-tokens"
+            href={`/${lang}/buy-tokens`}
             className={`text-sm font-medium transition-colors hover:text-primary ${
-              pathname === "/buy-tokens" ? "text-primary" : "text-muted-foreground"
+              pathname === `/${lang}/buy-tokens` ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            Buy Tokens
+            {dictionary.buyTokens}
           </Link>
         </>
       )}
       <Link
-        href="/resources"
+        href={`/${lang}/resources`}
         className={`text-sm font-medium transition-colors hover:text-primary ${
-          pathname?.startsWith("/resources") ? "text-primary" : "text-muted-foreground"
+          pathname?.startsWith(`/${lang}/resources`) ? "text-primary" : "text-muted-foreground"
         }`}
       >
-        Resources
+        {dictionary.resources}
       </Link>
       <Link
-        href="/#features"
+        href={`/${lang}/#features`}
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Features
+        {dictionary.features}
       </Link>
       <Link
-        href="/#how-it-works"
+        href={`/${lang}/#how-it-works`}
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        How It Works
+        {dictionary.howItWorks}
       </Link>
       
       {user ? (
-        <UserMenu user={user} userFullName={userFullName} isAdmin={isAdmin} signOut={signOut} />
+        <UserMenu user={user} userFullName={userFullName} isAdmin={isAdmin} signOut={signOut} dictionary={dictionary} lang={lang} />
       ) : (
         <Button asChild size="sm">
-          <Link href="/login">Login</Link>
+          <Link href={`/${lang}/login`}>{dictionary.login}</Link>
         </Button>
       )}
     </nav>
   )
 }
 
-function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationProps) {
+function MobileNavigation({ user, userFullName, isAdmin, onClose, dictionary, lang }: NavigationProps) {
   return (
     <nav className="flex flex-col p-6 space-y-4">
       {user && (
@@ -151,28 +157,28 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
             className="w-full justify-center bg-yellow-400 hover:bg-yellow-500 text-black font-medium shadow-md hover:shadow-lg py-6"
             onClick={onClose}
           >
-            <Link href="/appraise">
-              Appraise an Antique
+            <Link href={`/${lang}/appraise`}>
+              {dictionary.appraise}
             </Link>
           </Button>
           <Button asChild variant="outline" className="w-full justify-center">
-            <Link href="/my-valuations" onClick={onClose}>
-              My Valuations
+            <Link href={`/${lang}/my-valuations`} onClick={onClose}>
+              {dictionary.myValuations}
             </Link>
           </Button>
-          <Link href="/buy-tokens" className="text-lg font-medium" onClick={onClose}>
-            Buy Tokens
+          <Link href={`/${lang}/buy-tokens`} className="text-lg font-medium" onClick={onClose}>
+            {dictionary.buyTokens}
           </Link>
         </>
       )}
-      <Link href="/resources" className="text-lg font-medium" onClick={onClose}>
-        Resources
+      <Link href={`/${lang}/resources`} className="text-lg font-medium" onClick={onClose}>
+        {dictionary.resources}
       </Link>
-      <Link href="/#features" className="text-lg font-medium" onClick={onClose}>
-        Features
+      <Link href={`/${lang}/#features`} className="text-lg font-medium" onClick={onClose}>
+        {dictionary.features}
       </Link>
-      <Link href="/#how-it-works" className="text-lg font-medium" onClick={onClose}>
-        How It Works
+      <Link href={`/${lang}/#how-it-works`} className="text-lg font-medium" onClick={onClose}>
+        {dictionary.howItWorks}
       </Link>
       
       {user && (
@@ -182,7 +188,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
             <div>
               <p className="font-medium">{userFullName || user.email}</p>
               {!userFullName && <p className="text-xs text-muted-foreground">{user.email}</p>}
-              {isAdmin && <p className="text-xs text-muted-foreground">Administrator</p>}
+              {isAdmin && <p className="text-xs text-muted-foreground">{dictionary.admin}</p>}
             </div>
           </div>
           <div className="space-y-3">
@@ -192,7 +198,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               className="w-full justify-start"
               onClick={onClose}
             >
-              <Link href="/profile">Profile</Link>
+              <Link href={`/${lang}/profile`}>{dictionary.profile}</Link>
             </Button>
             <Button 
               asChild 
@@ -200,8 +206,8 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               className="w-full justify-start"
               onClick={onClose}
             >
-              <Link href="/referrals" className="flex items-center">
-                <Award className="mr-2 h-4 w-4" /> Refer & Earn
+              <Link href={`/${lang}/referrals`} className="flex items-center">
+                <Award className="mr-2 h-4 w-4" /> {dictionary.referEarn}
               </Link>
             </Button>
           </div>
@@ -209,14 +215,14 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
       )}
       {!user && (
         <Button asChild className="w-full" onClick={onClose}>
-          <Link href="/login">Login</Link>
+          <Link href={`/${lang}/login`}>{dictionary.login}</Link>
         </Button>
       )}
     </nav>
   )
 }
 
-function NavbarContent() {
+function NavbarContent({ lang, dictionary }: { lang: Locale, dictionary: any }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [userFullName, setUserFullName] = useState<string | null>(null)
   const pathname = usePathname()
@@ -252,7 +258,7 @@ function NavbarContent() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href={`/${lang}`} className="flex items-center space-x-2">
             <Image 
               src="/aa_logo_h.png"
               alt="Antiques Appraisal Logo"
@@ -263,16 +269,24 @@ function NavbarContent() {
           </Link>
         </div>
 
-        <DesktopNavigation 
-          user={user}
-          userFullName={userFullName}
-          isAdmin={isAdmin}
-          pathname={pathname}
-          signOut={signOut}
-        />
+        <div className="flex items-center gap-4">
+             <DesktopNavigation
+              user={user}
+              userFullName={userFullName}
+              isAdmin={isAdmin}
+              pathname={pathname}
+              signOut={signOut}
+              dictionary={dictionary}
+              lang={lang}
+            />
+            <div className="hidden md:block">
+              <LanguageSelector currentLang={lang} />
+            </div>
+        </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          <LanguageSelector currentLang={lang} />
           <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle menu</span>
@@ -285,6 +299,8 @@ function NavbarContent() {
                 userFullName={userFullName}
                 isAdmin={isAdmin}
                 onClose={handleCloseMenu}
+                dictionary={dictionary}
+                lang={lang}
               />
             </div>
           )}
@@ -294,7 +310,7 @@ function NavbarContent() {
   )
 }
 
-export default function Navbar() {
+export default function Navbar({ lang, dictionary }: { lang: Locale, dictionary: any }) {
   return (
     <Suspense fallback={
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -316,7 +332,7 @@ export default function Navbar() {
         </div>
       </header>
     }>
-      <NavbarContent />
+      <NavbarContent lang={lang} dictionary={dictionary} />
     </Suspense>
   )
 }

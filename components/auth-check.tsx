@@ -4,12 +4,14 @@ import { useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 
 export function AuthCheck({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
+  const params = useParams()
+  const lang = params?.lang || 'en'
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
   }, [supabase.auth])
 
   const handleLogin = () => {
-    router.push('/login')
+    router.push(`/${lang}/login`)
   }
 
   if (isLoading) {

@@ -1,0 +1,24 @@
+{
+  "title": "Naviguer dans les normes d'évaluation : Un guide pour les collectionneurs",
+  "description": "Comprenez les complexités des normes d'évaluation des antiquités. Ce guide détaille les directives de l'USPAP, l'importance des évaluateurs accrédités et comment vous assurer que votre collection est évaluée avec précision.",
+  "readTime": "Lecture de 6 min",
+  "backToResources": "Retour aux ressources",
+  "share": "Partager",
+  "content": [
+    { "type": "p", "text": "Pour les collectionneurs sérieux, comprendre les normes d'évaluation est crucial. Que ce soit pour l'assurance, la revente ou la planification successorale, avoir une évaluation précise et reconnue peut faire toute la différence. Ce guide explore les normes clés de l'industrie, y compris l'USPAP, et pourquoi elles sont importantes pour votre collection." },
+    { "type": "h2", "text": "Qu'est-ce que l'USPAP ?" },
+    { "type": "p", "text": "Les normes uniformes de pratique professionnelle d'évaluation (USPAP) sont la norme éthique et de performance généralement acceptée pour la profession d'évaluation aux États-Unis. Le respect de l'USPAP garantit que les évaluations sont indépendantes, cohérentes et objectives." },
+    { "type": "h2", "text": "Pourquoi les normes sont importantes" },
+    { "type": "ul", "items": [
+      "<strong>Cohérence :</strong> Les normes fournissent un langage et une méthodologie communs aux évaluateurs.",
+      "<strong>Confiance :</strong> Elles renforcent la confiance du public dans la profession d'évaluation.",
+      "<strong>Validité juridique :</strong> Les évaluations conformes à l'USPAP sont souvent requises à des fins juridiques et fiscales, telles que les dons à l'IRS ou les règlements de succession."
+    ]},
+    { "type": "h2", "text": "Choisir le bon évaluateur" },
+    { "type": "p", "text": "Lorsque vous recherchez une évaluation, recherchez des professionnels accrédités par des organisations reconnues comme l'Association des évaluateurs d'Amérique (AAA), la Société internationale des évaluateurs (ISA) ou la Société américaine des évaluateurs (ASA). Ces membres sont tenus de suivre les directives de l'USPAP." },
+    { "type": "h2", "text": "Le rôle de la technologie" },
+    { "type": "p", "text": "Alors que l'expertise humaine est irremplaçable pour les objets de grande valeur, une technologie comme AntiquesApp.pro fournit un point de départ standardisé et basé sur les données. En analysant des milliers d'enregistrements de marché, elle offre une base objective qui complète l'opinion professionnelle." },
+    { "type": "quote", "text": "Assurez-vous que la valeur de votre collection est reconnue en vous appuyant sur des évaluations standardisées et professionnelles soutenues par des données de marché modernes." }
+  ],
+  "tryAppraisal": "Essayez notre évaluation par IA"
+}
