@@ -40,11 +40,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          // Check if user is admin
+          // Check if user is admin - using 'users' table
           const { data, error } = await supabase
-            .from('user_profiles')
+            .from('users')
             .select('user_type')
-            .eq('id', session.user.id)
+            .eq('user_id', session.user.id)
             .single()
 
           if (!error && data && data.user_type === 'admin') {
@@ -80,9 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from('tokens')
         .select('token_balance')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single()
 
       if (error) {
@@ -114,9 +114,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Check if user is admin
       if (data.user) {
         const { data: userData, error: userError } = await supabase
-          .from('user_profiles')
+          .from('users')
           .select('user_type')
-          .eq('id', data.user.id)
+          .eq('user_id', data.user.id)
           .single()
 
         if (!userError && userData && userData.user_type === 'admin') {
@@ -125,9 +125,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Update last_login timestamp
         await supabase
-          .from('user_profiles')
+          .from('users')
           .update({ last_login: new Date().toISOString() })
-          .eq('id', data.user.id)
+          .eq('user_id', data.user.id)
       }
 
       // Let middleware handle the redirects instead of doing it here
@@ -155,11 +155,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Create user profile and token balance
       if (user) {
-        // Insert into user_profiles table
+        // Insert into users table
         await supabase
-          .from('user_profiles')
+          .from('users')
           .insert({
-            id: user.id,
+            user_id: user.id,
             email: user.email || '',
             user_type: 'user',
             first_name: firstName || null,

@@ -9,6 +9,8 @@ import { useState, useMemo, useRef } from "react"
 import { processMarkdownResponse, extractSection } from "@/lib/markdown"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
+import { useEffect } from "react"
+import { getSignedImageUrl } from "@/lib/storage-auth"
 
 interface Valuation {
   id: string
@@ -42,6 +44,24 @@ export default function ValuationDetail({ valuation }: ValuationDetailProps) {
   const isKimi = valuation.type === 'kimi';
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const certificateRef = useRef<HTMLDivElement>(null);
+  const [signedImages, setSignedImages] = useState<Record<string, string>>({});
+
+  // Resolve signed URLs for private images
+  useEffect(() => {
+    const resolveImages = async () => {
+      if (valuation.images && Array.isArray(valuation.images)) {
+        const newSignedImages: Record<string, string> = {};
+        for (const url of valuation.images) {
+          if (url && url.includes('supabase.co')) {
+            const signed = await getSignedImageUrl(url);
+            newSignedImages[url] = signed;
+          }
+        }
+        setSignedImages(newSignedImages);
+      }
+    };
+    resolveImages();
+  }, [valuation.images]);
 
   const handleDownloadReport = async () => {
     if (!certificateRef.current) return;
@@ -100,8 +120,9 @@ export default function ValuationDetail({ valuation }: ValuationDetailProps) {
   // Ensure image URLs are valid
   const mainImageUrl = useMemo(() => {
     if (!valuation.images || valuation.images.length === 0) return null;
-    return valuation.images[0];
-  }, [valuation.images]);
+    const originalUrl = valuation.images[0];
+    return signedImages[originalUrl] || originalUrl;
+  }, [valuation.images, signedImages]);
 
   return (
     <div className="space-y-12 pb-20">
@@ -173,10 +194,12 @@ export default function ValuationDetail({ valuation }: ValuationDetailProps) {
                 <div className="relative aspect-[4/3] bg-slate-50 border-[12px] border-white shadow-xl shadow-slate-200/50 overflow-hidden group">
                   {mainImageUrl ? (
                     <div className="relative w-full h-full">
-                      <img
+                      <Image
                         src={mainImageUrl}
                         alt="Antique Item"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        unoptimized
                       />
                       <div className="absolute inset-0 border border-black/5 pointer-events-none" />
                     </div>
@@ -320,10 +343,12 @@ export default function ValuationDetail({ valuation }: ValuationDetailProps) {
                     valuation.images.map((image, index) => (
                       <div key={index} className="relative aspect-square overflow-hidden rounded-2xl group cursor-zoom-in">
                         <Image
-                          src={image}
+                          src={signedImages[image] || image}
                           alt={`Antique item ${index + 1}`}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          crossOrigin="anonymous"
+                          unoptimized
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                       </div>

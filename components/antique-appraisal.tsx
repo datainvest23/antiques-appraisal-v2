@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/components/ui/use-toast"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
+import { getSignedImageUrl } from "@/lib/storage-auth"
 
 // Service types
 type ServiceType = "basic" | "initial" | "full"
@@ -37,7 +38,25 @@ export function AntiqueAppraisal({
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("upload")
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const [signedImages, setSignedImages] = useState<Record<string, string>>({})
   const { toast } = useToast()
+
+  // Resolve signed URLs for analyzed images
+  useEffect(() => {
+    const resolveImages = async () => {
+      if (analysisResult?.images && Array.isArray(analysisResult.images)) {
+        const newSignedImages: Record<string, string> = {}
+        for (const url of analysisResult.images) {
+          if (url && url.includes('supabase.co')) {
+            const signed = await getSignedImageUrl(url)
+            newSignedImages[url] = signed
+          }
+        }
+        setSignedImages(newSignedImages)
+      }
+    }
+    resolveImages()
+  }, [analysisResult?.images])
 
   // Switch to analysis tab automatically when results are available
   useEffect(() => {
@@ -428,11 +447,13 @@ export function AntiqueAppraisal({
                     <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">Analyzed Images</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {analysisResult.images.map((imageUrl, index) => (
-                        <div key={index} className="overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white p-1">
-                          <img
-                            src={imageUrl}
+                        <div key={index} className="overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white p-1 relative h-40">
+                          <Image
+                            src={signedImages[imageUrl] || imageUrl}
                             alt={`Analyzed image ${index + 1}`}
-                            className="w-full h-40 object-contain"
+                            fill
+                            className="object-contain"
+                            unoptimized
                           />
                         </div>
                       ))}
