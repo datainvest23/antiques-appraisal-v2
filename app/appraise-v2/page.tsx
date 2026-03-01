@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AntiqueAppraisal } from "@/components/antique-appraisal"
 import { LoadingOverlay } from "@/components/loading-overlay"
+import { useLanguage } from "@/contexts/language-context"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { AuthCheck } from "@/components/auth-check"
@@ -11,6 +12,7 @@ import { AuthCheck } from "@/components/auth-check"
 type ServiceType = "basic" | "initial" | "full"
 
 export default function AppraisePage() {
+  const { t } = useLanguage();
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [serviceType, setServiceType] = useState<ServiceType>("basic")
@@ -55,8 +57,8 @@ export default function AppraisePage() {
         } catch (uploadError) {
           console.error('Error uploading image:', uploadError)
           toast({
-            title: "Upload error",
-            description: uploadError instanceof Error ? uploadError.message : 'Unknown upload error',
+            title: t('error_upload_title'),
+            description: uploadError instanceof Error ? uploadError.message : t('error_upload_unknown'),
             variant: "destructive"
           })
           throw uploadError
@@ -99,11 +101,9 @@ export default function AppraisePage() {
       setAnalysisResult({
         error: true,
         content: `<div class="space-y-4">
-                    <p class="text-red-500 font-bold">Error: ${errorDetails}</p>
-                    <p>Please try again or contact support if the issue persists.</p>
-                    <p class="text-xs text-gray-500">Technical details: The API endpoint for the selected service 
-                    (${selectedService}) returned an error. This may be due to issues with image processing 
-                    or server availability.</p>
+                    <p class="text-red-500 font-bold">${t('error_analyze_title')}: ${errorDetails}</p>
+                    <p>${t('error_analyze_retry')}</p>
+                    <p class="text-xs text-gray-500">${t('error_analyze_tech')}</p>
                   </div>`
       });
     } finally {
@@ -116,31 +116,31 @@ export default function AppraisePage() {
     switch (serviceType) {
       case "basic":
         return [
-          "Analyzing your antique...",
-          "Identifying key features...",
-          "Determining category and era...",
-          "Finalizing basic categorization...",
+          t('loading_basic_1'),
+          t('loading_basic_2'),
+          t('loading_basic_3'),
+          t('loading_basic_4'),
         ]
       case "initial":
         return [
-          "Analyzing your antique...",
-          "Examining details and markings...",
-          "Researching similar items...",
-          "Estimating approximate value...",
-          "Preparing initial evaluation...",
+          t('loading_initial_1'),
+          t('loading_initial_2'),
+          t('loading_initial_3'),
+          t('loading_initial_4'),
+          t('loading_initial_5'),
         ]
       case "full":
         return [
-          "Analyzing your antique in detail...",
-          "Examining craftsmanship and materials...",
-          "Researching historical context...",
-          "Comparing with auction records...",
-          "Assessing condition and rarity...",
-          "Determining market value...",
-          "Generating comprehensive report...",
+          t('loading_full_1'),
+          t('loading_full_2'),
+          t('loading_full_3'),
+          t('loading_full_4'),
+          t('loading_full_5'),
+          t('loading_full_6'),
+          t('loading_full_7'),
         ]
       default:
-        return ["Analyzing your antique..."]
+        return [t('loading_default')]
     }
   }
 

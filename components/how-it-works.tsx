@@ -1,6 +1,39 @@
 import { Check } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function HowItWorks() {
+  const { t } = useLanguage();
+
+  const steps = [
+    {
+      title: t('step1_title'),
+      description: t('step1_desc'),
+      points: [
+        t('step1_point1'),
+        t('step1_point2'),
+        t('step1_point3')
+      ]
+    },
+    {
+      title: t('step2_title'),
+      description: t('step2_desc'),
+      points: [
+        t('step2_point1'),
+        t('step2_point2'),
+        t('step2_point3')
+      ]
+    },
+    {
+      title: t('step3_title'),
+      description: t('step3_desc'),
+      points: [
+        t('step3_point1'),
+        t('step3_point2'),
+        t('step3_point3')
+      ]
+    }
+  ];
+
   return (
     <section className="w-full py-20 md:py-28 lg:py-32 bg-muted relative" id="how-it-works">
       {/* Decorative curved shape divider */}
@@ -14,13 +47,14 @@ export default function HowItWorks() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="space-y-3 max-w-3xl">
             <div className="inline-block px-4 py-1.5 text-xs font-heading tracking-[0.2em] uppercase text-primary border-b border-primary/30 mb-2">
-              Process
+              {t('process_label')}
             </div>
             <h2 className="text-3xl font-serif italic md:text-4xl/tight lg:text-5xl">
-              Simple Process, <span className="not-italic text-primary font-medium">Valuable Results</span>
+              {/* Special handling for highlighted Valuable Results */}
+              {t('process_title').split(',')[0]}, <span className="not-italic text-primary font-medium">{t('process_title').split(',')[1]}</span>
             </h2>
             <p className="mx-auto max-w-[800px] text-muted-foreground md:text-lg mt-4 font-medium">
-              Our streamlined workflow makes it easy to get professional appraisals for your antique items.
+              {t('process_desc')}
             </p>
           </div>
         </div>
@@ -65,13 +99,13 @@ export default function HowItWorks() {
         <div className="mt-20 bg-background rounded-2xl border border-border/60 p-8 shadow-lg max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
-              <h3 className="text-2xl font-bold">Ready to discover your antique's value?</h3>
+              <h3 className="text-2xl font-bold">{t('cta_ready')}</h3>
               <p className="text-muted-foreground max-w-md">
-                Start your first appraisal today and unlock the history and value of your unique items.
+                {t('cta_desc')}
               </p>
             </div>
             <a href="/appraise" className="inline-flex h-12 items-center justify-center rounded-full border bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1">
-              Start Your Appraisal
+              {t('cta_start')}
             </a>
           </div>
         </div>
@@ -87,33 +121,4 @@ export default function HowItWorks() {
   )
 }
 
-const steps = [
-  {
-    title: "Upload Images",
-    description: "Take clear photos of your antique item and upload them to our platform.",
-    points: [
-      "Supports multiple image formats",
-      "Multiple angles for better analysis",
-      "High-resolution images recommended"
-    ]
-  },
-  {
-    title: "Receive AI Analysis",
-    description: "Our AI assistant analyzes your images and provides a detailed appraisal.",
-    points: [
-      "Item description and history",
-      "Condition assessment",
-      "Audio summary available"
-    ]
-  },
-  {
-    title: "Create Valuation",
-    description: "Provide voice feedback to refine the analysis and create your final valuation.",
-    points: [
-      "One free valuation daily",
-      "Use tokens for additional valuations",
-      "Option for detailed premium valuations"
-    ]
-  }
-];
 

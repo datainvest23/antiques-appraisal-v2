@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
 import { getSignedImageUrl } from "@/lib/storage-auth"
+import { useLanguage } from "@/contexts/language-context"
 
 // Service types
 type ServiceType = "basic" | "initial" | "full"
@@ -29,6 +30,7 @@ export function AntiqueAppraisal({
   isAnalyzing = false,
   activeServiceType
 }: AntiqueAppraisalProps) {
+  const { t } = useLanguage();
   const [selectedService, setSelectedService] = useState<ServiceType>(activeServiceType || "basic")
   const [images, setImages] = useState<File[]>([])
   const [imageUrls, setImageUrls] = useState<string[]>([])
@@ -75,7 +77,7 @@ export function AntiqueAppraisal({
       // Don't exceed 3 images total
       const remaining = 3 - images.length
       if (remaining <= 0) {
-        setError("You can upload a maximum of 3 images")
+        setError(t('error_max_images'))
         return
       }
 
@@ -110,8 +112,8 @@ export function AntiqueAppraisal({
     if (isRecording) {
       setIsRecording(false)
       toast({
-        title: "Recording stopped",
-        description: "Your audio has been processed.",
+        title: t('toast_recording_stopped_title'),
+        description: t('toast_recording_stopped_desc'),
       })
       return
     }
@@ -122,20 +124,20 @@ export function AntiqueAppraisal({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
       toast({
-        title: "Recording started",
-        description: "Speak clearly and click the button again to stop recording.",
+        title: t('toast_recording_started_title'),
+        description: t('toast_recording_started_desc'),
       })
 
       // In a real implementation, you would set up a MediaRecorder here
       // For now, we'll just simulate recording
     } catch (error) {
       console.error('Error accessing microphone:', error)
-      setError('Unable to access microphone. Please check permissions and try again.')
+      setError(t('error_mic_access'))
       setIsRecording(false)
 
       toast({
-        title: "Microphone error",
-        description: "Please check microphone permissions and try again.",
+        title: t('error_mic_access_title', 'Microphone error'),
+        description: t('error_mic_access'),
         variant: "destructive"
       })
     }
@@ -143,7 +145,7 @@ export function AntiqueAppraisal({
 
   const handleAppraisal = async () => {
     if (images.length === 0) {
-      setError("Please select at least one image to upload.")
+      setError(t('error_no_images'))
       return
     }
 
@@ -157,7 +159,7 @@ export function AntiqueAppraisal({
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError("Failed to process appraisal request.")
+        setError(t('error_appraisal_failed', 'Failed to process appraisal request.'))
       }
     } finally {
       setIsUploading(false)
@@ -190,10 +192,10 @@ export function AntiqueAppraisal({
       doc.setTextColor(...secondaryColor);
 
       const title = activeServiceType === "basic" || selectedService === "basic"
-        ? "Antique Valuation Report"
+        ? t('report_title_basic')
         : activeServiceType === "initial" || selectedService === "initial"
-          ? "Initial Appraisal"
-          : "AI Appraisal Report";
+          ? t('report_title_initial')
+          : t('report_title_full');
 
       doc.text(title, 105, 20, { align: 'center' });
 
@@ -225,7 +227,7 @@ export function AntiqueAppraisal({
 
         doc.setFontSize(16);
         doc.setTextColor(...primaryColor);
-        doc.text("Analyzed Images", 105, 20, { align: 'center' });
+        doc.text(t('analyzed_images_title'), 105, 20, { align: 'center' });
 
         // Position images in a grid
         const imagesPerRow = 2;
@@ -261,14 +263,14 @@ export function AntiqueAppraisal({
       doc.save(`antique-appraisal-${dateStr}.pdf`);
 
       toast({
-        title: "PDF Downloaded",
-        description: "Your appraisal report has been saved as a PDF.",
+        title: t('toast_pdf_downloaded_title'),
+        description: t('toast_pdf_downloaded_desc'),
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast({
-        title: "Download Failed",
-        description: "Failed to generate the PDF report. Please try again.",
+        title: t('toast_pdf_failed_title'),
+        description: t('toast_pdf_failed_desc'),
         variant: "destructive"
       });
     } finally {
@@ -280,16 +282,16 @@ export function AntiqueAppraisal({
     <Card className="h-full flex flex-col">
       <CardContent className="p-6 flex-1 flex flex-col overflow-hidden">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Antique Appraisal</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('appraisal_title')}</h2>
           <p className="text-muted-foreground">
-            Upload photos of your antique item for an AI-powered appraisal
+            {t('appraisal_desc')}
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            <TabsTrigger value="upload">{t('tab_upload')}</TabsTrigger>
+            <TabsTrigger value="analysis">{t('tab_analysis')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="pt-4 flex-1 overflow-auto">
@@ -298,7 +300,7 @@ export function AntiqueAppraisal({
               <div>
                 {imageUrls.length > 0 ? (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Uploaded Images</h3>
+                    <h3 className="text-lg font-medium">{t('uploaded_images_title')}</h3>
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {imageUrls.map((url, index) => (
                         <div key={index} className="relative rounded-lg border overflow-hidden group">
@@ -326,17 +328,17 @@ export function AntiqueAppraisal({
                   <div className="flex flex-col h-full items-center justify-center py-12 border-2 border-primary border-dashed rounded-lg shadow-sm animate-pulse-light bg-primary/5">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Camera className="h-10 w-10 text-primary" />
-                      <h3 className="text-lg font-medium">Upload Antique Images</h3>
+                      <h3 className="text-lg font-medium">{t('upload_title')}</h3>
                       <p className="text-sm text-muted-foreground text-center">
-                        Take a photo or upload images of your antique
+                        {t('upload_subtitle')}
                       </p>
-                      <p className="text-xs text-primary font-medium">Add up to 3 images</p>
+                      <p className="text-xs text-primary font-medium">{t('upload_limit')}</p>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4">
                       <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
                         <label>
                           <Camera className="mr-2 h-4 w-4" />
-                          Take Picture
+                          {t('btn_take_picture')}
                           <input
                             type="file"
                             accept="image/*"
@@ -349,7 +351,7 @@ export function AntiqueAppraisal({
                       <Button variant="outline" asChild className="border-primary hover:bg-primary/10">
                         <label>
                           <Upload className="mr-2 h-4 w-4" />
-                          Browse Files
+                          {t('btn_browse_files')}
                           <input
                             type="file"
                             accept="image/*"
@@ -366,10 +368,10 @@ export function AntiqueAppraisal({
 
               {/* Bottom part: Additional Information */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Add Information About Your Item (Optional)</Label>
+                <Label className="text-sm font-medium">{t('additional_info_label')}</Label>
                 <div className="mt-2">
                   <p className="text-xs text-muted-foreground mb-2">
-                    Provide additional context such as origin, history, or markings to improve accuracy.
+                    {t('additional_info_desc')}
                   </p>
                   <div className="flex items-center space-x-3 mb-2">
                     <Button
@@ -381,18 +383,18 @@ export function AntiqueAppraisal({
                       {isRecording ? (
                         <>
                           <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                          Recording...
+                          {t('btn_recording')}
                         </>
                       ) : (
                         <>
                           <Mic className="mr-2 h-3 w-3" />
-                          Record Info
+                          {t('btn_record_info')}
                         </>
                       )}
                     </Button>
                   </div>
                   <Textarea
-                    placeholder="Add details about age, origin, history, markings, or other information..."
+                    placeholder={t('textarea_placeholder')}
                     className="min-h-[100px] text-sm resize-y"
                     value={additionalInfo}
                     onChange={(e) => setAdditionalInfo(e.target.value)}
@@ -411,15 +413,15 @@ export function AntiqueAppraisal({
                     <Loader2 className="h-8 w-8 animate-spin text-primary absolute top-3 left-3" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium mb-2">Analyzing your antique...</h3>
+                <h3 className="text-lg font-medium mb-2">{t('analyzing_wait_title')}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Our AI is examining your images and details to provide an accurate assessment.
+                  {t('analyzing_wait_desc')}
                 </p>
                 <div className="max-w-md mx-auto space-y-1">
                   <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-primary/60 rounded-full animate-pulse w-3/4"></div>
                   </div>
-                  <p className="text-xs text-gray-400">This typically takes 30-60 seconds depending on complexity</p>
+                  <p className="text-xs text-gray-400">{t('analyzing_wait_time')}</p>
                 </div>
               </div>
             ) : analysisResult ? (
@@ -433,18 +435,18 @@ export function AntiqueAppraisal({
 
                 <h2 className="text-2xl font-bold mb-4 text-center text-primary">
                   {typeof analysisResult === 'string' && analysisResult.includes('Error:')
-                    ? "Error"
+                    ? t('error_analyze_title')
                     : activeServiceType === "basic" || selectedService === "basic"
-                      ? "Antique Valuation Report"
+                      ? t('report_title_basic')
                       : activeServiceType === "initial" || selectedService === "initial"
-                        ? "Initial Appraisal"
-                        : "AI Appraisal Report"}
+                        ? t('report_title_initial')
+                        : t('report_title_full')}
                 </h2>
 
                 {/* Display analyzed images */}
                 {typeof analysisResult !== 'string' && analysisResult.images && analysisResult.images.length > 0 && (
                   <div className="mb-4">
-                    <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">Analyzed Images</h2>
+                    <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">{t('analyzed_images_title')}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {analysisResult.images.map((imageUrl, index) => (
                         <div key={index} className="overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white p-1 relative h-40">
@@ -472,16 +474,16 @@ export function AntiqueAppraisal({
                           <FileText className="h-8 w-8" />
                         </div>
                         <div>
-                          <p className="text-amber-500/80 text-[10px] uppercase tracking-[0.3em] font-bold">Antique Appraisal Platform</p>
-                          <h2 className="text-white text-3xl font-serif italic mt-1 tracking-wide">Basic Valuation Report</h2>
+                          <p className="text-amber-500/80 text-[10px] uppercase tracking-[0.3em] font-bold">{t('premium_report_subtitle')}</p>
+                          <h2 className="text-white text-3xl font-serif italic mt-1 tracking-wide">{t('premium_report_title')}</h2>
                         </div>
                       </div>
 
                       <div className="flex flex-col md:items-end gap-3 text-white/50 text-xs font-medium">
                         <div className="flex flex-col md:items-end">
-                          <span className="uppercase tracking-widest text-[9px] text-amber-500/60">Report Date</span>
+                          <span className="uppercase tracking-widest text-[9px] text-amber-500/60">{t('report_date_label')}</span>
                           <span className="text-sm font-semibold text-white/80 tabular-nums">
-                            {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date().toLocaleDateString(t('date_locale', 'en-GB'), { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                         </div>
                         <Button
@@ -490,7 +492,7 @@ export function AntiqueAppraisal({
                           className="bg-amber-600 hover:bg-amber-700 text-white rounded-none border-none px-6 py-5 uppercase text-[10px] tracking-[0.2em] font-bold h-auto shadow-lg shadow-black/20"
                         >
                           {isGeneratingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-                          Download PDF
+                          {t('btn_download_pdf')}
                         </Button>
                       </div>
                     </div>
@@ -520,25 +522,25 @@ export function AntiqueAppraisal({
                         {/* Quick Identification Box */}
                         <div className="relative pl-6 py-2">
                           <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-600/40 rounded-full" />
-                          <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3">Quick Identification</p>
+                          <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3">{t('quick_id_label')}</p>
 
                           <div className="space-y-6">
                             <div>
-                              <span className="text-[9px] uppercase text-slate-400 font-medium block mb-1">Object Name</span>
+                              <span className="text-[9px] uppercase text-slate-400 font-medium block mb-1">{t('object_name_label')}</span>
                               <p className="text-xl font-serif font-bold text-slate-800 leading-tight">
-                                {analysisResult.extracted_data?.object_name || 'Item Not Specified'}
+                                {analysisResult.extracted_data?.object_name || t('item_not_specified')}
                               </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
                               <div>
-                                <span className="text-[9px] uppercase text-slate-400 font-medium block mb-1">Category</span>
+                                <span className="text-[9px] uppercase text-slate-400 font-medium block mb-1">{t('category_label')}</span>
                                 <p className="text-sm font-serif font-semibold text-slate-800 italic">
                                   {analysisResult.extracted_data?.category || 'General'}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-[9px] uppercase text-slate-400 font-medium block mb-1">Estimated Era</span>
+                                <span className="text-[9px] uppercase text-slate-400 font-medium block mb-1">{t('era_label')}</span>
                                 <p className="text-sm font-serif font-semibold text-slate-800 italic">
                                   {analysisResult.extracted_data?.stylistic_period || 'TBD'}
                                 </p>
@@ -555,32 +557,32 @@ export function AntiqueAppraisal({
                         <div className="space-y-6">
                           <div className="flex items-center gap-4">
                             <div className="h-px bg-amber-600/20 flex-grow" />
-                            <h3 className="text-[11px] uppercase tracking-[0.4em] font-black text-slate-800">Fact Sheet</h3>
+                            <h3 className="text-[11px] uppercase tracking-[0.4em] font-black text-slate-800">{t('fact_sheet_title')}</h3>
                           </div>
 
                           <div className="border border-slate-100 rounded-sm overflow-hidden">
                             <table className="w-full text-left text-xs border-collapse">
                               <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                  <th className="p-4 uppercase tracking-widest text-[9px] text-slate-400 font-bold border-r border-slate-100">Feature</th>
-                                  <th className="p-4 uppercase tracking-widest text-[9px] text-slate-400 font-bold">Details</th>
+                                  <th className="p-4 uppercase tracking-widest text-[9px] text-slate-400 font-bold border-r border-slate-100">{t('col_feature')}</th>
+                                  <th className="p-4 uppercase tracking-widest text-[9px] text-slate-400 font-bold">{t('col_details')}</th>
                                 </tr>
                               </thead>
                               <tbody className="font-serif">
                                 <tr className="border-b border-slate-50">
-                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">Material</td>
+                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">{t('row_material')}</td>
                                   <td className="p-4 text-slate-600">{analysisResult.extracted_data?.materials || "Analysing..."}</td>
                                 </tr>
                                 <tr className="border-b border-slate-50">
-                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">Primary Colors</td>
+                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">{t('row_colors')}</td>
                                   <td className="p-4 text-slate-600">{analysisResult.extracted_data?.primary_colors || "Analysing..."}</td>
                                 </tr>
                                 <tr className="border-b border-slate-50">
-                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">Markings</td>
+                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">{t('row_markings')}</td>
                                   <td className="p-4 text-slate-600">{analysisResult.extracted_data?.inscriptions_marks || "None detected"}</td>
                                 </tr>
                                 <tr>
-                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">Condition</td>
+                                  <td className="p-4 font-bold text-slate-900 border-r border-slate-50 bg-slate-50/30">{t('row_condition')}</td>
                                   <td className="p-4">
                                     <span className="bg-amber-100/50 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-200/50">
                                       {analysisResult.extracted_data?.condition || "Unknown"}
@@ -596,7 +598,7 @@ export function AntiqueAppraisal({
                         <div className="space-y-8">
                           <div className="flex items-center gap-4">
                             <div className="h-px bg-amber-600/20 flex-grow" />
-                            <h3 className="text-[11px] uppercase tracking-[0.4em] font-black text-slate-800">Historical Context & Description</h3>
+                            <h3 className="text-[11px] uppercase tracking-[0.4em] font-black text-slate-800">{t('historical_context_title')}</h3>
                           </div>
 
                           <div
@@ -612,7 +614,7 @@ export function AntiqueAppraisal({
                     {/* 3. Footer Assessment Ref */}
                     <div className="bg-slate-50/80 border-t border-slate-100 p-8 flex flex-col md:flex-row justify-between items-center gap-4">
                       <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-                        Report Reference: {analysisResult.db_id?.split('-')[0]?.toUpperCase() || 'VAL'}-{new Date().getFullYear()}-CERT
+                        {t('report_ref_label')}: {analysisResult.db_id?.split('-')[0]?.toUpperCase() || 'VAL'}-{new Date().getFullYear()}-CERT
                       </div>
                       <div className="text-[10px] uppercase tracking-[0.2em] text-slate-300 font-medium">
                         © {new Date().getFullYear()} Antique Appraisal Platform. All rights reserved.
@@ -653,7 +655,7 @@ export function AntiqueAppraisal({
                     ) : (
                       <>
                         <Download className="h-4 w-4" />
-                        Download PDF Report
+                        {t('btn_download_pdf')}
                       </>
                     )}
                   </Button>
@@ -662,13 +664,13 @@ export function AntiqueAppraisal({
             ) : (
               <div className="py-8 text-center">
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-medium mb-2">Analysis Results</h3>
+                  <h3 className="text-lg font-medium mb-2">{t('no_analysis_title')}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Your analysis results will appear here after you submit images for appraisal.
+                    {t('no_analysis_desc')}
                   </p>
                   <div className="border-2 border-dashed border-slate-200 rounded-lg p-6">
-                    <p className="text-slate-400">No analysis data yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Upload images and click "Start Appraisal" to begin</p>
+                    <p className="text-slate-400">{t('no_data_yet')}</p>
+                    <p className="text-xs text-slate-400 mt-1">{t('upload_hint')}</p>
                   </div>
                 </div>
               </div>
@@ -686,10 +688,10 @@ export function AntiqueAppraisal({
             {isUploading || isAnalyzing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                {t('btn_processing')}
               </>
             ) : (
-              "Start Appraisal"
+              t('btn_start_appraisal')
             )}
           </Button>
 

@@ -6,7 +6,9 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
-import { Menu, Award, User, LogOut, Loader2 } from "lucide-react"
+import { Menu, Award, User, LogOut, Loader2, Globe } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
+import { LanguageSelector } from "@/components/language-selector"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,11 +61,11 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile">Profile</Link>
+          <Link href="/profile">{t('nav_profile')}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/referrals" className="flex items-center">
-            <Award className="mr-2 h-4 w-4" /> Refer & Earn
+            <Award className="mr-2 h-4 w-4" /> {t('nav_refer')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -71,7 +73,7 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
           className="text-red-600 cursor-pointer"
           onClick={() => signOut()}
         >
-          <LogOut className="mr-2 h-4 w-4" /> Log out
+          <LogOut className="mr-2 h-4 w-4" /> {t('nav_logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -79,6 +81,8 @@ function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuP
 }
 
 function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: NavigationProps & { signOut: () => void }) {
+  const { t } = useLanguage()
+
   return (
     <nav className="hidden md:flex items-center gap-8 font-heading tracking-widest uppercase text-[10px]">
       {user && (
@@ -87,7 +91,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
             href="/appraise-v2"
             className="px-6 py-2 font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-none border border-primary transition-all hover:translate-y-[-1px] active:translate-y-[0px]"
           >
-            Appraise an Antique
+            {t('nav_appraise')}
           </Link>
           <Link
             href="/my-valuations"
@@ -96,7 +100,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
               pathname === "/my-valuations" ? "text-primary" : "text-foreground"
             )}
           >
-            My Valuations
+            {t('nav_my_valuations')}
           </Link>
           <Link
             href="/buy-tokens"
@@ -105,7 +109,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
               pathname === "/buy-tokens" ? "text-primary" : "text-muted-foreground"
             )}
           >
-            Buy Tokens
+            {t('nav_buy_tokens')}
           </Link>
         </>
       )}
@@ -116,20 +120,22 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
           pathname?.startsWith("/resources") ? "text-primary" : "text-muted-foreground"
         )}
       >
-        Resources
+        {t('nav_resources')}
       </Link>
       <Link
         href="/#features"
         className="text-muted-foreground transition-colors hover:text-primary"
       >
-        Features
+        {t('nav_features')}
       </Link>
       <Link
         href="/#how-it-works"
         className="text-muted-foreground transition-colors hover:text-primary"
       >
-        How It Works
+        {t('nav_how_it_works')}
       </Link>
+
+      <LanguageSelector />
 
       {user ? (
         <UserMenu user={user} userFullName={userFullName} isAdmin={isAdmin} signOut={signOut} />
@@ -138,7 +144,7 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
           href="/login"
           className="border-b-2 border-primary pb-px hover:text-primary transition-colors font-bold"
         >
-          Login
+          {t('nav_login')}
         </Link>
       )}
     </nav>
@@ -147,8 +153,14 @@ function DesktopNavigation({ user, userFullName, isAdmin, pathname, signOut }: N
 
 
 function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationProps) {
+  const { t } = useLanguage()
+
   return (
     <nav className="flex flex-col p-6 space-y-4">
+      <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-2">
+        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Language</span>
+        <LanguageSelector />
+      </div>
       {user && (
         <>
           <Button
@@ -158,27 +170,27 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
             onClick={onClose}
           >
             <Link href="/appraise-v2">
-              Appraise an Antique
+              {t('nav_appraise')}
             </Link>
           </Button>
           <Button asChild variant="outline" className="w-full justify-center">
             <Link href="/my-valuations" onClick={onClose}>
-              My Valuations
+              {t('nav_my_valuations')}
             </Link>
           </Button>
           <Link href="/buy-tokens" className="text-lg font-medium" onClick={onClose}>
-            Buy Tokens
+            {t('nav_buy_tokens')}
           </Link>
         </>
       )}
       <Link href="/resources" className="text-lg font-medium" onClick={onClose}>
-        Resources
+        {t('nav_resources')}
       </Link>
       <Link href="/#features" className="text-lg font-medium" onClick={onClose}>
-        Features
+        {t('nav_features')}
       </Link>
       <Link href="/#how-it-works" className="text-lg font-medium" onClick={onClose}>
-        How It Works
+        {t('nav_how_it_works')}
       </Link>
 
       {user && (
@@ -198,7 +210,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               className="w-full justify-start"
               onClick={onClose}
             >
-              <Link href="/profile">Profile</Link>
+              <Link href="/profile">{t('nav_profile')}</Link>
             </Button>
             <Button
               asChild
@@ -207,7 +219,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
               onClick={onClose}
             >
               <Link href="/referrals" className="flex items-center">
-                <Award className="mr-2 h-4 w-4" /> Refer & Earn
+                <Award className="mr-2 h-4 w-4" /> {t('nav_refer')}
               </Link>
             </Button>
           </div>
@@ -215,7 +227,7 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
       )}
       {!user && (
         <Button asChild className="w-full" onClick={onClose}>
-          <Link href="/login">Login</Link>
+          <Link href="/login">{t('nav_login')}</Link>
         </Button>
       )}
     </nav>

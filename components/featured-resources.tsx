@@ -2,43 +2,48 @@ import Link from "next/link"
 import Image from "next/image"
 import { Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/contexts/language-context"
 
 // Define featured resources - now featuring all 3 resources
-const featuredResources = [
-  {
-    id: "unlocking-antique-values",
-    title: "Unlocking Antique Values: How AI Revolutionizes Appraisals",
-    description: "Discover how artificial intelligence is transforming the world of antique valuation with data-driven insights while complementing expert human judgment.",
-    image: "/1-Unlocking-Antique-Values.png",
-    readTime: "6 min read"
-  },
-  {
-    id: "navigating-valuation-standards",
-    title: "Navigating International Valuation Standards for Antique Collectors",
-    description: "Learn how international valuation standards ensure consistency and transparency in antique appraisals, and how collectors can effectively navigate these guidelines.",
-    image: "/2-Navigating-Valuation-Standards.png",
-    readTime: "5 min read"
-  },
-  {
-    id: "identifying-hidden-gems",
-    title: "Identifying Hidden Gems: Expert Tips for Spotting Valuable Antiques",
-    description: "Learn expert techniques for identifying valuable antiques with our comprehensive guide on key indicators, common pitfalls, and leveraging technology for accurate identification.",
-    image: "/3-Identifying-Hidden-Gems.png",
-    readTime: "7 min read"
-  }
-]
-
 export default function FeaturedResources() {
+  const { t } = useLanguage();
+
+  const featuredResources = [
+    {
+      id: "unlocking-antique-values",
+      title: t('res1_title'),
+      description: t('res1_desc'),
+      image: "/1-Unlocking-Antique-Values.png",
+      readTime: t('read_time_6')
+    },
+    {
+      id: "navigating-valuation-standards",
+      title: t('res2_title'),
+      description: t('res2_desc'),
+      image: "/2-Navigating-Valuation-Standards.png",
+      readTime: t('read_time_5')
+    },
+    {
+      id: "identifying-hidden-gems",
+      title: t('res3_title'),
+      description: t('res3_desc'),
+      image: "/3-Identifying-Hidden-Gems.png",
+      readTime: t('read_time_7')
+    }
+  ]
+
   return (
     <section className="w-full py-16 bg-muted/30">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <div className="inline-block px-4 py-1.5 text-xs font-heading tracking-[0.2em] uppercase text-primary border-b border-primary/30 mb-4">
-            Knowledge
+            {t('resources_label')}
           </div>
-          <h2 className="text-3xl font-serif italic md:text-4xl lg:text-5xl mb-6">Expert <span className="not-italic text-primary font-medium">Insights</span></h2>
+          <h2 className="text-3xl font-serif italic md:text-4xl lg:text-5xl mb-6">
+            {t('resources_title').split(' ')[0]} <span className="not-italic text-primary font-medium">{t('resources_title').split(' ')[1]}</span>
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-medium tracking-wide">
-            Explore our expert guides and insights on antique valuation and identification.
+            {t('resources_desc')}
           </p>
         </div>
 
@@ -58,7 +63,7 @@ export default function FeaturedResources() {
 
               <div className="p-8">
                 <div className="flex justify-between items-center text-[10px] font-heading tracking-widest uppercase text-muted-foreground/60 mb-4">
-                  <span className="text-primary/70">Heritage Guide</span>
+                  <span className="text-primary/70">{t('heritage_guide')}</span>
                   <div className="flex items-center">
                     <Clock className="mr-1.5 h-3 w-3" />
                     <span>{resource.readTime}</span>
@@ -77,7 +82,7 @@ export default function FeaturedResources() {
                   href={`/resources/${resource.id}`}
                   className="inline-flex items-center text-[11px] font-heading tracking-[0.2em] uppercase text-primary hover:text-primary/80 transition-colors border-b border-primary/20 pb-1"
                 >
-                  Read Full Article
+                  {t('read_full')}
                 </Link>
               </div>
             </div>
@@ -87,7 +92,7 @@ export default function FeaturedResources() {
 
         <div className="text-center mt-10">
           <Link href="/resources" passHref>
-            <Button variant="outline" size="lg">View All Resources</Button>
+            <Button variant="outline" size="lg">{t('view_all_resources')}</Button>
           </Link>
         </div>
       </div>

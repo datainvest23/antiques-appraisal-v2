@@ -1,6 +1,42 @@
 import { Camera, MessageSquare, VolumeX, Coins, Clock, Award } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function FeaturesSection() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      icon: Camera,
+      title: t('feat1_title'),
+      description: t('feat1_desc')
+    },
+    {
+      icon: MessageSquare,
+      title: t('feat2_title'),
+      description: t('feat2_desc')
+    },
+    {
+      icon: VolumeX,
+      title: t('feat3_title'),
+      description: t('feat3_desc')
+    },
+    {
+      icon: Clock,
+      title: t('feat4_title'),
+      description: t('feat4_desc')
+    },
+    {
+      icon: Coins,
+      title: t('feat5_title'),
+      description: t('feat5_desc')
+    },
+    {
+      icon: Award,
+      title: t('feat6_title'),
+      description: t('feat6_desc')
+    }
+  ];
+
   return (
     <section className="w-full py-16 md:py-24 lg:py-32 bg-background relative overflow-hidden" id="features">
       {/* Decorative elements */}
@@ -13,13 +49,13 @@ export default function FeaturesSection() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-4 max-w-3xl">
             <div className="inline-block px-4 py-1 text-[10px] font-heading tracking-[0.3em] uppercase text-primary border border-primary/20 mb-2">
-              Capabilities
+              {t('features_label')}
             </div>
             <h2 className="text-4xl font-serif italic md:text-5xl lg:text-6xl tracking-tight">
-              Curated <span className="not-italic text-primary font-medium">Technology</span>
+              {t('features_title').split(' ')[0]} <span className="not-italic text-primary font-medium">{t('features_title').split(' ')[1]}</span>
             </h2>
             <p className="mx-auto max-w-[700px] text-muted-foreground md:text-lg mt-6 font-medium leading-relaxed">
-              Our platform orchestrates advanced AI with historical data to provide precise valuations for your unique collections.
+              {t('features_desc')}
             </p>
           </div>
         </div>
@@ -48,36 +84,4 @@ export default function FeaturesSection() {
   )
 }
 
-const features = [
-  {
-    icon: Camera,
-    title: "Image Upload",
-    description: "Upload high-quality images of your antiques for AI analysis and comprehensive appraisal."
-  },
-  {
-    icon: MessageSquare,
-    title: "AI Analysis",
-    description: "Receive detailed analysis including item description, historical context, and condition assessment."
-  },
-  {
-    icon: VolumeX,
-    title: "Voice Feedback",
-    description: "Refine the analysis by providing voice feedback that's transcribed and processed automatically."
-  },
-  {
-    icon: Clock,
-    title: "Daily Free Valuation",
-    description: "Enjoy one free comprehensive valuation every day, with options to purchase more as needed."
-  },
-  {
-    icon: Coins,
-    title: "Token System",
-    description: "Get 5 free tokens upon sign-up and purchase more tokens for additional premium valuations."
-  },
-  {
-    icon: Award,
-    title: "Detailed Valuations",
-    description: "Upgrade to detailed valuations for enhanced analysis and additional historical information."
-  }
-];
 

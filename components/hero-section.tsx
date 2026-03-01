@@ -3,8 +3,10 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useRef } from "react"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function HeroSection() {
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,7 +40,6 @@ export default function HeroSection() {
         <div className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-accent/5 blur-[120px]"></div>
       </div>
 
-
       <div className="container px-4 md:px-6 z-10 py-12">
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16 items-center">
           <div className="flex flex-col justify-center space-y-6 max-w-3xl">
@@ -48,33 +49,35 @@ export default function HeroSection() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                AI-Powered Antique Valuation
+                {t('hero_sub')}
               </div>
               <h1 className="text-4xl font-serif tracking-tight sm:text-5xl md:text-6xl lg:text-7xl mb-4 italic">
-                Discover the <span className="text-primary not-italic font-medium">Value</span> of Your Antiques
+                {/* We'll handle the "Value" highlight specifically */}
+                {t('hero_title').split('Value')[0]}
+                <span className="text-primary not-italic font-medium">{t('hero_title').includes('Value') ? 'Value' : ''}</span>
+                {t('hero_title').split('Value')[1]}
               </h1>
               <p className="text-lg text-muted-foreground md:text-xl/relaxed max-w-[90%] font-medium tracking-wide">
-                Upload images of your antique items and receive AI-powered appraisals with historical context and estimated value.
+                {t('hero_desc')}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link href="/appraise-v2">
                 <Button size="lg" className="px-10 rounded-full text-lg h-14 shadow-none border-2 border-primary hover:bg-primary/90 transition-all font-heading tracking-widest uppercase text-xs">
-                  Get Started
+                  {t('hero_start')}
                 </Button>
               </Link>
               <Link href="#features">
                 <Button size="lg" variant="outline" className="px-10 rounded-full text-lg h-14 shadow-none border-2 hover:bg-secondary/50 transition-all font-heading tracking-widest uppercase text-xs">
-                  Learn More
+                  {t('hero_learn')}
                 </Button>
               </Link>
-
             </div>
             <div className="mt-6 text-sm text-muted-foreground flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-primary" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span>One free valuation daily • No credit card required</span>
+              <span>{t('hero_free')}</span>
             </div>
           </div>
           <div className="flex items-center justify-center lg:justify-end relative">

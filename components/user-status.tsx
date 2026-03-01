@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Coins, Info } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useLanguage } from "@/contexts/language-context"
 
 interface UserStatusProps {
   freeValuationsLeft: number
@@ -10,12 +11,13 @@ interface UserStatusProps {
 }
 
 export default function UserStatus({ freeValuationsLeft, tokenBalance }: UserStatusProps) {
+  const { t } = useLanguage();
   return (
     <Card className="h-full">
       <CardContent className="flex flex-col justify-between p-4 h-full">
         <div className="flex flex-col space-y-3">
           <div className="flex items-center">
-            <div className="mr-2 text-sm font-medium">Free Valuations Today:</div>
+            <div className="mr-2 text-sm font-medium">{t('user_status_free_label')}</div>
             <div className="font-bold text-lg">{freeValuationsLeft}</div>
             <TooltipProvider>
               <Tooltip>
@@ -26,21 +28,21 @@ export default function UserStatus({ freeValuationsLeft, tokenBalance }: UserSta
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="max-w-xs">You get one free valuation per day. Additional valuations require tokens.</p>
+                  <p className="max-w-xs">{t('user_status_free_tooltip')}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
           <div className="flex items-center">
             <Coins className="mr-2 h-5 w-5 text-primary" />
-            <div className="mr-2 text-sm font-medium">Token Balance:</div>
+            <div className="mr-2 text-sm font-medium">{t('user_status_balance_label')}</div>
             <div className="font-bold text-lg">{tokenBalance}</div>
           </div>
         </div>
         <div className="mt-4">
           <Link href="/buy-tokens">
             <Button variant="outline" size="sm">
-              Buy Tokens
+              {t('btn_buy_tokens')}
             </Button>
           </Link>
         </div>

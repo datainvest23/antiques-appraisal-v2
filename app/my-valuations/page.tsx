@@ -7,8 +7,10 @@ import ReferralBanner from "@/components/referral-banner"
 import ProtectedRoute from "@/components/protected-route"
 import { useAuth } from "@/contexts/auth-context"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function MyValuationsPage() {
+  const { t } = useLanguage()
   const { user, getTokenBalance } = useAuth()
   const [valuations, setValuations] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -36,8 +38,8 @@ export default function MyValuationsPage() {
         // 3. Process and merge
         const standardAppraisals = (appraisalsRes.data || []).map(a => ({
           id: a.id,
-          title: a.object_name || "General Appraisal",
-          summary: a.item_description || "Detailed appraisal of your antique item.",
+          title: a.object_name || t('general_appraisal'),
+          summary: a.item_description || t('detailed_item_desc'),
           created_at: a.created_at,
           is_detailed: true,
           type: 'standard'
@@ -45,8 +47,8 @@ export default function MyValuationsPage() {
 
         const kimiAppraisals = (kimiRes.data || []).map(a => ({
           id: a.id,
-          title: a.object_name || "Kimi Appraisal",
-          summary: a.intake_comments || "Initial categorization and description.",
+          title: a.object_name || t('kimi_appraisal'),
+          summary: a.intake_comments || t('initial_categorization'),
           created_at: a.created_at,
           is_detailed: false,
           type: 'kimi'

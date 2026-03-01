@@ -7,8 +7,10 @@ import ProtectedRoute from "@/components/protected-route"
 import { useAuth } from "@/contexts/auth-context"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useParams, useRouter } from "next/navigation"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function ValuationDetailPage() {
+  const { t } = useLanguage()
   const { user, getTokenBalance } = useAuth()
   const { id } = useParams()
   const router = useRouter()
@@ -39,8 +41,8 @@ export default function ValuationDetailPage() {
           // Format Kimi data with all structured fields
           setValuation({
             id: data.id,
-            title: data.object_name || "Kimi Appraisal",
-            summary: data.context || "Initial categorization and description.",
+            title: data.object_name || t('kimi_appraisal'),
+            summary: data.context || t('initial_categorization'),
             full_description: data.kimi_analysis?.choices?.[0]?.message?.content || "",
             created_at: data.created_at,
             is_detailed: false,
@@ -73,8 +75,8 @@ export default function ValuationDetailPage() {
         if (stdData) {
           setValuation({
             id: stdData.id,
-            title: stdData.object_name || "Antique Appraisal",
-            summary: stdData.item_description || "Detailed appraisal report.",
+            title: stdData.object_name || t('general_appraisal'),
+            summary: stdData.item_description || t('detailed_item_desc'),
             full_description: stdData.valuation_report?.response?.Final_Recommendations?.Next_Steps || "",
             created_at: stdData.created_at,
             is_detailed: true,
