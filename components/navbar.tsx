@@ -43,6 +43,7 @@ interface UserMenuProps {
 }
 
 function UserMenu({ user, userFullName, isAdmin, signOut, className }: UserMenuProps) {
+  const { t } = useLanguage()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
