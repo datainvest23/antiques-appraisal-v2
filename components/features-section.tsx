@@ -1,3 +1,5 @@
+"use client"
+
 import { Camera, MessageSquare, VolumeX, Coins, Clock, Award } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 

@@ -136,7 +136,7 @@ export function AntiqueAppraisal({
       setIsRecording(false)
 
       toast({
-        title: t('error_mic_access_title', 'Microphone error'),
+        title: t('error_mic_access_title'),
         description: t('error_mic_access'),
         variant: "destructive"
       })
@@ -159,7 +159,7 @@ export function AntiqueAppraisal({
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError(t('error_appraisal_failed', 'Failed to process appraisal request.'))
+        setError(t('error_appraisal_failed'))
       }
     } finally {
       setIsUploading(false)
@@ -189,7 +189,7 @@ export function AntiqueAppraisal({
 
       // Add title
       doc.setFontSize(20);
-      doc.setTextColor(...secondaryColor);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
 
       const title = activeServiceType === "basic" || selectedService === "basic"
         ? t('report_title_basic')
@@ -204,7 +204,7 @@ export function AntiqueAppraisal({
       const dateStr = today.toLocaleDateString();
 
       doc.setFontSize(10);
-      doc.setTextColor(...secondaryColor);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       doc.text(`Date: ${dateStr}`, 20, 30);
 
       // Add content from HTML
@@ -215,7 +215,7 @@ export function AntiqueAppraisal({
 
         // Format the content
         doc.setFontSize(12);
-        doc.setTextColor(...secondaryColor);
+        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         const contentChunks = doc.splitTextToSize(content, 170);
         doc.text(contentChunks, 20, 40);
       }
@@ -226,7 +226,7 @@ export function AntiqueAppraisal({
         doc.addPage();
 
         doc.setFontSize(16);
-        doc.setTextColor(...primaryColor);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.text(t('analyzed_images_title'), 105, 20, { align: 'center' });
 
         // Position images in a grid
@@ -448,7 +448,7 @@ export function AntiqueAppraisal({
                   <div className="mb-4">
                     <h2 className="text-lg font-semibold text-center mb-3 text-slate-700">{t('analyzed_images_title')}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {analysisResult.images.map((imageUrl, index) => (
+                      {analysisResult.images.map((imageUrl: string, index: number) => (
                         <div key={index} className="overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white p-1 relative h-40">
                           <Image
                             src={signedImages[imageUrl] || imageUrl}
@@ -483,7 +483,7 @@ export function AntiqueAppraisal({
                         <div className="flex flex-col md:items-end">
                           <span className="uppercase tracking-widest text-[9px] text-amber-500/60">{t('report_date_label')}</span>
                           <span className="text-sm font-semibold text-white/80 tabular-nums">
-                            {new Date().toLocaleDateString(t('date_locale', 'en-GB'), { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date().toLocaleDateString(t('date_locale'), { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                         </div>
                         <Button
