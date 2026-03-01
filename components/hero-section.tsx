@@ -2,135 +2,130 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useLanguage } from "@/contexts/language-context"
+import { Play, Volume2, VolumeX, X, Info } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function HeroSection() {
   const { t } = useLanguage();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const playVideo = async () => {
-    if (videoRef.current) {
-      try {
-        videoRef.current.muted = false;
-        await videoRef.current.play();
-        setIsMuted(false);
-        setIsPlaying(true);
-      } catch (err) {
-        console.error("Video playback failed:", err);
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(videoRef.current.muted);
-    }
-  };
+  // Use local video from public folder as requested
+  const videoSrc = "/aa_intro2.mp4";
 
   return (
     <section className="w-full min-h-[90vh] flex items-center relative overflow-hidden bg-background">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 z-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]"></div>
-      <div className="absolute inset-0 z-0 opacity-30">
-        <div className="absolute top-20 right-10 w-96 h-96 rounded-full bg-primary/10 blur-[120px]"></div>
-        <div className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-accent/5 blur-[120px]"></div>
+      {/* Decorative background elements - Premium "Antique" aesthetic */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]"></div>
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+        <div className="absolute top-20 right-[10%] w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px] animate-pulse-slow"></div>
+        <div className="absolute bottom-10 left-[5%] w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] animate-pulse-slow delay-700"></div>
       </div>
 
-      <div className="container px-4 md:px-6 z-10 py-12">
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16 items-center">
-          <div className="flex flex-col justify-center space-y-6 max-w-3xl">
-            <div className="space-y-4">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2 animate-fade-in">
-                <span className="relative flex h-2 w-2 mr-2">
+      <div className="container px-4 md:px-6 z-10 py-20">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+          <div className="flex flex-col justify-center space-y-8 max-w-3xl">
+            <div className="space-y-6">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase mb-2 animate-fade-in shadow-sm border border-primary/20">
+                <span className="relative flex h-2 w-2 mr-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
                 {t('hero_sub')}
               </div>
-              <h1 className="text-4xl font-serif tracking-tight sm:text-5xl md:text-6xl lg:text-7xl mb-4 italic">
-                {/* We'll handle the "Value" highlight specifically */}
-                {t('hero_title').split('Value')[0]}
-                <span className="text-primary not-italic font-medium">{t('hero_title').includes('Value') ? 'Value' : ''}</span>
-                {t('hero_title').split('Value')[1]}
+
+              <h1 className="text-5xl font-serif tracking-tight sm:text-6xl md:text-7xl lg:text-8xl mb-4 leading-[1.1]">
+                {t('hero_title').split('Value').map((part, i, arr) => (
+                  <span key={i}>
+                    {part}
+                    {i < arr.length - 1 && (
+                      <span className="text-primary not-italic font-medium relative inline-block">
+                        Value
+                        <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/20 rounded-full"></span>
+                      </span>
+                    )}
+                  </span>
+                ))}
               </h1>
-              <p className="text-lg text-muted-foreground md:text-xl/relaxed max-w-[90%] font-medium tracking-wide">
+
+              <p className="text-xl text-muted-foreground md:text-2xl/relaxed max-w-[95%] font-medium tracking-tight leading-relaxed">
                 {t('hero_desc')}
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+
+            <div className="flex flex-col sm:flex-row gap-5 pt-4">
               <Link href="/appraise-v2">
-                <Button size="lg" className="px-10 rounded-full text-lg h-14 shadow-none border-2 border-primary hover:bg-primary/90 transition-all font-heading tracking-widest uppercase text-xs">
+                <Button size="lg" className="px-12 rounded-full text-sm h-16 shadow-xl shadow-primary/20 border-2 border-primary hover:bg-primary/90 transition-all font-heading tracking-widest uppercase active:scale-95 group">
                   {t('hero_start')}
+                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                 </Button>
               </Link>
               <Link href="#features">
-                <Button size="lg" variant="outline" className="px-10 rounded-full text-lg h-14 shadow-none border-2 hover:bg-secondary/50 transition-all font-heading tracking-widest uppercase text-xs">
+                <Button size="lg" variant="outline" className="px-12 rounded-full text-sm h-16 shadow-none border-2 hover:bg-secondary/50 transition-all font-heading tracking-widest uppercase active:scale-95 text-muted-foreground">
                   {t('hero_learn')}
                 </Button>
               </Link>
             </div>
-            <div className="mt-6 text-sm text-muted-foreground flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-primary" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>{t('hero_free')}</span>
+
+            <div className="mt-8 flex items-center space-x-6 text-sm font-medium text-muted-foreground/80">
+              <div className="flex items-center">
+                <div className="bg-primary/10 p-1 rounded-full mr-3 text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span>{t('hero_free')}</span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center justify-center lg:justify-end relative">
-            <div className="relative w-full max-w-[500px] md:max-w-[600px] aspect-video rounded-2xl overflow-hidden shadow-2xl transform transition-all animate-fade-in border border-white/20">
-              {/* Video container with gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/30 to-transparent z-10 pointer-events-none"></div>
 
-              {/* Video */}
-              <video
-                ref={videoRef}
-                src="https://twgftxpfiqryfifgajsd.supabase.co/storage/v1/object/public/pub//aa_intro2.mp4"
-                className="w-full h-full object-cover"
-                playsInline
-                loop
-                poster="/aa_logo.png"
-              />
+          <div className="flex items-center justify-center lg:justify-end">
+            <div className="relative group w-full max-w-[550px] aspect-video">
+              {/* Cinematic Video Card */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-[2.5rem] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-1000 -z-10"></div>
 
-              {/* Play button overlay */}
-              {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center z-20">
-                  <button
-                    onClick={playVideo}
-                    className="bg-primary/90 hover:bg-primary text-white p-4 rounded-full transition-all transform hover:scale-105 flex items-center gap-2 px-6"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    Play Video
+              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogTrigger asChild>
+                  <button className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-1 cursor-pointer ring-1 ring-black/5">
+                    {/* Visual Placeholder/Poster with Vignette */}
+                    <div className="absolute inset-0 bg-[url('/aa_logo.png')] bg-center bg-no-repeat bg-[length:60%] opacity-20 transition-transform duration-700 group-hover:scale-110"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10 transition-colors group-hover:from-black/70"></div>
+
+                    {/* Central Play Button */}
+                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                      <div className="bg-primary/95 text-white p-6 rounded-full transition-all duration-300 transform group-hover:scale-110 shadow-2xl group-hover:shadow-primary/40 ring-4 ring-white/20 flex items-center justify-center group-active:scale-95">
+                        <Play className="h-8 w-8 fill-current ml-1" />
+                      </div>
+                    </div>
+
+                    <div className="absolute bottom-6 left-6 z-20 flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                        <Info className="h-5 w-5 text-white/80" />
+                      </div>
+                      <span className="text-white font-heading tracking-widest uppercase text-[10px] drop-shadow-md">
+                        Preview: Understanding Appraisals
+                      </span>
+                    </div>
                   </button>
-                </div>
-              )}
+                </DialogTrigger>
 
-              {/* Mute toggle button - only show when video is playing */}
-              {isPlaying && (
-                <button
-                  onClick={toggleMute}
-                  className="absolute bottom-4 right-4 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all"
-                  aria-label={isMuted ? "Unmute" : "Mute"}
-                >
-                  {isMuted ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
-                      <line x1="23" y1="9" x2="17" y2="15"></line>
-                      <line x1="17" y1="9" x2="23" y2="15"></line>
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    </svg>
-                  )}
-                </button>
-              )}
+                <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black/95 border-white/10 shadow-2xl">
+                  <div className="relative aspect-video w-full bg-black">
+                    <video
+                      src={videoSrc}
+                      className="w-full h-full object-contain"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
