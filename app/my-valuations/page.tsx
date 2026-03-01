@@ -35,14 +35,17 @@ export default function MyValuationsPage() {
           supabase.from("kimi_appraisals").select("*").eq("user_id", user.id)
         ])
 
-        // 3. Process and merge
+        // 3. Process and merge with enhanced data
         const standardAppraisals = (appraisalsRes.data || []).map(a => ({
           id: a.id,
           title: a.object_name || t('general_appraisal'),
           summary: a.item_description || t('detailed_item_desc'),
           created_at: a.created_at,
           is_detailed: true,
-          type: 'standard'
+          type: 'standard',
+          image_url: a.image_urls?.[0] || null,
+          category: a.valuation_report?.response?.Object_Identification?.Object_Type || null,
+          era: a.valuation_report?.response?.Object_Identification?.Estimated_Period || null
         }))
 
         const kimiAppraisals = (kimiRes.data || []).map(a => ({
@@ -51,7 +54,10 @@ export default function MyValuationsPage() {
           summary: a.intake_comments || t('initial_categorization'),
           created_at: a.created_at,
           is_detailed: false,
-          type: 'kimi'
+          type: 'kimi',
+          image_url: a.image_urls?.[0] || null,
+          category: a.category,
+          era: a.stylistic_period
         }))
 
         const combined = [...standardAppraisals, ...kimiAppraisals].sort(

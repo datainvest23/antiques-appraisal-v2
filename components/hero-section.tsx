@@ -8,6 +8,8 @@ import { Play, Volume2, VolumeX, X, Info } from "lucide-react"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 
@@ -115,6 +117,10 @@ export default function HeroSection() {
                 </DialogTrigger>
 
                 <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black/95 border-white/10 shadow-2xl">
+                  <div className="sr-only">
+                    <DialogTitle>Antique Appraisal Introduction Video</DialogTitle>
+                    <DialogDescription>A video overview of our AI-powered antique valuation process.</DialogDescription>
+                  </div>
                   <div className="relative aspect-video w-full bg-black">
                     <video
                       src={videoSrc}
