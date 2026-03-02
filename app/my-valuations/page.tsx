@@ -44,6 +44,7 @@ export default function MyValuationsPage() {
           is_detailed: true,
           type: 'standard',
           image_url: a.image_urls?.[0] || null,
+          image_urls: a.image_urls || [],
           category: a.valuation_report?.response?.Object_Identification?.Object_Type || null,
           era: a.valuation_report?.response?.Object_Identification?.Estimated_Period || null
         }))
@@ -56,6 +57,7 @@ export default function MyValuationsPage() {
           is_detailed: false,
           type: 'kimi',
           image_url: a.image_urls?.[0] || null,
+          image_urls: a.image_urls || [],
           category: a.category,
           era: a.stylistic_period
         }))

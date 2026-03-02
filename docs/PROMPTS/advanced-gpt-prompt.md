@@ -63,16 +63,7 @@ Confidence Level (High / Medium / Low)
 
 # 2. PURPOSE OF VALUATION
 
-Define intended use:
-
-Insurance
-Sale
-Auction Estimate
-Estate
-Financial Reporting
-Litigation
-Private Sale
-Collection Management
+The intended use 
 
 Specify:
 
@@ -80,9 +71,6 @@ Basis of Value:
 
 Market Value
 Fair Market Value
-Replacement Value
-Liquidation Value
-Investment Value
 
 Define according to IVS.
 
