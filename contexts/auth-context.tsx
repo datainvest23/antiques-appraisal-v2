@@ -153,34 +153,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error
 
-      // Create user profile and token balance
-      if (user) {
-        // Insert into users table
+      // Note: public.users and public.tokens rows are created automatically
+      // by the handle_new_user trigger on auth.users INSERT.
+      // No manual insert needed here.
+
+      // If firstName/lastName were provided, update the profile after signup
+      if (user && (firstName || lastName)) {
         await supabase
           .from('users')
-          .insert({
-            user_id: user.id,
-            email: user.email || '',
-            user_type: 'user',
+          .update({
             first_name: firstName || null,
             last_name: lastName || null,
-            profile_data: {}
           })
-
-        // Initialize token balance with 5 free tokens
-        await supabase
-          .from('tokens')
-          .insert({
-            user_id: user.id,
-            token_balance: 5,
-            transaction_history: [
-              {
-                timestamp: new Date().toISOString(),
-                tokens: 5,
-                reason: 'initial_signup'
-              }
-            ]
-          })
+          .eq('user_id', user.id)
       }
 
       router.push('/verification-sent')
