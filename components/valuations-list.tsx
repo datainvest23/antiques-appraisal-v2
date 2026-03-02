@@ -13,6 +13,8 @@ import { getSignedImageUrl } from "@/lib/storage-auth"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { processMarkdownResponse } from "@/lib/markdown"
 import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/contexts/auth-context"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 interface Valuation {
   id: string
@@ -96,14 +98,39 @@ function ComparableTable({ sales }: { sales: Array<{ title: string; auction_hous
 function ValuationCard({ valuation }: { valuation: Valuation }) {
   const { t } = useLanguage()
   const { toast } = useToast()
+  const { user } = useAuth()
+  const supabase = createClientComponentClient()
   const [displayUrl, setDisplayUrl] = useState<string | null>(null)
+  const [resolvedImageUrls, setResolvedImageUrls] = useState<string[]>([])
   const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>('idle')
   const [deepReport, setDeepReport] = useState<Record<string, any> | null>(null)
   const [showDeepModal, setShowDeepModal] = useState(false)
   const isDeepAnalyzing = loadingPhase !== 'idle' && loadingPhase !== 'done'
+  const hasSavedReport = deepReport !== null && loadingPhase === 'idle'
+
+  // Load existing deep report from Supabase if it exists
+  useEffect(() => {
+    const loadSavedReport = async () => {
+      if (!user) return
+      try {
+        const { data } = await supabase
+          .from('deep_valuations')
+          .select('report_json')
+          .eq('valuation_id', valuation.id)
+          .single()
+        if (data?.report_json) {
+          setDeepReport(data.report_json)
+        }
+      } catch {
+        // No saved report — that's fine
+      }
+    }
+    loadSavedReport()
+  }, [valuation.id, user])
 
   useEffect(() => {
     const resolveImage = async () => {
+      // Resolve primary thumbnail
       if (valuation.image_url) {
         if (valuation.image_url.includes('supabase.co')) {
           const signed = await getSignedImageUrl(valuation.image_url)
@@ -112,27 +139,34 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
           setDisplayUrl(valuation.image_url)
         }
       }
+      // Resolve all images for use in the report
+      const allUrls = valuation.image_urls?.length
+        ? valuation.image_urls
+        : valuation.image_url ? [valuation.image_url] : []
+      const resolved = await Promise.all(
+        allUrls.map(async (url) =>
+          url.includes('supabase.co') ? await getSignedImageUrl(url) : url
+        )
+      )
+      setResolvedImageUrls(resolved.filter(Boolean) as string[])
     }
     resolveImage()
-  }, [valuation.image_url])
+  }, [valuation.image_url, valuation.image_urls])
 
   const handleDeepValuation = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
+    // If a saved report already exists, just open the modal
+    if (hasSavedReport) {
+      setShowDeepModal(true)
+      return
+    }
+
     try {
       setLoadingPhase('images')
       setDeepReport(null)
       setShowDeepModal(true)
-
-      // Resolve signed URLs
-      const imagesToProcess = valuation.image_urls || (valuation.image_url ? [valuation.image_url] : [])
-      const resolvedUrls = await Promise.all(
-        imagesToProcess.map(async (url) => {
-          if (url.includes('supabase.co')) return await getSignedImageUrl(url)
-          return url
-        })
-      )
 
       setLoadingPhase('research')
 
@@ -149,8 +183,9 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
             era: valuation.era,
             summary: valuation.summary
           },
-          imageUrls: resolvedUrls,
-          valuationId: valuation.id
+          imageUrls: resolvedImageUrls,
+          valuationId: valuation.id,
+          userId: user?.id,
         })
       })
 
@@ -178,17 +213,25 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
 
   const handleExportPDF = async () => {
     if (!deepReport) return
-    // Simple print-to-PDF approach
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
+    const imagesHtml = resolvedImageUrls.length
+      ? `<div style="display:flex;gap:12px;flex-wrap:wrap;margin:1.5em 0">
+          ${resolvedImageUrls.map(url =>
+        `<img src="${url}" style="max-height:220px;max-width:280px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0" />`
+      ).join('')}
+        </div>`
+      : ''
     const html = `<!DOCTYPE html><html><head><title>${deepReport.title || 'Valuation Report'}</title>
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;color:#1a1a1a;line-height:1.8;}
-    h1{font-size:2em;margin-bottom:0.5em;}h2{font-size:0.8em;text-transform:uppercase;letter-spacing:0.3em;color:#92400e;margin-top:2em;border-bottom:1px solid #fcd34d;padding-bottom:0.3em;}
+    h1{font-size:2em;margin-bottom:0.3em;}h2{font-size:0.8em;text-transform:uppercase;letter-spacing:0.3em;color:#92400e;margin-top:2em;border-bottom:1px solid #fcd34d;padding-bottom:0.3em;}
     table{width:100%;border-collapse:collapse;margin:1em 0;}td,th{padding:8px;border:1px solid #e2e8f0;text-align:left;}
-    th{background:#f8fafc;font-size:0.75em;text-transform:uppercase;}</style></head>
+    th{background:#f8fafc;font-size:0.75em;text-transform:uppercase;}
+    @media print{img{max-height:180px;}}</style></head>
     <body><h1>${deepReport.title || 'Professional Valuation Report'}</h1>
     <p><strong>Date:</strong> ${deepReport.valuation_date} &nbsp; <strong>Currency:</strong> ${deepReport.currency} &nbsp; <strong>Confidence:</strong> ${deepReport.confidence_level}</p>
     <p><strong>Estimated Value:</strong> ${deepReport.currency} ${deepReport.estimated_value_low?.toLocaleString()} – ${deepReport.estimated_value_high?.toLocaleString()}</p>
+    ${imagesHtml}
     ${Object.entries(deepReport.sections || {}).map(([key, sec]: [string, any]) =>
       `<h2>${key.replace(/_/g, ' ')}</h2><div>${processMarkdownResponse(sec.content || '')}</div>`
     ).join('')}
@@ -243,10 +286,22 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
                 onClick={handleDeepValuation}
                 className="h-8 rounded-full bg-black/60 hover:bg-black/80 text-white border-none backdrop-blur-md text-[10px] uppercase font-bold tracking-wider px-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
               >
-                {isDeepAnalyzing ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1 text-amber-400" />}
-                Deep Valuation
+                {isDeepAnalyzing
+                  ? <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                  : hasSavedReport
+                    ? <FileCheck className="h-3 w-3 mr-1 text-emerald-400" />
+                    : <Sparkles className="h-3 w-3 mr-1 text-amber-400" />}
+                {hasSavedReport ? 'View Deep Report' : 'Deep Valuation'}
               </Button>
             </div>
+            {/* Persistent indicator when a deep report exists */}
+            {hasSavedReport && (
+              <div className="absolute top-3 right-3">
+                <Badge className="bg-emerald-600/90 text-white border-none shadow-md backdrop-blur-sm text-[9px] px-2">
+                  <FileCheck className="h-2.5 w-2.5 mr-1" />Deep Report
+                </Badge>
+              </div>
+            )}
           </div>
 
           <CardHeader className="p-5 pb-2">
@@ -380,6 +435,20 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
             {/* ── REPORT STATE ── */}
             {!isDeepAnalyzing && deepReport && (
               <div className="p-8">
+                {/* Item Images */}
+                {resolvedImageUrls.length > 0 && (
+                  <div className="mb-8">
+                    <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Item Images</p>
+                    <div className="flex gap-3 flex-wrap">
+                      {resolvedImageUrls.map((url, i) => (
+                        <div key={i} className="relative h-40 w-56 rounded-xl overflow-hidden border border-slate-200 shadow-sm flex-shrink-0">
+                          <Image src={url} alt={`Item image ${i + 1}`} fill className="object-cover" unoptimized />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Value Banner */}
                 {deepReport.estimated_value_low && (
                   <div className="mb-8 bg-gradient-to-r from-amber-50 to-amber-100/50 border border-amber-200 rounded-2xl p-6 flex flex-wrap gap-6 items-center">
