@@ -7,7 +7,7 @@ import { UserNav } from "@/components/user-nav";
 
 export function AppHeader() {
   const { user, signOut } = useAuth();
-  
+
   return (
     <header className="w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
@@ -17,7 +17,7 @@ export function AppHeader() {
             {user ? (
               <>
                 <Link
-                  href="/appraise"
+                  href="/appraise-v2"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
                     "px-4"

@@ -106,7 +106,7 @@ export default function HowItWorks() {
                 {t('cta_desc')}
               </p>
             </div>
-            <a href="/appraise" className="inline-flex h-12 items-center justify-center rounded-full border bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1">
+            <a href="/appraise-v2" className="inline-flex h-12 items-center justify-center rounded-full border bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1">
               {t('cta_start')}
             </a>
           </div>

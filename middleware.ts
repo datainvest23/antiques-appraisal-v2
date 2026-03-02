@@ -11,37 +11,37 @@ import type { NextRequest } from 'next/server'
 export async function middleware(req: NextRequest) {
   // Create a response object that we can modify
   const res = NextResponse.next()
-  
+
   // Create a Supabase client specifically for the middleware
   const supabase = createMiddlewareClient({ req, res })
-  
+
   // Refresh session if expired
   const { data: { session } } = await supabase.auth.getSession()
-  
+
   // Current path info
   const path = req.nextUrl.pathname
-  
+
   // Define route types
-  const isProtectedRoute = 
-    path.startsWith('/appraise') || 
-    path.startsWith('/my-valuations') || 
-    path.startsWith('/referrals') || 
+  const isProtectedRoute =
+    path.startsWith('/appraise') ||
+    path.startsWith('/my-valuations') ||
+    path.startsWith('/referrals') ||
     path.startsWith('/buy-tokens') ||
     path.startsWith('/profile')
-  
-  const isAuthRoute = 
-    path === '/login' || 
+
+  const isAuthRoute =
+    path === '/login' ||
     path === '/verification-sent' ||
     path === '/forgot-password'
-  
+
   // Public routes that don't need special handling
-  const isPublicRoute = 
-    path === '/' || 
+  const isPublicRoute =
+    path === '/' ||
     path.startsWith('/auth/callback') ||
     path.startsWith('/api/') ||
     path.startsWith('/_next/') ||
     path === '/reset-password'
-  
+
   // Handle protected routes - redirect to login if not authenticated
   if (isProtectedRoute && !session) {
     const redirectUrl = new URL('/login', req.url)
@@ -49,13 +49,13 @@ export async function middleware(req: NextRequest) {
     redirectUrl.searchParams.set('redirect', path)
     return NextResponse.redirect(redirectUrl)
   }
-  
+
   // Handle auth routes - redirect to main app if already authenticated
   // Note: We don't redirect from reset-password page even when authenticated
   if (isAuthRoute && session && path !== '/forgot-password') {
-    return NextResponse.redirect(new URL('/appraise', req.url))
+    return NextResponse.redirect(new URL('/appraise-v2', req.url))
   }
-  
+
   // For everything else, continue with enhanced response
   // (session refresh tokens handled by Supabase client)
   return res
@@ -73,7 +73,7 @@ export const config = {
     '/referrals/:path*',
     '/buy-tokens/:path*',
     '/profile/:path*',
-    
+
     // Auth routes
     '/login',
     '/verification-sent',

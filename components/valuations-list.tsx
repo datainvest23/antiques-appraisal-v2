@@ -474,7 +474,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
         <p className="text-slate-500 mb-8 max-w-sm mx-auto">
           {t('no_valuations_desc')}
         </p>
-        <Link href="/appraise">
+        <Link href="/appraise-v2">
           <Button className="rounded-full px-8 bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20">
             {t('btn_create_first_valuation')}
           </Button>
@@ -490,7 +490,7 @@ export default function ValuationsList({ valuations }: ValuationsListProps) {
           <h2 className="text-3xl font-serif font-bold text-slate-900">{t('valuations_title')}</h2>
           <p className="text-slate-500 mt-1">{valuations.length} {t('valuations_count_label') || 'valuations total'}</p>
         </div>
-        <Link href="/appraise">
+        <Link href="/appraise-v2">
           <Button className="rounded-full shadow-md bg-amber-600 hover:bg-amber-700">
             {t('btn_new_valuation')}
           </Button>
