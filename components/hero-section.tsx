@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { useLanguage } from "@/contexts/language-context"
-import { Play, Volume2, VolumeX, X, Info } from "lucide-react"
+import { Play, Info } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -21,102 +21,86 @@ export default function HeroSection() {
   const videoSrc = "/aa_intro2.mp4";
 
   return (
-    <section className="w-full min-h-[90vh] flex items-center relative overflow-hidden bg-background">
+    <section className="w-full min-h-[90vh] flex items-center relative overflow-hidden bg-slate-50">
       {/* Decorative background elements - Premium "Antique" aesthetic */}
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]"></div>
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="absolute top-20 right-[10%] w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-10 left-[5%] w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] animate-pulse-slow delay-700"></div>
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[10%] -right-[5%] w-[800px] h-[800px] rounded-full bg-amber-600/10 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+        <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-slate-400/10 blur-[100px] animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }}></div>
       </div>
 
-      <div className="container px-4 md:px-6 z-10 py-20">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-          <div className="flex flex-col justify-center space-y-8 max-w-3xl">
-            <div className="space-y-6">
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase mb-2 animate-fade-in shadow-sm border border-primary/20">
+      <div className="container px-4 md:px-6 z-10 py-12 md:py-24">
+        <div className="grid gap-16 lg:grid-cols-2 items-center">
+          <div className="flex flex-col justify-center space-y-10 max-w-3xl relative">
+            <div className="space-y-8">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-amber-50 border border-amber-200/60 shadow-sm backdrop-blur-md">
                 <span className="relative flex h-2 w-2 mr-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600"></span>
                 </span>
-                {t('hero_sub')}
+                <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-amber-800">
+                  {t('hero_sub')}
+                </span>
               </div>
 
-              <h1 className="text-5xl font-serif tracking-tight sm:text-6xl md:text-7xl lg:text-8xl mb-4 leading-[1.1]">
+              <h1 className="text-5xl font-serif tracking-tight sm:text-7xl md:text-8xl lg:text-9xl mb-6 leading-[0.95] text-slate-900 drop-shadow-sm">
                 {t('hero_title').split('Value').map((part, i, arr) => (
                   <span key={i}>
                     {part}
                     {i < arr.length - 1 && (
-                      <span className="text-primary not-italic font-medium relative inline-block">
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-yellow-600 not-italic font-medium relative inline-block mx-2 drop-shadow-none">
                         Value
-                        <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/20 rounded-full"></span>
                       </span>
                     )}
                   </span>
                 ))}
               </h1>
 
-              <p className="text-xl text-muted-foreground md:text-2xl/relaxed max-w-[95%] font-medium tracking-tight leading-relaxed">
+              <p className="max-w-[600px] text-lg md:text-xl text-slate-500 leading-relaxed font-serif italic selection:bg-amber-100 selection:text-amber-900 border-l-2 border-amber-200/50 pl-4 py-1">
                 {t('hero_desc')}
               </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-5 pt-4">
-              <Link href="/appraise-v2">
-                <Button size="lg" className="px-12 rounded-full text-sm h-16 shadow-xl shadow-primary/20 border-2 border-primary hover:bg-primary/90 transition-all font-heading tracking-widest uppercase active:scale-95 group">
-                  {t('hero_start')}
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                </Button>
-              </Link>
-              <Link href="#features">
-                <Button size="lg" variant="outline" className="px-12 rounded-full text-sm h-16 shadow-none border-2 hover:bg-secondary/50 transition-all font-heading tracking-widest uppercase active:scale-95 text-muted-foreground">
-                  {t('hero_learn')}
-                </Button>
-              </Link>
-            </div>
-
-            <div className="mt-8 flex items-center space-x-6 text-sm font-medium text-muted-foreground/80">
-              <div className="flex items-center">
-                <div className="bg-primary/10 p-1 rounded-full mr-3 text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span>{t('hero_free')}</span>
-              </div>
             </div>
           </div>
 
           <div className="flex items-center justify-center lg:justify-end">
-            <div className="relative group w-full max-w-[550px] aspect-video">
-              {/* Cinematic Video Card */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-[2.5rem] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-1000 -z-10"></div>
+            <div className="relative group w-full max-w-[600px] aspect-[4/3] md:aspect-video">
+              {/* cinematic Video Card Background Glow */}
+              <div className="absolute -inset-8 bg-gradient-to-tr from-primary/15 to-accent/10 rounded-full blur-[80px] opacity-40 group-hover:opacity-60 transition-opacity duration-1000 -z-10 animate-pulse-slow"></div>
 
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
-                  <button className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-1 cursor-pointer ring-1 ring-black/5">
+                  <button className="relative w-full h-full rounded-none overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border border-primary/10 transition-all duration-700 group-hover:scale-[1.01] cursor-pointer outline-none ring-offset-background focus:ring-2 focus:ring-primary focus:ring-offset-2">
                     {/* Visual Placeholder/Poster with Vignette */}
-                    <div className="absolute inset-0 bg-[url('/aa_logo.png')] bg-center bg-no-repeat bg-[length:60%] opacity-20 transition-transform duration-700 group-hover:scale-110"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10 transition-colors group-hover:from-black/70"></div>
+                    <div className="absolute inset-0 bg-[url('/aa_logo.png')] bg-center bg-no-repeat bg-[length:50%] opacity-[0.08] transition-all duration-1000 group-hover:scale-110 group-hover:opacity-[0.12]"></div>
+                    <div className="absolute inset-0 bg-neutral-900 opacity-[0.02]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-all duration-500 group-hover:from-black/90"></div>
+
+                    {/* Corner accents */}
+                    <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-primary/20 transition-all duration-500 group-hover:w-24 group-hover:h-24"></div>
+                    <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-primary/20 transition-all duration-500 group-hover:w-24 group-hover:h-24"></div>
 
                     {/* Central Play Button */}
                     <div className="absolute inset-0 flex items-center justify-center z-20">
-                      <div className="bg-primary/95 text-white p-6 rounded-full transition-all duration-300 transform group-hover:scale-110 shadow-2xl group-hover:shadow-primary/40 ring-4 ring-white/20 flex items-center justify-center group-active:scale-95">
+                      <div className="bg-background/90 text-primary p-7 rounded-full transition-all duration-500 transform group-hover:scale-110 group-hover:bg-primary group-hover:text-white shadow-2xl border border-primary/20 flex items-center justify-center group-active:scale-95">
                         <Play className="h-8 w-8 fill-current ml-1" />
                       </div>
                     </div>
 
-                    <div className="absolute bottom-6 left-6 z-20 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
-                        <Info className="h-5 w-5 text-white/80" />
+                    <div className="absolute bottom-8 left-8 z-20 flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-none bg-primary/10 backdrop-blur-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary/20 transition-colors">
+                        <Info className="h-5 w-5 text-primary" />
                       </div>
-                      <span className="text-white font-heading tracking-widest uppercase text-[10px] drop-shadow-md">
-                        Preview: Understanding Appraisals
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-white font-heading tracking-[0.2em] uppercase text-[9px] font-bold opacity-70 mb-1">Introduction</span>
+                        <span className="text-white font-serif italic text-lg drop-shadow-lg tracking-wide">
+                          The Appraisal Process
+                        </span>
+                      </div>
                     </div>
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black/95 border-white/10 shadow-2xl">
+                <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black border-primary/20 shadow-2xl rounded-none">
                   <div className="sr-only">
                     <DialogTitle>Antique Appraisal Introduction Video</DialogTitle>
                     <DialogDescription>A video overview of our AI-powered antique valuation process.</DialogDescription>
@@ -132,6 +116,11 @@ export default function HeroSection() {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {/* Status indicator pill */}
+              <div className="absolute -top-4 -right-4 z-20 bg-background px-4 py-2 border border-primary/10 shadow-lg text-[8px] font-bold tracking-[0.2em] uppercase text-primary">
+                HD 4K Analysis
+              </div>
             </div>
           </div>
         </div>
@@ -139,4 +128,3 @@ export default function HeroSection() {
     </section>
   )
 }
-

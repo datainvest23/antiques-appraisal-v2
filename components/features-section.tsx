@@ -40,47 +40,48 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section className="w-full py-16 md:py-24 lg:py-32 bg-background relative overflow-hidden" id="features">
+    <section className="w-full py-20 md:py-32 lg:py-48 bg-background relative overflow-hidden" id="features">
+      {/* Decorative background textures */}
+      <div className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]"></div>
+
       {/* Decorative elements */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-secondary/5 blur-3xl"></div>
+        <div className="absolute top-[10%] -right-20 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[100px]"></div>
+        <div className="absolute bottom-[10%] -left-20 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]"></div>
       </div>
 
       <div className="container px-4 md:px-6 relative z-10">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-4 max-w-3xl">
-            <div className="inline-block px-4 py-1 text-[10px] font-heading tracking-[0.3em] uppercase text-primary border border-primary/20 mb-2">
+        <div className="flex flex-col items-center justify-center space-y-6 text-center">
+          <div className="space-y-6 max-w-4xl">
+            <div className="inline-block px-5 py-1.5 text-[9px] font-heading tracking-[0.4em] uppercase text-primary border border-primary/20 mb-2 bg-primary/5 backdrop-blur-sm">
               {t('features_label')}
             </div>
-            <h2 className="text-4xl font-serif italic md:text-5xl lg:text-6xl tracking-tight">
-              {t('features_title').split(' ')[0]} <span className="not-italic text-primary font-medium">{t('features_title').split(' ')[1]}</span>
+            <h2 className="text-4xl font-serif italic md:text-6xl lg:text-7xl tracking-tight leading-[1.1]">
+              {t('features_title').split(' ')[0]} <span className="not-italic text-primary font-medium relative">{t('features_title').split(' ')[1]}
+                <span className="absolute -bottom-2 translate-y-full left-0 w-full h-[1px] bg-primary/20"></span>
+              </span>
             </h2>
-            <p className="mx-auto max-w-[700px] text-muted-foreground md:text-lg mt-6 font-medium leading-relaxed">
+            <p className="mx-auto max-w-[800px] text-muted-foreground md:text-xl mt-10 font-medium leading-relaxed italic font-serif opacity-80">
               {t('features_desc')}
             </p>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 mt-24 mx-auto max-w-6xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 mt-32 mx-auto max-w-7xl px-4">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group relative flex flex-col items-start p-10 bg-background rounded-none border-l-[1px] border-primary/10 hover:border-primary/40 transition-all duration-500"
+              className="flex flex-col items-center text-center p-8 rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group"
             >
-              <div className="mb-8 p-0 group-hover:scale-110 transition-transform duration-500">
-                <feature.icon className="h-8 w-8 text-primary stroke-[1.25]" />
+              <div className="mb-6 p-5 rounded-full bg-slate-50 border border-slate-100 group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors duration-300">
+                <feature.icon className="w-8 h-8 text-slate-400 group-hover:text-amber-600 transition-colors duration-300" />
               </div>
-              <div className="space-y-4 text-left">
-                <h3 className="text-xl font-serif italic tracking-tight">{feature.title}</h3>
-                <p className="text-muted-foreground/80 leading-relaxed text-sm">
-                  {feature.description}
-                </p>
-              </div>
+              <h3 className="text-xl font-serif font-bold text-slate-800 mb-3 group-hover:text-amber-900 transition-colors">{feature.title}</h3>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>
-
       </div>
     </section>
   )

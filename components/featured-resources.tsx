@@ -53,38 +53,39 @@ export default function FeaturedResources() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredResources.map((resource) => (
             <div key={resource.id} className="bg-background rounded-none border border-primary/10 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] overflow-hidden hover:shadow-2xl hover:border-primary/20 transition-all group">
-              <div className="relative h-60 w-full grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700">
+              <div className="relative h-60 w-full grayscale-[0.4] group-hover:grayscale-0 transition-all duration-700">
                 <Image
                   src={resource.image}
                   alt={resource.title}
                   fill
-                  className="object-cover transition-transform duration-[1.5s] group-hover:scale-110"
+                  className="object-cover transition-transform duration-[2s] group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               </div>
 
-              <div className="p-8">
-                <div className="flex justify-between items-center text-[10px] font-heading tracking-widest uppercase text-muted-foreground/60 mb-4">
-                  <span className="text-primary/70">{t('heritage_guide')}</span>
+              <div className="p-8 bg-white border-t border-amber-50">
+                <div className="flex justify-between items-center text-[10px] font-heading tracking-widest uppercase text-slate-400 mb-4">
+                  <span className="text-amber-700 font-bold">{t('heritage_guide')}</span>
                   <div className="flex items-center">
                     <Clock className="mr-1.5 h-3 w-3" />
                     <span>{resource.readTime}</span>
                   </div>
                 </div>
 
-                <h3 className="text-xl font-serif mb-4 leading-snug group-hover:text-primary transition-colors">
+                <h3 className="text-xl font-serif mb-4 leading-snug group-hover:text-amber-900 transition-colors">
                   {resource.title}
                 </h3>
 
-                <p className="text-muted-foreground mb-8 text-sm line-clamp-2 leading-relaxed">
+                <p className="text-slate-500 mb-8 text-sm line-clamp-2 leading-relaxed">
                   {resource.description}
                 </p>
 
                 <Link
                   href={`/resources/${resource.id}`}
-                  className="inline-flex items-center text-[11px] font-heading tracking-[0.2em] uppercase text-primary hover:text-primary/80 transition-colors border-b border-primary/20 pb-1"
+                  className="inline-flex items-center text-[11px] font-heading tracking-[0.2em] uppercase text-amber-700 hover:text-amber-600 transition-colors border-b border-amber-200 hover:border-amber-400 pb-1 group/link"
                 >
                   {t('read_full')}
+                  <span className="ml-1 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300">→</span>
                 </Link>
               </div>
             </div>

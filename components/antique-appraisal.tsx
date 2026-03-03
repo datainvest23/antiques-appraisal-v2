@@ -30,7 +30,7 @@ export function AntiqueAppraisal({
   isAnalyzing = false,
   activeServiceType
 }: AntiqueAppraisalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedService, setSelectedService] = useState<ServiceType>(activeServiceType || "basic")
   const [images, setImages] = useState<File[]>([])
   const [imageUrls, setImageUrls] = useState<string[]>([])
@@ -483,7 +483,7 @@ export function AntiqueAppraisal({
                         <div className="flex flex-col md:items-end">
                           <span className="uppercase tracking-widest text-[9px] text-amber-500/60">{t('report_date_label')}</span>
                           <span className="text-sm font-semibold text-white/80 tabular-nums">
-                            {new Date().toLocaleDateString(t('date_locale'), { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date().toLocaleDateString(language, { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                         </div>
                         <Button

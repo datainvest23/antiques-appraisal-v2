@@ -157,77 +157,98 @@ function MobileNavigation({ user, userFullName, isAdmin, onClose }: NavigationPr
   const { t } = useLanguage()
 
   return (
-    <nav className="flex flex-col p-6 space-y-4">
+    <nav className="flex flex-col p-6 space-y-4 bg-background h-full">
       <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-2">
         <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Language</span>
         <LanguageSelector />
       </div>
       {user && (
-        <>
+        <div className="space-y-4">
           <Button
             asChild
             variant="default"
-            className="w-full justify-center bg-yellow-400 hover:bg-yellow-500 text-black font-medium shadow-md hover:shadow-lg py-6"
+            className="w-full justify-center bg-primary text-primary-foreground font-medium shadow-md hover:shadow-lg py-6 rounded-none"
             onClick={onClose}
           >
             <Link href="/appraise-v2">
               {t('nav_appraise')}
             </Link>
           </Button>
-          <Button asChild variant="outline" className="w-full justify-center">
+          <Button asChild variant="outline" className="w-full justify-center rounded-none py-6 border-primary/20">
             <Link href="/my-valuations" onClick={onClose}>
               {t('nav_my_valuations')}
             </Link>
           </Button>
-          <Link href="/buy-tokens" className="text-lg font-medium" onClick={onClose}>
+          <Link
+            href="/buy-tokens"
+            className="flex items-center justify-center p-3 text-sm font-heading tracking-widest uppercase border border-primary/10 hover:bg-primary/5 transition-colors"
+            onClick={onClose}
+          >
             {t('nav_buy_tokens')}
           </Link>
-        </>
+        </div>
       )}
-      <Link href="/resources" className="text-lg font-medium" onClick={onClose}>
-        {t('nav_resources')}
-      </Link>
-      <Link href="/#features" className="text-lg font-medium" onClick={onClose}>
-        {t('nav_features')}
-      </Link>
-      <Link href="/#how-it-works" className="text-lg font-medium" onClick={onClose}>
-        {t('nav_how_it_works')}
-      </Link>
+      <div className="grid grid-cols-1 gap-1 pt-2">
+        <Link
+          href="/resources"
+          className="px-4 py-3 text-sm font-heading tracking-widest uppercase hover:text-primary transition-colors border-l-2 border-transparent hover:border-primary"
+          onClick={onClose}
+        >
+          {t('nav_resources')}
+        </Link>
+        <Link
+          href="/#features"
+          className="px-4 py-3 text-sm font-heading tracking-widest uppercase hover:text-primary transition-colors border-l-2 border-transparent hover:border-primary"
+          onClick={onClose}
+        >
+          {t('nav_features')}
+        </Link>
+        <Link
+          href="/#how-it-works"
+          className="px-4 py-3 text-sm font-heading tracking-widest uppercase hover:text-primary transition-colors border-l-2 border-transparent hover:border-primary"
+          onClick={onClose}
+        >
+          {t('nav_how_it_works')}
+        </Link>
+      </div>
 
       {user && (
-        <div className="border-t pt-4 mt-4">
-          <div className="flex items-center mb-4">
-            <User className="h-5 w-5 mr-2" />
+        <div className="border-t border-primary/10 pt-6 mt-4">
+          <div className="flex items-center mb-6 px-4">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3 border border-primary/20">
+              <User className="h-5 w-5 text-primary" />
+            </div>
             <div>
-              <p className="font-medium">{userFullName || user.email || 'User'}</p>
-              {(!userFullName && user.email) && <p className="text-xs text-muted-foreground">{user.email}</p>}
-              {isAdmin && <p className="text-xs text-muted-foreground">Administrator</p>}
+              <p className="font-serif italic text-lg leading-none">{userFullName || user.email || 'User'}</p>
+              {isAdmin && <p className="text-[10px] uppercase tracking-tighter text-primary mt-1 font-bold">Administrator</p>}
             </div>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Button
               asChild
-              variant="outline"
-              className="w-full justify-start"
+              variant="ghost"
+              className="w-full justify-start rounded-none h-12 hover:bg-primary/5 px-4"
               onClick={onClose}
             >
-              <Link href="/profile">{t('nav_profile')}</Link>
+              <Link href="/profile" className="flex items-center font-heading tracking-widest uppercase text-xs">
+                <User className="mr-3 h-4 w-4" /> {t('nav_profile')}
+              </Link>
             </Button>
             <Button
               asChild
-              variant="outline"
-              className="w-full justify-start"
+              variant="ghost"
+              className="w-full justify-start rounded-none h-12 hover:bg-primary/5 px-4"
               onClick={onClose}
             >
-              <Link href="/referrals" className="flex items-center">
-                <Award className="mr-2 h-4 w-4" /> {t('nav_refer')}
+              <Link href="/referrals" className="flex items-center font-heading tracking-widest uppercase text-xs">
+                <Award className="mr-3 h-4 w-4" /> {t('nav_refer')}
               </Link>
             </Button>
           </div>
         </div>
       )}
       {!user && (
-        <Button asChild className="w-full" onClick={onClose}>
+        <Button asChild className="w-full py-6 rounded-none bg-primary text-primary-foreground font-heading tracking-widest uppercase text-sm mt-4" onClick={onClose}>
           <Link href="/login">{t('nav_login')}</Link>
         </Button>
       )}
@@ -298,13 +319,16 @@ function NavbarContent() {
           </Button>
 
           {isMenuOpen && (
-            <div className="fixed inset-0 top-16 z-50 bg-background border-t">
-              <MobileNavigation
-                user={user}
-                userFullName={userFullName}
-                isAdmin={isAdmin}
-                onClose={handleCloseMenu}
-              />
+            <div className="fixed inset-0 top-16 z-[100] bg-background">
+              <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
+              <div className="relative z-10 h-full overflow-y-auto border-t border-primary/10 shadow-2xl">
+                <MobileNavigation
+                  user={user}
+                  userFullName={userFullName}
+                  isAdmin={isAdmin}
+                  onClose={handleCloseMenu}
+                />
+              </div>
             </div>
           )}
         </div>

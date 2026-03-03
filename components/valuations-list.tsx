@@ -207,7 +207,8 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
         variant: "destructive"
       })
       setLoadingPhase('idle')
-      setShowDeepModal(false)
+      // Don't close the modal, let the user see the error state
+      setDeepReport({ error: error.message })
     }
   }
 
@@ -223,127 +224,178 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
         </div>`
       : ''
     const html = `<!DOCTYPE html><html><head><title>${deepReport.title || 'Valuation Report'}</title>
-    <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;color:#1a1a1a;line-height:1.8;}
-    h1{font-size:2em;margin-bottom:0.3em;}h2{font-size:0.8em;text-transform:uppercase;letter-spacing:0.3em;color:#92400e;margin-top:2em;border-bottom:1px solid #fcd34d;padding-bottom:0.3em;}
-    table{width:100%;border-collapse:collapse;margin:1em 0;}td,th{padding:8px;border:1px solid #e2e8f0;text-align:left;}
-    th{background:#f8fafc;font-size:0.75em;text-transform:uppercase;}
-    @media print{img{max-height:180px;}}</style></head>
-    <body><h1>${deepReport.title || 'Professional Valuation Report'}</h1>
-    <p><strong>Date:</strong> ${deepReport.valuation_date} &nbsp; <strong>Currency:</strong> ${deepReport.currency} &nbsp; <strong>Confidence:</strong> ${deepReport.confidence_level}</p>
-    <p><strong>Estimated Value:</strong> ${deepReport.currency} ${deepReport.estimated_value_low?.toLocaleString()} – ${deepReport.estimated_value_high?.toLocaleString()}</p>
-    ${imagesHtml}
-    ${Object.entries(deepReport.sections || {}).map(([key, sec]: [string, any]) =>
-      `<h2>${key.replace(/_/g, ' ')}</h2><div>${processMarkdownResponse(sec.content || '')}</div>`
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&display=swap');
+      body { font-family: 'Crimson Pro', Georgia, serif; max-width: 850px; margin: 0 auto; padding: 60px 40px; color: #1a1a1a; line-height: 1.8; background: #fff; }
+      .header { border-bottom: 2px solid #92400e; padding-bottom: 20px; margin-bottom: 40px; text-align: center; }
+      h1 { font-size: 2.8em; margin: 0; color: #1a1a1a; font-weight: 700; letter-spacing: -0.02em; }
+      .meta { display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-size: 0.9em; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; }
+      .value-banner { background: #fefce8; border: 1px solid #fde047; padding: 30px; margin: 40px 0; border-radius: 8px; display: flex; justify-content: space-around; align-items: center; }
+      .value-item { text-align: center; }
+      .value-label { font-[10px]; uppercase; tracking-widest; color: #92400e; font-weight: 700; margin-bottom: 5px; display: block; }
+      .value-price { font-size: 2em; font-weight: 700; color: #1a1a1a; }
+      .section-title { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.4em; color: #92400e; margin-top: 3em; border-bottom: 1px solid #fef08a; padding-bottom: 5px; font-weight: 700; }
+      h3 { font-size: 1.5em; margin-top: 1.5em; color: #1a1a1a; }
+      .content { margin-bottom: 2em; }
+      table { width: 100%; border-collapse: collapse; margin: 2em 0; background: #fff; }
+      th, td { padding: 12px; border: 1px solid #e2e8f0; text-align: left; }
+      th { background: #f8fafc; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; }
+      .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 0.75em; color: #94a3b8; display: flex; justify-content: space-between; }
+      @media print { 
+        body { padding: 0; }
+        .value-banner { break-inside: avoid; background: #fefce8 !important; -webkit-print-color-adjust: exact; }
+        .section-title { break-after: avoid; }
+        img { max-height: 250px; page-break-inside: avoid; }
+      }
+    </style></head>
+    <body>
+      <div class="header">
+        <h1>Professional Valuation Report</h1>
+        <div class="meta">
+          <span>Date: ${deepReport.valuation_date}</span>
+          <span>Currency: ${deepReport.currency}</span>
+          <span>Confidence: ${deepReport.confidence_level}</span>
+        </div>
+      </div>
+
+      <div class="value-banner">
+        <div class="value-item">
+          <span class="value-label">Estimated Value Range</span>
+          <span class="value-price">${deepReport.currency} ${deepReport.estimated_value_low?.toLocaleString()} – ${deepReport.estimated_value_high?.toLocaleString()}</span>
+        </div>
+      </div>
+
+      ${imagesHtml}
+
+      ${Object.entries(deepReport.sections || {}).map(([key, sec]: [string, any]) =>
+      `<div class="section-title">${key.replace(/_/g, ' ')}</div>
+         <div class="content">${processMarkdownResponse(sec.content || '')}</div>`
     ).join('')}
+
+      <div class="footer">
+        <span>Powered by Antique Valuation Intelligence Pipeline</span>
+        <span>© ${new Date().getFullYear()} Professional Appraisal Services</span>
+      </div>
     </body></html>`
     printWindow.document.write(html)
     printWindow.document.close()
-    printWindow.print()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+    }, 500)
   }
 
   const s = deepReport?.sections
 
   return (
     <>
-      <Link href={`/my-valuations/${valuation.id}`} className="block h-full group">
-        <Card className="h-full overflow-hidden border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-          {/* Card Image Header */}
-          <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 border-b border-slate-100">
-            {displayUrl ? (
-              <Image
-                src={displayUrl}
-                alt={valuation.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                unoptimized
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-slate-300 bg-slate-50">
-                <Camera className="h-10 w-10 opacity-30" />
-              </div>
-            )}
-
-            {/* Overlay Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
-              {valuation.is_detailed ? (
-                <Badge className="bg-amber-600/90 text-white border-none shadow-md backdrop-blur-sm">
-                  <Award className="h-3 w-3 mr-1" />
-                  {t('badge_detailed')}
-                </Badge>
+      <div className="block h-full group">
+        <Card className="h-full overflow-hidden border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group relative">
+          <Link href={`/my-valuations/${valuation.id}`} className="block flex-grow">
+            {/* Card Image Header */}
+            <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 border-b border-slate-100">
+              {displayUrl ? (
+                <Image
+                  src={displayUrl}
+                  alt={valuation.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  unoptimized
+                />
               ) : (
-                <Badge variant="secondary" className="bg-white/80 text-slate-800 border-none shadow-md backdrop-blur-sm">
-                  {t('badge_initial')}
-                </Badge>
+                <div className="absolute inset-0 flex items-center justify-center text-slate-300 bg-slate-50">
+                  <Camera className="h-10 w-10 opacity-30" />
+                </div>
               )}
-            </div>
 
-            {/* Deep Valuation Action */}
-            <div className="absolute bottom-3 right-3">
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={isDeepAnalyzing}
-                onClick={handleDeepValuation}
-                className="h-8 rounded-full bg-black/60 hover:bg-black/80 text-white border-none backdrop-blur-md text-[10px] uppercase font-bold tracking-wider px-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
-              >
-                {isDeepAnalyzing
-                  ? <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                  : hasSavedReport
-                    ? <FileCheck className="h-3 w-3 mr-1 text-emerald-400" />
-                    : <Sparkles className="h-3 w-3 mr-1 text-amber-400" />}
-                {hasSavedReport ? 'View Deep Report' : 'Deep Valuation'}
-              </Button>
-            </div>
-            {/* Persistent indicator when a deep report exists */}
-            {hasSavedReport && (
-              <div className="absolute top-3 right-3">
-                <Badge className="bg-emerald-600/90 text-white border-none shadow-md backdrop-blur-sm text-[9px] px-2">
-                  <FileCheck className="h-2.5 w-2.5 mr-1" />Deep Report
-                </Badge>
-              </div>
-            )}
-          </div>
-
-          <CardHeader className="p-5 pb-2">
-            <div className="flex flex-col gap-1">
-              <CardTitle className="text-xl font-serif font-bold text-slate-800 line-clamp-1 group-hover:text-amber-700 transition-colors">
-                {valuation.title}
-              </CardTitle>
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
-                <Clock className="h-3 w-3" />
-                {formatDistanceToNow(new Date(valuation.created_at), { addSuffix: true })}
-                {valuation.era && (
-                  <>
-                    <span className="h-1 w-1 rounded-full bg-slate-200" />
-                    <span className="text-amber-600/80">{valuation.era}</span>
-                  </>
+              {/* Status Badge Overlays */}
+              <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                {valuation.is_detailed ? (
+                  <Badge className="bg-slate-900/80 text-white border-none backdrop-blur-md text-[9px] uppercase tracking-wider h-5 px-2">
+                    <Award className="h-2.5 w-2.5 mr-1" />Premium Appraisal
+                  </Badge>
+                ) : (
+                  <Badge className="bg-slate-700/60 text-white border-none backdrop-blur-md text-[9px] uppercase tracking-wider h-5 px-2">
+                    Standard
+                  </Badge>
                 )}
               </div>
             </div>
-          </CardHeader>
 
-          <CardContent className="px-5 py-2 flex-grow">
-            {valuation.category && (
-              <div className="flex items-center gap-1.5 mb-3">
-                <Tag className="h-3 w-3 text-amber-500" />
-                <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
-                  {valuation.category}
-                </span>
+            <CardHeader className="p-5 pb-0">
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-xl font-serif font-bold text-slate-800 line-clamp-1 group-hover:text-amber-700 transition-colors">
+                  {valuation.title}
+                </CardTitle>
+
+                <div className="flex items-center flex-wrap gap-x-3 gap-y-1.5 mt-1">
+                  <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                    <Clock className="h-3 w-3 text-slate-300" />
+                    {formatDistanceToNow(new Date(valuation.created_at), { addSuffix: true })}
+                  </div>
+
+                  {valuation.era && (
+                    <Badge variant="outline" className="h-5 px-2 border-slate-200 text-slate-500 font-medium text-[9px] uppercase tracking-wider bg-slate-50/50">
+                      {valuation.era}
+                    </Badge>
+                  )}
+
+                  {valuation.category && (
+                    <Badge variant="outline" className="h-5 px-2 border-amber-100 text-amber-700 font-semibold text-[9px] uppercase tracking-wider bg-amber-50/30">
+                      <Tag className="h-2.5 w-2.5 mr-1 text-amber-400" />
+                      {valuation.category}
+                    </Badge>
+                  )}
+                </div>
               </div>
-            )}
-            <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
-              {valuation.summary}
-            </p>
-          </CardContent>
+            </CardHeader>
 
-          <CardFooter className="px-5 py-4 border-t border-slate-50 flex justify-between items-center bg-slate-50/30">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-amber-600 transition-colors">
-              {t('btn_view_details')}
-            </span>
-            <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-amber-500 transform group-hover:translate-x-1 transition-all" />
+            <CardContent className="px-5 py-4">
+              <p className="text-[13px] text-slate-500 line-clamp-2 leading-relaxed italic border-l-2 border-slate-100 pl-3 mb-4">
+                {valuation.summary}
+              </p>
+
+              {hasSavedReport && deepReport.estimated_value_low ? (
+                <div className="bg-emerald-50/50 border border-emerald-100/50 rounded-lg p-3 flex items-center justify-between group/price hover:bg-emerald-50 transition-colors">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-0.5">Est. Price Range</span>
+                    <span className="text-base font-serif font-bold text-slate-900 leading-none">
+                      {deepReport.currency} {deepReport.estimated_value_low?.toLocaleString()} – {deepReport.estimated_value_high?.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-white border border-emerald-100 flex items-center justify-center shadow-sm text-emerald-600">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                </div>
+              ) : null}
+            </CardContent>
+          </Link>
+
+          <CardFooter className="px-5 py-4 border-t border-slate-50 gap-3 bg-slate-50/20">
+            <Button
+              size="sm"
+              variant={hasSavedReport ? "outline" : "default"}
+              disabled={isDeepAnalyzing}
+              onClick={handleDeepValuation}
+              className={`flex-1 h-10 rounded-none text-[10px] uppercase font-black tracking-[0.2em] transition-all shadow-sm ${hasSavedReport
+                  ? "border-slate-200 text-slate-600 bg-white hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700"
+                  : "bg-amber-600 hover:bg-amber-700 text-white shadow-amber-200"
+                }`}
+            >
+              {isDeepAnalyzing
+                ? <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                : hasSavedReport
+                  ? <FileCheck className="h-3.5 w-3.5 mr-2 text-emerald-500" />
+                  : <Sparkles className="h-3.5 w-3.5 mr-2 text-amber-200" />}
+              {hasSavedReport ? 'Re-Review Deep Report' : 'Run Deep Valuation'}
+            </Button>
+
+            <Link href={`/my-valuations/${valuation.id}`} className="h-10 w-10 flex items-center justify-center border border-slate-100 bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer group/details" title={t('btn_view_details')}>
+              <ChevronRight className="h-5 w-5 transform group-hover/details:translate-x-0.5 transition-transform" />
+            </Link>
           </CardFooter>
         </Card>
-      </Link>
+      </div>
 
       <Dialog open={showDeepModal} onOpenChange={(open) => {
         if (!isDeepAnalyzing) setShowDeepModal(open)
@@ -384,6 +436,26 @@ function ValuationCard({ valuation }: { valuation: Valuation }) {
           </div>
 
           <div className="flex-1 overflow-auto bg-slate-50">
+            {/* ── ERROR STATE ── */}
+            {deepReport?.error && !isDeepAnalyzing && (
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-10 text-center">
+                <div className="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                  <X className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-serif font-bold text-slate-900 mb-2">Analysis Could Not Be Completed</h3>
+                <p className="text-slate-500 max-w-sm mb-8">
+                  {deepReport.error || "An unexpected error occurred during the deep valuation process."}
+                </p>
+                <Button
+                  onClick={(e) => handleDeepValuation(e as any)}
+                  className="bg-amber-600 hover:bg-amber-700 rounded-full px-8"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Try Again
+                </Button>
+              </div>
+            )}
+
             {/* ── LOADING STATE ── */}
             {isDeepAnalyzing && (
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-10">
