@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { ensureDevUserFolder } from '@/lib/storage-helpers'
 
 // Import sharp dynamically to handle cases where it might not be available
 let sharp: any;
@@ -26,9 +25,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
 
-    // Use createRouteHandlerClient with await on cookies()
-    const cookieStore = await cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    // Use createRouteHandlerClient — pass cookies() directly (sync callback)
+    const supabase = createRouteHandlerClient({ cookies })
 
     // Get authenticated user using getUser
     const { data, error: authError } = await supabase.auth.getUser()

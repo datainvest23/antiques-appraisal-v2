@@ -1,41 +1,28 @@
 "use client"
 
-import { Camera, MessageSquare, VolumeX, Coins, Clock, Award } from "lucide-react"
-import { useLanguage } from "@/contexts/language-context"
+import { Zap, BrainCircuit, LineChart, ShieldCheck } from "lucide-react"
 
 export default function FeaturesSection() {
-  const { t } = useLanguage();
-
   const features = [
     {
-      icon: Camera,
-      title: t('feat1_title'),
-      description: t('feat1_desc')
+      icon: Zap,
+      title: "Instant Results",
+      description: "Get comprehensive reports in seconds, not weeks."
     },
     {
-      icon: MessageSquare,
-      title: t('feat2_title'),
-      description: t('feat2_desc')
+      icon: BrainCircuit,
+      title: "Unbiased AI",
+      description: "Data-driven analysis without human error or conflict of interest."
     },
     {
-      icon: VolumeX,
-      title: t('feat3_title'),
-      description: t('feat3_desc')
+      icon: LineChart,
+      title: "Market Context",
+      description: "Real-time pricing data based on recent global auction results."
     },
     {
-      icon: Clock,
-      title: t('feat4_title'),
-      description: t('feat4_desc')
-    },
-    {
-      icon: Coins,
-      title: t('feat5_title'),
-      description: t('feat5_desc')
-    },
-    {
-      icon: Award,
-      title: t('feat6_title'),
-      description: t('feat6_desc')
+      icon: ShieldCheck,
+      title: "Secure & Private",
+      description: "Your items and data remain strictly confidential."
     }
   ];
 
@@ -53,20 +40,18 @@ export default function FeaturesSection() {
       <div className="container px-4 md:px-6 relative z-10">
         <div className="flex flex-col items-center justify-center space-y-6 text-center">
           <div className="space-y-6 max-w-4xl">
-            <div className="inline-block px-5 py-1.5 text-[9px] font-heading tracking-[0.4em] uppercase text-primary border border-primary/20 mb-2 bg-primary/5 backdrop-blur-sm">
-              {t('features_label')}
+            <div className="inline-block px-5 py-1.5 text-[9px] font-heading tracking-[0.4em] uppercase text-amber-800 border-b border-primary/20 mb-2 bg-amber-50 rounded-full font-bold">
+              WHY CHOOSE US
             </div>
-            <h2 className="text-4xl font-serif italic md:text-6xl lg:text-7xl tracking-tight leading-[1.1]">
-              {t('features_title').split(' ')[0]} <span className="not-italic text-primary font-medium relative">{t('features_title').split(' ')[1]}
-                <span className="absolute -bottom-2 translate-y-full left-0 w-full h-[1px] bg-primary/20"></span>
-              </span>
+            <h2 className="text-4xl font-serif md:text-5xl tracking-tight leading-[1.1]">
+              Beyond Basic Valuation
             </h2>
-            <p className="mx-auto max-w-[800px] text-muted-foreground md:text-xl mt-10 font-medium leading-relaxed italic font-serif opacity-80">
-              {t('features_desc')}
+            <p className="mx-auto max-w-[800px] text-muted-foreground md:text-xl mt-10 font-medium leading-relaxed font-serif opacity-80">
+              Why collectors and dealers trust our insights.
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 mt-32 mx-auto max-w-7xl px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20 mx-auto max-w-7xl px-4">
           {features.map((feature, index) => (
             <div
               key={index}

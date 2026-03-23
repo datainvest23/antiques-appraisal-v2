@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MainNav } from "@/components/main-nav";
 import { UserNav } from "@/components/user-nav";
+import { LanguageSelector } from "@/components/language-selector";
 
 export function AppHeader() {
   const { user, signOut } = useAuth();
@@ -13,28 +14,29 @@ export function AppHeader() {
       <div className="container flex h-16 items-center">
         <MainNav />
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
+          <nav className="flex items-center space-x-2 md:space-x-4">
+            <LanguageSelector />
             {user ? (
               <>
-                <Link
-                  href="/appraise-v2"
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "px-4"
-                  )}
-                >
-                  Appraise
-                </Link>
                 <Link
                   href="/valuations"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "px-4"
+                    "hidden md:inline-flex px-4 text-muted-foreground"
                   )}
                 >
                   My Valuations
                 </Link>
                 <UserNav user={user} signOut={signOut} />
+                <Link
+                  href="/appraise"
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    "bg-amber-600 hover:bg-amber-700 text-white font-medium shadow-md transition-all whitespace-nowrap"
+                  )}
+                >
+                  Appraise New <span className="ml-1 hidden sm:inline-block">→</span>
+                </Link>
               </>
             ) : (
               <>
@@ -42,19 +44,19 @@ export function AppHeader() {
                   href="/login"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "px-4"
+                    "px-4 text-foreground/80"
                   )}
                 >
                   Login
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/appraise"
                   className={cn(
-                    buttonVariants({ variant: "default", size: "sm" }),
-                    "px-4"
+                    buttonVariants({ size: "sm" }),
+                    "bg-amber-600 hover:bg-amber-700 text-white font-medium shadow-md transition-all whitespace-nowrap"
                   )}
                 >
-                  Sign Up
+                  Start Free Appraisal <span className="ml-1 hidden sm:inline-block">→</span>
                 </Link>
               </>
             )}

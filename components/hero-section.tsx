@@ -34,31 +34,35 @@ export default function HeroSection() {
           <div className="flex flex-col justify-center space-y-10 max-w-3xl relative">
             <div className="space-y-8">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-amber-50 border border-amber-200/60 shadow-sm backdrop-blur-md">
-                <span className="relative flex h-2 w-2 mr-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600"></span>
-                </span>
                 <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-amber-800">
-                  {t('hero_sub')}
+                  🔍 AI-POWERED ANTIQUE IDENTIFICATION & VALUATION
                 </span>
               </div>
 
-              <h1 className="text-5xl font-serif tracking-tight sm:text-7xl md:text-8xl lg:text-9xl mb-6 leading-[0.95] text-slate-900 drop-shadow-sm">
-                {t('hero_title').split('Value').map((part, i, arr) => (
-                  <span key={i}>
-                    {part}
-                    {i < arr.length - 1 && (
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-yellow-600 not-italic font-medium relative inline-block mx-2 drop-shadow-none">
-                        Value
-                      </span>
-                    )}
-                  </span>
-                ))}
+              <h1 className="text-5xl font-serif tracking-tight sm:text-7xl md:text-8xl lg:text-8xl mb-6 leading-[0.95] text-slate-900 drop-shadow-sm">
+                What Is Your Antique <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-yellow-600 not-italic font-medium relative inline-block drop-shadow-none">Actually Worth?</span>
               </h1>
 
-              <p className="max-w-[600px] text-lg md:text-xl text-slate-500 leading-relaxed font-serif italic selection:bg-amber-100 selection:text-amber-900 border-l-2 border-amber-200/50 pl-4 py-1">
-                {t('hero_desc')}
+              <p className="max-w-[600px] text-lg md:text-xl text-slate-600 leading-relaxed font-serif border-l-2 border-amber-200/50 pl-4 py-1">
+                Upload up to 3 photos and get a professional-grade AI appraisal in minutes — with historical context, condition assessment, and estimated market value. No expertise required.
               </p>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+                <Link href="/appraise">
+                  <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white rounded-md text-lg px-8 h-14 w-full sm:w-auto font-medium transition-all shadow-lg hover:shadow-xl group">
+                    Get Your Free Appraisal
+                    <span className="inline-block transition-transform group-hover:translate-x-1 ml-2">→</span>
+                  </Button>
+                </Link>
+                <Link href="/sample-report" className="text-slate-600 hover:text-amber-700 font-medium text-sm sm:text-base flex items-center transition-colors">
+                  See a sample report <span className="ml-1">→</span>
+                </Link>
+              </div>
+
+              <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                No credit card needed · 1 free valuation daily · Results in under 60 seconds
+              </div>
             </div>
           </div>
 

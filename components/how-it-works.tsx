@@ -9,31 +9,19 @@ export default function HowItWorks() {
 
   const steps = [
     {
-      title: t('step1_title'),
-      description: t('step1_desc'),
-      points: [
-        t('step1_point1'),
-        t('step1_point2'),
-        t('step1_point3')
-      ]
+      title: "Snap & Upload",
+      description: "Take clear photos of your item, including any marks or signatures. Our system accepts up to 3 high-res images to ensure accuracy.",
+      points: []
     },
     {
-      title: t('step2_title'),
-      description: t('step2_desc'),
-      points: [
-        t('step2_point1'),
-        t('step2_point2'),
-        t('step2_point3')
-      ]
+      title: "AI Analysis",
+      description: "Our proprietary models analyze millions of data points, referencing auction records, museum archives, and historical databases.",
+      points: []
     },
     {
-      title: t('step3_title'),
-      description: t('step3_desc'),
-      points: [
-        t('step3_point1'),
-        t('step3_point2'),
-        t('step3_point3')
-      ]
+      title: "Professional Report",
+      description: "Receive a detailed dossier covering origin, estimated age, condition notes, and current market value range in your local currency.",
+      points: []
     }
   ];
 
@@ -50,14 +38,13 @@ export default function HowItWorks() {
         <div className="flex flex-col items-center justify-center space-y-6 text-center mb-24">
           <div className="space-y-4 max-w-4xl">
             <div className="inline-block px-5 py-1.5 text-[9px] font-heading tracking-[0.4em] uppercase text-primary border-b border-primary/20 mb-4">
-              {t('process_label')}
+              THE PROCESS
             </div>
-            <h2 className="text-4xl font-serif italic md:text-6xl lg:text-7xl tracking-tight leading-[1.1]">
-              {/* Special handling for highlighted Valuable Results */}
-              {t('process_title').split(',')[0]}, <span className="not-italic text-primary font-medium">{t('process_title').split(',')[1]}</span>
+            <h2 className="text-4xl font-serif md:text-6xl lg:text-7xl tracking-tight leading-[1.1]">
+              How It <span className="text-primary font-medium">Works</span>
             </h2>
-            <p className="mx-auto max-w-[850px] text-muted-foreground md:text-xl mt-8 font-medium leading-relaxed italic font-serif">
-              {t('process_desc')}
+            <p className="mx-auto max-w-[850px] text-muted-foreground md:text-xl mt-8 font-medium leading-relaxed font-serif">
+              From snapshot to comprehensive valuation in three simple steps.
             </p>
           </div>
         </div>
@@ -102,26 +89,8 @@ export default function HowItWorks() {
         </div>
 
 
-        {/* Call to action - Large scale design */}
-        <div className="mt-36 bg-background rounded-none border border-primary/10 p-12 md:p-20 shadow-2xl max-w-6xl mx-auto shadow-primary/5 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')] opacity-[0.02] pointer-events-none"></div>
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-12 relative z-10 text-left">
-            <div className="space-y-6">
-              <h3 className="text-3xl md:text-5xl font-serif italic tracking-tight">{t('cta_ready')}</h3>
-              <p className="text-muted-foreground text-lg md:text-xl font-medium max-w-lg leading-relaxed italic font-serif">
-                {t('cta_desc')}
-              </p>
-            </div>
-            <Link href="/appraise-v2">
-              <Button size="lg" className="px-16 rounded-none text-[10px] h-20 shadow-2xl shadow-primary/10 border border-primary bg-primary text-primary-foreground hover:bg-transparent hover:text-primary transition-all font-heading tracking-[0.3em] uppercase overflow-hidden relative group active:scale-[0.98]">
-                <span className="relative z-10">{t('cta_start')}</span>
-                <div className="absolute inset-0 bg-background translate-y-full group-hover:translate-y-0 transition-transform duration-500 -z-0"></div>
-              </Button>
-            </Link>
-          </div>
+          {/* Removed large CTA box to align with landing page spec (moved to end) */}
         </div>
-      </div>
 
       {/* Bottom wave pattern overlap fix */}
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-muted/30 pointer-events-none" aria-hidden="true">

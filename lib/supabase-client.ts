@@ -1,6 +1,6 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/types/supabase'
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import type { AntiqueAnalysisResult } from '@/lib/openai'
 
 // Create a Supabase client for use in client components
@@ -48,7 +48,7 @@ export type { Database }
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey)
 
 /**
  * Save a valuation to Supabase
